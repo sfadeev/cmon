@@ -1,0 +1,77 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+<link href="~/css/metricsgraphics.css" rel="stylesheet" type="text/css">
+
+Data for
+<a href="/?h=1">1</a>,
+<a href="/?h=2">2</a>,
+<a href="/?h=4">4</a>,
+<a href="/?h=8">8</a>,
+<a href="/?h=12">12</a>,
+<a href="/?h=24">24</a>,
+<a href="/?h=48">48</a>,
+<a href="/?h=96">96</a> hours
+
+<div id="chart"></div>
+
+@section scripts
+{
+	<script src="~/js/d3.js" type="text/javascript"></script>
+	<script src="~/js/metricsgraphics.js" type="text/javascript"></script>
+
+	<script type="text/javascript">
+		function getParameterByName(name, url) {
+			if (!url) {
+				url = window.location.href;
+			}
+			name = name.replace(/[\[\]]/g, "\\$&");
+			var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+				results = regex.exec(url);
+			if (!results) return null;
+			if (!results[2]) return '';
+			return decodeURIComponent(results[2].replace(/\+/g, " "));
+		}
+
+		var updateChart = function () {
+			var h = getParameterByName('h') || '1';
+			d3.json('/api/values?h=' + h + '&t=' + new Date().getTime(),
+				function(data) {
+					for (var i = 0; i < data.length; i++) {
+						data[i] = MG.convert.date(data[i], 'date', '%m/%d/%Y %H:%M:%S'); // 
+					}
+
+					MG.data_graphic({
+						data: data,
+						// chart_type: 'bar',
+						full_width: true,
+						// full_height: true,
+						height: 500,
+						right: 60,
+						x_extended_ticks: true,
+						xax_count: 12,
+						y_extended_ticks: true,
+						yax_count: 12,
+						yax_units: ' °C',
+						yax_units_append: true,
+						legend: ['TEMP_IN', 'TEMP_HEAT', 'TEMP'],
+						// missing_is_hidden: true,
+						// missing_is_hidden_accessor: 'value',
+						// missing_is_zero: true,
+						target: '#chart',
+						x_accessor: 'date',
+						y_accessor: 'value',
+						// interpolate: d3.curveStep
+						// show_year_markers: true
+					});
+				});
+		}
+
+		updateChart();
+
+
+		// setInterval(updateChart, 1000);
+
+	</script>
+
+}
