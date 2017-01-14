@@ -5,6 +5,7 @@ using System.Linq;
 using CMon.Entities;
 using CMon.Services;
 using CMon.Web.Models;
+using LinqToDB.Data;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -40,6 +41,8 @@ namespace CMon.Web.Controllers
 		{
 			using (var db = new DbConnection(_connectionStrings.DefaultConnection))
 			{
+				// db.Execute()
+
 				var query = from v in db.GetTable<DbInputValue>()
 							where v.DeviceId == deviceId && v.InputNum == inputNum
 								&& v.CreatedAt > DateTime.UtcNow.AddHours(-hours)

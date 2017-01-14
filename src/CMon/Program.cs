@@ -36,7 +36,7 @@ namespace CMon
 			int defaultTimeout = 15000,
 				errorTimeout = 60000;
 
-			var timeout = defaultTimeout;
+			var timeout = 0;
 
 			while (true)
 			{
@@ -125,11 +125,22 @@ namespace CMon
 
 			// await Get("https://ccu.sh/data.cgx?cmd={\"Command\":\"GetDeviceInfo\"}");
 
-			var json = await Get(device, "https://ccu.sh/data.cgx?cmd={\"Command\":\"GetStateAndEvents\"}", "GetStateAndEvents");
+			var url = "https://ccu.sh/data.cgx?cmd={\"Command\":\"GetStateAndEvents\"}";
+
+			var json = await Get(device, url);
 
 			if (json != null)
 			{
 				var jo = JObject.Parse(json);
+
+				// if (jo.SelectToken("Events")?.HasValues == true)
+				if (json.Length >= 600)
+				{
+					Console.WriteLine(url + "\n" + json);
+					Console.WriteLine();
+
+					File.WriteAllText("c:\\temp\\ccu\\" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "-GetStateAndEvents.json", json);
+				}
 
 				var t = GetBoardTemperature(jo);
 				SaveToDb(device.Id, BoardTemp, t);
@@ -142,7 +153,7 @@ namespace CMon
 			}
 		}
 
-		private static async Task<string> Get(DbDevice device, string url, string command)
+		private static async Task<string> Get(DbDevice device, string url)
 		{
 			using (var client = new HttpClient())
 			{
@@ -156,14 +167,7 @@ namespace CMon
 					var response = await client.GetAsync(url);
 					response.EnsureSuccessStatusCode();
 
-					var stringResponse = await response.Content.ReadAsStringAsync();
-
-					File.WriteAllText("c:\\temp\\ccu\\" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "-" + command + ".json", stringResponse);
-
-					Console.WriteLine(url + "\n" + stringResponse);
-					Console.WriteLine();
-
-					return stringResponse;
+					return await response.Content.ReadAsStringAsync();
 				}
 				catch (HttpRequestException ex)
 				{
