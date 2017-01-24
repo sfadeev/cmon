@@ -14,8 +14,8 @@
 
 	.line {
 		fill: none;
-		/*stroke-: steelblue;*/
-		stroke-width: 1.0px;
+		/*stroke: steelblue;*/
+		stroke-width: 1.2px;
 	}
 </style>
 
@@ -29,7 +29,7 @@ Data for
 <a href="/?h=48">48</a>,
 <a href="/?h=96">96</a> hours
 
-<svg width="1111" height="250"></svg>
+<svg width="1060" height="300"></svg>
 <div id="chart"></div>
 
 @section scripts
@@ -51,6 +51,10 @@ Data for
 			return '/api/values?h=' + (getParameterByName('h') || '1') + '&t=' + new Date().getTime();
 		}
 
+		function getChartDataUrl2() {
+			return '/api/values/GetValues?h=' + (getParameterByName('h') || '1') + '&t=' + new Date().getTime();
+		}
+
 
 	</script>
 	
@@ -64,77 +68,88 @@ Data for
 			height = svg.attr("height") - margin.top - margin.bottom,
 			g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-		var parseTime = d3.timeParse("%Y%m%d");
+		var parseTime = d3.timeParse("%Y-%m-%dT%H:%M:%S");
 
 		var x = d3.scaleTime().range([0, width]),
 			y = d3.scaleLinear().range([height, 0]),
 			z = d3.scaleOrdinal(d3.schemeCategory10);
 
 		var line = d3.line()
-			//.curve(d3.curveStepAfter)
-			.x(function(d) { return x(d.date); })
-			.y(function(d) { return y(d.value); });
+			// .defined(function (d) { return d.avg; }) // https://github.com/d3/d3-shape/blob/master/README.md#line_defined
+			// .curve(d3.curveLinear)
+			// .curve(d3.curveMonotoneX)
+			// .curve(d3.curveBasis)
+			// .curve(d3.curveStep)
+			// .curve(d3.curveStepAfter)
+			.x(function(d) { return x(d.period); })
+			.y(function(d) { return y(d.avg); });
 
-		d3.json(getChartDataUrl(), function(error, data) {
-			if (error) throw error;
+		var updateChart2 = function() {
+			d3.json(getChartDataUrl2(), function(error, data) {
+				if (error) throw error;
 
-			for (var i = 0; i < data.length; i++) {
-				data[i] = MG.convert.date(data[i], 'date', '%m/%d/%Y %H:%M:%S'); //
-				/*for (var j = 0; j < data[i].length; j++) {
-					data[i][j].value = +data[i][j].value;
-				}*/
-			}
+				for (var i = 0; i < data.inputs.length; i++) {
+					for (var j = 0; j < data.inputs[i].values.length; j++) {
+						var value = data.inputs[i].values[j];
+						value.period = parseTime(value.period);
+					}
+				}
 
-			x.domain(d3.extent(data[1], function (d) { return d.date; }));
+				x.domain(d3.extent(data.inputs[0].values, function (d) { return d.period; }));
 
-			y.domain([
-				d3.min(data[1], function(d) { return d.value; }) * 0.9,
-				d3.max(data[1], function(d) { return d.value; }) * 1.1
-			]);
+				y.domain([
+					d3.min(data.inputs[0].values, function (d) { return d.min; }) * 0.5,
+					d3.max(data.inputs[1].values, function (d) { return d.max; }) * 1.1
+				]);
 
-			var inputs = ['TEMP_IN', 'TEMP_HEAT', 'TEMP'];
+				var inputs = data.inputs; // ['TEMP_IN', 'TEMP_HEAT', 'TEMP'];
 
-			z.domain(inputs.map(function (c) { return c; }));
+				z.domain(inputs.map(function(c) { return c.inputNo; }));
 			
-			g.append("g")
-				.attr("class", "axis axis--x")
-				.attr("transform", "translate(0," + height + ")")
-				.style("font", "9px sans-serif")
-				.call(d3.axisBottom(x));
+				g.append("g")
+					.attr("class", "axis axis--x")
+					.attr("transform", "translate(0," + height + ")")
+					.style("font", "9px 'Helvetica Neue', Helvetica, Arial, sans-serif")
+					.call(d3.axisBottom(x));
 
-			g.append("g")
-				.attr("class", "axis axis--y")
-				.style("font", "9px sans-serif")
-				.call(d3.axisLeft(y))
-				.append("text")
-				.attr("transform", "rotate(-90)")
-				.attr("y", 7)
-				.attr("dy", "0.71em")
-				.attr("fill", "#555")
-				.text("Temperature, ºC");
+				g.append("g")
+					.attr("class", "axis axis--y")
+					.style("font", "9px sans-serif")
+					.call(d3.axisLeft(y))
+					.append("text")
+					.attr("transform", "rotate(-90)")
+					.attr("y", 7)
+					.attr("dy", "0.71em")
+					.attr("fill", "#999")
+					.text("Temperature, ºC");
 
-			var gs = g.selectAll(".input")
-				.data(inputs)
-				.enter().append("g")
-				.attr("class", "input");
+				var gs = g.selectAll(".input")
+					.data(inputs)
+					.enter().append("g")
+					.attr("class", "input");
 
-			gs.append("path")
-				.attr("class", "line")
-				.attr("d", function(d) {
-					return line(data[1] /*d.values*/);
-				})
-				.style("stroke", function(d) {
-					return z(d/*.id*/);
-				});
+				gs.append("path")
+					.attr("class", "line")
+					.attr("d", function(d) { return line(d.values); })
+					.style("stroke", function(d) { return z(d.inputNo); });
 
-			0 && gs.append("text")
-				// .datum(function (d) { return { id: d.id, value: d.values[d.values.length - 1] }; })
-				// .attr("transform", function (d) { return "translate(" + x(d.value.date) + "," + y(d.value.temperature) + ")"; })
-				.attr("x", 3)
-				.attr("dy", "0.35em")
-				.style("font", "10px sans-serif")
-				.text(function (d) { return d/*.id*/; });
-		});
+				gs.append("text")
+					.datum(function(d) {
+						return { inputNo: d.inputNo, value: d.values[d.values.length - 1] };
+					})
+					.attr("transform", function(d) {
+						return "translate(" + x(d.value.period) + "," + y(d.value.avg) + ")";
+					})
+					.attr("x", 3)
+					.attr("dy", "0.35em")
+					.style("font", "10px sans-serif")
+					.text(function (d) { return d.inputNo; });
+			});
+		}
+
+		updateChart2();
+
+		// setInterval(updateChart2, 100);
 
 		0 && d3.tsv("data.tsv", type,
 			function(error, data) {

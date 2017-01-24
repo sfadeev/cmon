@@ -42,13 +42,13 @@ namespace CMon
 			{
 				try
 				{
-					Console.WriteLine($"Sleeping {timeout} ms");
+					// Console.WriteLine($"Sleeping {timeout} ms");
 
 					Thread.Sleep(timeout);
 
 					SendRequest().Wait();
 
-					Console.WriteLine();
+					// Console.WriteLine();
 
 					timeout = defaultTimeout;
 				}
@@ -71,7 +71,7 @@ namespace CMon
 
 		public static void SaveToDb(long deviceId, short input, decimal value)
 		{
-			Console.WriteLine($"[{input}] : {value:N2}");
+			// Console.WriteLine($"[{input}] : {value:N2}");
 
 			using (var db = new DbConnection(Configuration.GetConnectionString("DefaultConnection")))
 			{
@@ -150,6 +150,8 @@ namespace CMon
 
 				var t1 = GetInputTemperature(jo, 1);
 				SaveToDb(device.Id, 1, t1);
+
+				Console.WriteLine($"{DateTime.Now}   [{BoardTemp}] : {t:N2}   [0] : {t0:N2}   [1] : {t1:N2}");
 			}
 		}
 
