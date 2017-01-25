@@ -151,7 +151,7 @@ namespace CMon
 				var t1 = GetInputTemperature(jo, 1);
 				SaveToDb(device.Id, 1, t1);
 
-				Console.WriteLine($"{DateTime.Now}   [{BoardTemp}] : {t:N2}   [0] : {t0:N2}   [1] : {t1:N2}");
+				Console.WriteLine($"{DateTime.Now}   [{BoardTemp}] : {t:N4}   [0] : {t0:N4}   [1] : {t1:N4}");
 			}
 		}
 
