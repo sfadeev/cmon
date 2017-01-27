@@ -3,6 +3,23 @@
 }
 <link href="~/css/metricsgraphics.css" rel="stylesheet" type="text/css">
 
+<style>
+	.axis--x path {
+		stroke-width: 0.2px;
+	}
+
+	.axis--y path {
+		stroke-width: 0.2px;
+	}
+
+	.line {
+		left: 0;
+		fill: none;
+		/*stroke: steelblue;*/
+		stroke-width: 1.2px;
+	}
+</style>
+
 Data for
 <a href="/?h=1">1</a>,
 <a href="/?h=2">2</a>,
@@ -13,13 +30,11 @@ Data for
 <a href="/?h=48">48</a>,
 <a href="/?h=96">96</a> hours
 
+<svg width="1100" height="300"></svg>
 <div id="chart"></div>
 
 @section scripts
 {
-	<script src="~/js/d3.js" type="text/javascript"></script>
-	<script src="~/js/metricsgraphics.js" type="text/javascript"></script>
-
 	<script type="text/javascript">
 		function getParameterByName(name, url) {
 			if (!url) {
@@ -33,12 +48,174 @@ Data for
 			return decodeURIComponent(results[2].replace(/\+/g, " "));
 		}
 
-		var updateChart = function () {
-			var h = getParameterByName('h') || '1';
-			d3.json('/api/values?h=' + h + '&t=' + new Date().getTime(),
+		function getChartDataUrl() {
+			return '/api/values?h=' + (getParameterByName('h') || '1') + '&t=' + new Date().getTime();
+		}
+
+		function getChartDataUrl2() {
+			return '/api/values/GetValues?h=' + (getParameterByName('h') || '1') + '&t=' + new Date().getTime();
+		}
+
+
+	</script>
+
+	<script src="//d3js.org/d3.v4.min.js"></script>
+	<script src="~/js/metricsgraphics.js" type="text/javascript"></script>
+
+	<script>
+
+		(function () {
+			var svg = d3.select("svg"),
+				margin = { top: 20, right: 50, bottom: 20, left: 20 },
+				width = svg.attr("width") - margin.left - margin.right,
+				height = svg.attr("height") - margin.top - margin.bottom,
+				g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+			// var parseTime = d3.timeParse("%Y-%m-%dT%H:%M:%S");
+
+			var x = d3.scaleTime().range([0, width]),
+				y = d3.scaleLinear().range([height, 0]),
+				z = d3.scaleOrdinal(d3.schemeCategory10);
+
+			/* var line = d3.line()
+				// .defined(function (d) { return d.avg; }) // https://github.com/d3/d3-shape/blob/master/README.md#line_defined
+				// .curve(d3.curveLinear)
+				// .curve(d3.curveMonotoneX)
+				// .curve(d3.curveBasis)
+				// .curve(d3.curveStep)
+				// .curve(d3.curveStepAfter)
+				.x(function(d) { return x(d.period); })
+				.y(function(d) { return y(d.avg); }); */
+
+			var onDataLoaded = function (error, data, update) {
+
+				if (error) throw error;
+
+				data.beginDate = d3.isoParse(data.beginDate);
+				data.endDate = d3.isoParse(data.endDate);
+
+				for (var i = 0; i < data.inputs.length; i++) {
+					console.log(data.inputs[i].inputNo, ":", data.inputs[i].values.length);
+					for (var j = 0; j < data.inputs[i].values.length; j++) {
+						var value = data.inputs[i].values[j];
+						value.period = d3.isoParse(value.period);
+					}
+				}
+
+				var x_domain = d3.extent(data.inputs[0].values, function (d) { return d.period; });
+
+				var y_domain = [
+					// d3.min([ data.beginDate ]) * 0.5,
+					// d3.max([ data.endDate ]) * 1.1
+					d3.min(data.inputs[0].values, function (d) { return d.min; }) * 0.5,
+					d3.max(data.inputs[1].values, function (d) { return d.max; }) * 1.1
+				];
+
+				var z_domain = data.inputs.map(function (c) { return c.inputNo; });
+
+				// var inputs = data.inputs; // ['TEMP_IN', 'TEMP_HEAT', 'TEMP'];
+
+				x = x.domain(x_domain);
+				y = y.domain(y_domain);
+				z = z.domain(z_domain);
+
+				var line = d3.line()
+					.x(function (d) { return x(d.period); })
+					.y(function (d) { return y(d.avg); });
+
+				//console.log("x.domain:", x_domain);
+				//console.log("y.domain:", y_domain);
+				//console.log("z.domain:", z_domain);
+
+				if (update) {
+					g = svg.select("g"); // .transition();
+
+					var gs = g.selectAll(".input")
+						.data(data.inputs)
+						.enter().append("g")
+						.attr("class", "input");
+
+					// Make the changes
+					g.selectAll(".line")   // change the line
+						// .duration(750)
+						.attr("d", function (d) { return line(d.values); })
+						.style("stroke", function (d) { return z(d.inputNo); });
+
+					g.select(".axis--x") // change the x axis
+						// .duration(750)
+						.attr("transform", "translate(0," + height + ")")
+						.call(d3.axisBottom(x).ticks(24));
+
+					g.select(".axis--y") // change the y axis
+						// .duration(750)
+						.call(d3.axisLeft(y).ticks(12));
+
+				} else {
+
+					g.append("g")
+						.attr("class", "axis axis--x")
+						.attr("transform", "translate(0," + height + ")")
+						.style("font", "10px monospace")
+						.call(d3.axisBottom(x).ticks(24));
+
+					g.append("g")
+						.attr("class", "axis axis--y")
+						.style("font", "10px monospace")
+						.call(d3.axisLeft(y).ticks(12))
+						.append("text")
+						.attr("transform", "rotate(-90)")
+						.attr("y", 7)
+						.attr("dy", "0.71em")
+						.attr("fill", "#999")
+						.text("Temperature, ºC");
+
+					var gs = g.selectAll(".input")
+						.data(data.inputs)
+						.enter().append("g")
+						.attr("class", "input");
+
+					gs.append("path")
+						.attr("class", "line")
+						.attr("d", function (d) { return line(d.values); })
+						.style("stroke", function (d) { return z(d.inputNo); });
+
+					gs.append("text")
+						.datum(function (d) {
+							return { id: d.inputNo, value: d.values[d.values.length - 1] };
+						})
+						.attr("transform",
+							function (d) {
+								return "translate(" + x(d.value.period) + "," + y(d.value.avg) + ")";
+							})
+						.attr("x", -10)
+						.attr("dy", "-1.35em")
+						.style("font", "10px monospace")
+						.text(function (d) { return d.id + " - " + d.value.avg; });
+				}
+			};
+
+			d3.json(getChartDataUrl2(),
+				function(error, data) {
+					onDataLoaded(error, data, false);
+				}
+			);
+
+			/*var interval = setInterval(
+				function() {
+					d3.json(getChartDataUrl2(), function (error, data) {
+						onDataLoaded(error, data, true);
+					});
+				}, 3000);*/
+		})();
+	</script>
+
+	<script type="text/javascript">
+		var updateChart = function() {
+			var url = getChartDataUrl();
+			d3.json(url,
 				function(data) {
 					for (var i = 0; i < data.length; i++) {
-						data[i] = MG.convert.date(data[i], 'date', '%m/%d/%Y %H:%M:%S'); // 
+						data[i] = MG.convert.date(data[i], 'date', '%m/%d/%Y %H:%M:%S'); //
 					}
 
 					MG.data_graphic({
@@ -46,7 +223,7 @@ Data for
 						// chart_type: 'bar',
 						full_width: true,
 						// full_height: true,
-						height: 500,
+						height: 400,
 						right: 60,
 						x_extended_ticks: true,
 						xax_count: 12,
@@ -68,7 +245,6 @@ Data for
 		}
 
 		updateChart();
-
 
 		// setInterval(updateChart, 1000);
 

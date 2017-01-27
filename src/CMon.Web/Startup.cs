@@ -1,5 +1,4 @@
-﻿using CMon.Entities;
-using CMon.Services;
+﻿using CMon.Services;
 using CMon.Web.Data;
 using CMon.Web.Models;
 using CMon.Web.Services;
@@ -53,6 +52,8 @@ namespace CMon.Web
 			// Add application services.
 			services.AddTransient<IEmailSender, AuthMessageSender>();
 			services.AddTransient<ISmsSender, AuthMessageSender>();
+
+			services.AddTransient<IInputValueProvider, DefaultInputValueProvider>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

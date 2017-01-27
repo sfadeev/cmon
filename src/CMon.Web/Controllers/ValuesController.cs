@@ -3,8 +3,8 @@ using System.Collections;
 using System.Globalization;
 using System.Linq;
 using CMon.Entities;
+using CMon.Models;
 using CMon.Services;
-using CMon.Web.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
@@ -15,11 +15,25 @@ namespace CMon.Web.Controllers
 	[Route("api/[controller]")]
 	public class ValuesController : Controller
 	{
+		private readonly IInputValueProvider _valueProvider;
 		private readonly ConnectionStringOptions _connectionStrings;
 
-		public ValuesController(IOptions<ConnectionStringOptions> connectionStringOptions)
+		public ValuesController(IInputValueProvider valueProvider,IOptions<ConnectionStringOptions> connectionStringOptions)
 		{
+			_valueProvider = valueProvider;
 			_connectionStrings = connectionStringOptions.Value;
+		}
+
+		// GET: api/values
+		[HttpGet("GetValues")]
+		public DeviceStatistic GetValues(int h)
+		{
+			long deviceId = 0;
+
+			var endDate = DateTime.UtcNow;
+			var beginDate = endDate.AddHours(-h);
+
+			return _valueProvider.GetValues(deviceId, beginDate, endDate, 1);
 		}
 
 		// GET: api/values
@@ -28,21 +42,25 @@ namespace CMon.Web.Controllers
 		{
 			long deviceId = 0;
 
+			var beginDate = DateTime.UtcNow.AddHours(-h);
+
 			return new[]
 			{
-				GetValues(h, deviceId, 0),
-				GetValues(h, deviceId, 1),
-				GetValues(h, deviceId, CMon.Program.BoardTemp)
+				GetValues(deviceId, 0, beginDate),
+				GetValues(deviceId, 1, beginDate),
+				GetValues(deviceId, CMon.Program.BoardTemp, beginDate)
 			};
 		}
 
-		private InputValue[] GetValues(int hours, long deviceId, short inputNum)
+		private InputValue[] GetValues(long deviceId, short inputNum, DateTime beginDate)
 		{
 			using (var db = new DbConnection(_connectionStrings.DefaultConnection))
 			{
+				// db.Execute()
+
 				var query = from v in db.GetTable<DbInputValue>()
 							where v.DeviceId == deviceId && v.InputNum == inputNum
-								&& v.CreatedAt > DateTime.UtcNow.AddHours(-hours)
+								&& v.CreatedAt > beginDate
 							orderby v.CreatedAt descending
 							select v;
 

@@ -36,19 +36,19 @@ namespace CMon
 			int defaultTimeout = 15000,
 				errorTimeout = 60000;
 
-			var timeout = defaultTimeout;
+			var timeout = 0;
 
 			while (true)
 			{
 				try
 				{
-					Console.WriteLine($"Sleeping {timeout} ms");
+					// Console.WriteLine($"Sleeping {timeout} ms");
 
 					Thread.Sleep(timeout);
 
 					SendRequest().Wait();
 
-					Console.WriteLine();
+					// Console.WriteLine();
 
 					timeout = defaultTimeout;
 				}
@@ -71,7 +71,7 @@ namespace CMon
 
 		public static void SaveToDb(long deviceId, short input, decimal value)
 		{
-			Console.WriteLine($"[{input}] : {value:N2}");
+			// Console.WriteLine($"[{input}] : {value:N2}");
 
 			using (var db = new DbConnection(Configuration.GetConnectionString("DefaultConnection")))
 			{
@@ -125,11 +125,22 @@ namespace CMon
 
 			// await Get("https://ccu.sh/data.cgx?cmd={\"Command\":\"GetDeviceInfo\"}");
 
-			var json = await Get(device, "https://ccu.sh/data.cgx?cmd={\"Command\":\"GetStateAndEvents\"}", "GetStateAndEvents");
+			var url = "https://ccu.sh/data.cgx?cmd={\"Command\":\"GetStateAndEvents\"}";
+
+			var json = await Get(device, url);
 
 			if (json != null)
 			{
 				var jo = JObject.Parse(json);
+
+				// if (jo.SelectToken("Events")?.HasValues == true)
+				if (json.Length >= 600)
+				{
+					Console.WriteLine(url + "\n" + json);
+					Console.WriteLine();
+
+					File.WriteAllText("c:\\temp\\ccu\\" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "-GetStateAndEvents.json", json);
+				}
 
 				var t = GetBoardTemperature(jo);
 				SaveToDb(device.Id, BoardTemp, t);
@@ -139,10 +150,12 @@ namespace CMon
 
 				var t1 = GetInputTemperature(jo, 1);
 				SaveToDb(device.Id, 1, t1);
+
+				Console.WriteLine($"{DateTime.Now}   [{BoardTemp}] : {t:N4}   [0] : {t0:N4}   [1] : {t1:N4}");
 			}
 		}
 
-		private static async Task<string> Get(DbDevice device, string url, string command)
+		private static async Task<string> Get(DbDevice device, string url)
 		{
 			using (var client = new HttpClient())
 			{
@@ -156,14 +169,7 @@ namespace CMon
 					var response = await client.GetAsync(url);
 					response.EnsureSuccessStatusCode();
 
-					var stringResponse = await response.Content.ReadAsStringAsync();
-
-					File.WriteAllText("c:\\temp\\ccu\\" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "-" + command + ".json", stringResponse);
-
-					Console.WriteLine(url + "\n" + stringResponse);
-					Console.WriteLine();
-
-					return stringResponse;
+					return await response.Content.ReadAsStringAsync();
 				}
 				catch (HttpRequestException ex)
 				{
