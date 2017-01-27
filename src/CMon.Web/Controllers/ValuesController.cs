@@ -26,10 +26,8 @@ namespace CMon.Web.Controllers
 
 		// GET: api/values
 		[HttpGet("GetValues")]
-		public DeviceStatistic GetValues(int h)
+		public DeviceStatistic GetValues(long deviceId, int h)
 		{
-			long deviceId = 0;
-
 			var endDate = DateTime.UtcNow;
 			var beginDate = endDate.AddHours(-h);
 
@@ -38,16 +36,14 @@ namespace CMon.Web.Controllers
 
 		// GET: api/values
 		[HttpGet]
-		public IEnumerable Get(int h)
+		public IEnumerable Get(long deviceId, int h)
 		{
-			long deviceId = 0;
-
 			var beginDate = DateTime.UtcNow.AddHours(-h);
 
 			return new[]
 			{
-				GetValues(deviceId, 0, beginDate),
 				GetValues(deviceId, 1, beginDate),
+				GetValues(deviceId, 2, beginDate),
 				GetValues(deviceId, CMon.Program.BoardTemp, beginDate)
 			};
 		}

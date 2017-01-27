@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CMon.Entities;
+using CMon.Services;
 using LinqToDB;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
@@ -14,6 +15,8 @@ namespace CMon
 {
 	public class Program
 	{
+		public static long[] Devices = { 1 };
+
 		public const short BoardTemp = 0xFF;
 
 		public static IConfigurationRoot Configuration { get; set; }
@@ -40,39 +43,32 @@ namespace CMon
 
 			while (true)
 			{
-				try
+				foreach (var deviceId in Devices)
 				{
-					// Console.WriteLine($"Sleeping {timeout} ms");
+					try
+					{
+						// Console.WriteLine($"Sleeping {timeout} ms");
 
-					Thread.Sleep(timeout);
+						Thread.Sleep(timeout);
 
-					SendRequest().Wait();
+						SendRequest(deviceId).Wait();
 
-					// Console.WriteLine();
+						// Console.WriteLine();
 
-					timeout = defaultTimeout;
+						timeout = defaultTimeout;
+					}
+					catch (Exception e)
+					{
+						Console.WriteLine("Main exception.\n" + e);
+
+						timeout = errorTimeout;
+					}
 				}
-				catch (Exception e)
-				{
-					Console.WriteLine("Main exception.\n" + e);
-
-					timeout = errorTimeout;
-				}
-			}
-		}
-
-		public static DbDevice GetDevice(long deviceId)
-		{
-			using (var db = new DbConnection(Configuration.GetConnectionString("DefaultConnection")))
-			{
-				return db.GetTable<DbDevice>().SingleOrDefault(x => x.Id == deviceId);
 			}
 		}
 
 		public static void SaveToDb(long deviceId, short input, decimal value)
 		{
-			// Console.WriteLine($"[{input}] : {value:N2}");
-
 			using (var db = new DbConnection(Configuration.GetConnectionString("DefaultConnection")))
 			{
 				db.Insert(new DbInputValue
@@ -85,9 +81,13 @@ namespace CMon
 			}
 		}
 
-		public static async Task SendRequest()
+		public static async Task SendRequest(long deviceId)
 		{
-			var device = GetDevice(0);
+			var repository = new DefaultDeviceRepository(Configuration.GetConnectionString("DefaultConnection"));
+
+			var device = repository.GetDevice(deviceId);
+
+			var inputs = repository.GetInputs(deviceId);
 
 			// await Get("https://ccu.sh/data.cgx?cmd={\"DataType\":\"ControlPoll\"}");
 			/*
@@ -145,13 +145,25 @@ namespace CMon
 				var t = GetBoardTemperature(jo);
 				SaveToDb(device.Id, BoardTemp, t);
 
-				var t0 = GetInputTemperature(jo, 0);
+				var message = $"[{device.Id}] - {DateTime.Now:s}  |  [{BoardTemp}] : {t:N4}";
+
+				foreach (var input in inputs)
+				{
+					t = GetInputTemperature(jo, input.InputNo - 1);
+					SaveToDb(device.Id, input.InputNo, t);
+
+					message += $"  |  [{input.InputNo}] : {t:N4}";
+				}
+
+				Console.WriteLine(message);
+
+				/*var t0 = GetInputTemperature(jo, 0);
 				SaveToDb(device.Id, 0, t0);
 
 				var t1 = GetInputTemperature(jo, 1);
 				SaveToDb(device.Id, 1, t1);
 
-				Console.WriteLine($"{DateTime.Now}   [{BoardTemp}] : {t:N4}   [0] : {t0:N4}   [1] : {t1:N4}");
+				Console.WriteLine($"{DateTime.Now}   [{BoardTemp}] : {t:N4}   [0] : {t0:N4}   [1] : {t1:N4}");*/
 			}
 		}
 

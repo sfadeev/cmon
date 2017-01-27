@@ -9,7 +9,7 @@ namespace CMon.Entities
 		[Column(Name = "device_id"), NotNull]
 		public long DeviceId { get; set; }
 
-		[Column(Name = "input_num"), NotNull]
+		[Column(Name = "input_no"), NotNull]
 		public short InputNum { get; set; }
 
 		[Column(Name = "value"), NotNull]

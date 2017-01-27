@@ -49,14 +49,17 @@ Data for
 		}
 
 		function getChartDataUrl() {
-			return '/api/values?h=' + (getParameterByName('h') || '1') + '&t=' + new Date().getTime();
+			var d = getParameterByName('d') || '1',
+				h = getParameterByName('h') || '1';
+			return '/api/values?deviceId=' + d + '&h=' + h + '&t=' + new Date().getTime();
 		}
 
 		function getChartDataUrl2() {
-			return '/api/values/GetValues?h=' + (getParameterByName('h') || '1') + '&t=' + new Date().getTime();
+			var d = getParameterByName('d') || '1',
+			h = getParameterByName('h') || '1';
+			return '/api/values/GetValues?deviceId=' + d + '&h=' + h + '&t=' + new Date().getTime();
 		}
-
-
+		
 	</script>
 
 	<script src="//d3js.org/d3.v4.min.js"></script>

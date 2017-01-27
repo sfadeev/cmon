@@ -7,7 +7,7 @@ using Microsoft.Extensions.Options;
 
 namespace CMon.Services
 {
-    public interface IInputValueProvider
+	public interface IInputValueProvider
     {
 		DeviceStatistic GetValues(long deviceId,  DateTime begin, DateTime end, int groupByMinutes);
     }
