@@ -66,7 +66,7 @@ namespace CMon.Services
 					select new
 					{
 						g.Key.InputNum,
-						Period = new DateTime(g.Key.Year, g.Key.Month, g.Key.Day, g.Key.Hour, g.Key.Minute, 0),
+						Period = new DateTime(g.Key.Year, g.Key.Month, g.Key.Day, g.Key.Hour, g.Key.Minute, 0, DateTimeKind.Utc),
 						Avg = g.Average(x => x.Value),
 						Min = g.Min(x => x.Value),
 						Max = g.Max(x => x.Value)

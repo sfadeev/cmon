@@ -13,6 +13,7 @@
 	}
 
 	.line {
+		left: 0;
 		fill: none;
 		/*stroke: steelblue;*/
 		stroke-width: 1.2px;
@@ -65,18 +66,18 @@ Data for
 
 		(function () {
 			var svg = d3.select("svg"),
-				margin = { top: 20, right: 20, bottom: 20, left: 20 },
+				margin = { top: 20, right: 50, bottom: 20, left: 20 },
 				width = svg.attr("width") - margin.left - margin.right,
 				height = svg.attr("height") - margin.top - margin.bottom,
 				g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-			var parseTime = d3.timeParse("%Y-%m-%dT%H:%M:%S");
+			// var parseTime = d3.timeParse("%Y-%m-%dT%H:%M:%S");
 
 			var x = d3.scaleTime().range([0, width]),
 				y = d3.scaleLinear().range([height, 0]),
 				z = d3.scaleOrdinal(d3.schemeCategory10);
 
-			var line = d3.line()
+			/* var line = d3.line()
 				// .defined(function (d) { return d.avg; }) // https://github.com/d3/d3-shape/blob/master/README.md#line_defined
 				// .curve(d3.curveLinear)
 				// .curve(d3.curveMonotoneX)
@@ -84,22 +85,28 @@ Data for
 				// .curve(d3.curveStep)
 				// .curve(d3.curveStepAfter)
 				.x(function(d) { return x(d.period); })
-				.y(function(d) { return y(d.avg); });
+				.y(function(d) { return y(d.avg); }); */
 
 			var onDataLoaded = function (error, data, update) {
 
 				if (error) throw error;
 
+				data.beginDate = d3.isoParse(data.beginDate);
+				data.endDate = d3.isoParse(data.endDate);
+
 				for (var i = 0; i < data.inputs.length; i++) {
+					console.log(data.inputs[i].inputNo, ":", data.inputs[i].values.length);
 					for (var j = 0; j < data.inputs[i].values.length; j++) {
 						var value = data.inputs[i].values[j];
-						value.period = parseTime(value.period);
+						value.period = d3.isoParse(value.period);
 					}
 				}
 
 				var x_domain = d3.extent(data.inputs[0].values, function (d) { return d.period; });
 
 				var y_domain = [
+					// d3.min([ data.beginDate ]) * 0.5,
+					// d3.max([ data.endDate ]) * 1.1
 					d3.min(data.inputs[0].values, function (d) { return d.min; }) * 0.5,
 					d3.max(data.inputs[1].values, function (d) { return d.max; }) * 1.1
 				];
@@ -108,37 +115,40 @@ Data for
 
 				// var inputs = data.inputs; // ['TEMP_IN', 'TEMP_HEAT', 'TEMP'];
 
-				x.domain(x_domain);
-				y.domain(y_domain);
-				z.domain(z_domain);
+				x = x.domain(x_domain);
+				y = y.domain(y_domain);
+				z = z.domain(z_domain);
+
+				var line = d3.line()
+					.x(function (d) { return x(d.period); })
+					.y(function (d) { return y(d.avg); });
 
 				//console.log("x.domain:", x_domain);
 				//console.log("y.domain:", y_domain);
 				//console.log("z.domain:", z_domain);
 
 				if (update) {
-					svg = d3.select("svg").transition();
+					g = svg.select("g"); // .transition();
 
-					/*g.selectAll(".input")
-						.data(data.inputs);*/
+					var gs = g.selectAll(".input")
+						.data(data.inputs)
+						.enter().append("g")
+						.attr("class", "input");
 
 					// Make the changes
-					svg.selectAll(".line")   // change the line
-						.duration(750)
-						.attr("d", function (d) {
-							return line(d.values);
-						})
-						.style("stroke", function (d) {
-							return z(d.inputNo);
-						});
+					g.selectAll(".line")   // change the line
+						// .duration(750)
+						.attr("d", function (d) { return line(d.values); })
+						.style("stroke", function (d) { return z(d.inputNo); });
 
-					svg.select(".axis--x") // change the x axis
-						.duration(750)
-						.call(d3.axisBottom(x));
+					g.select(".axis--x") // change the x axis
+						// .duration(750)
+						.attr("transform", "translate(0," + height + ")")
+						.call(d3.axisBottom(x).ticks(24));
 
-					svg.select(".axis--y") // change the y axis
-						.duration(750)
-						.call(d3.axisLeft(y));
+					g.select(".axis--y") // change the y axis
+						// .duration(750)
+						.call(d3.axisLeft(y).ticks(12));
 
 				} else {
 
@@ -146,12 +156,12 @@ Data for
 						.attr("class", "axis axis--x")
 						.attr("transform", "translate(0," + height + ")")
 						.style("font", "10px monospace")
-						.call(d3.axisBottom(x));
+						.call(d3.axisBottom(x).ticks(24));
 
 					g.append("g")
 						.attr("class", "axis axis--y")
 						.style("font", "10px monospace")
-						.call(d3.axisLeft(y))
+						.call(d3.axisLeft(y).ticks(12))
 						.append("text")
 						.attr("transform", "rotate(-90)")
 						.attr("y", 7)
@@ -171,16 +181,16 @@ Data for
 
 					gs.append("text")
 						.datum(function (d) {
-							return { inputNo: d.inputNo, value: d.values[d.values.length - 1] };
+							return { id: d.inputNo, value: d.values[d.values.length - 1] };
 						})
 						.attr("transform",
 							function (d) {
 								return "translate(" + x(d.value.period) + "," + y(d.value.avg) + ")";
 							})
-						.attr("x", 3)
-						.attr("dy", "0.35em")
+						.attr("x", -10)
+						.attr("dy", "-1.35em")
 						.style("font", "10px monospace")
-						.text(function (d) { return d.inputNo; });
+						.text(function (d) { return d.id + " - " + d.value.avg; });
 				}
 			};
 
@@ -190,12 +200,12 @@ Data for
 				}
 			);
 
-			var interval = setInterval(
+			/*var interval = setInterval(
 				function() {
 					d3.json(getChartDataUrl2(), function (error, data) {
 						onDataLoaded(error, data, true);
 					});
-				}, 5000);
+				}, 3000);*/
 		})();
 	</script>
 
@@ -213,7 +223,7 @@ Data for
 						// chart_type: 'bar',
 						full_width: true,
 						// full_height: true,
-						height: 300,
+						height: 400,
 						right: 60,
 						x_extended_ticks: true,
 						xax_count: 12,
