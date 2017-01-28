@@ -4,12 +4,21 @@
 <link href="~/css/metricsgraphics.css" rel="stylesheet" type="text/css">
 
 <style>
-	.axis--x path {
-		stroke-width: 0.2px;
+	.axis {
+		font: 10px monospace;
 	}
 
-	.axis--y path {
-		stroke-width: 0.2px;
+	.axis path {
+		stroke-opacity: 0.2;
+	}
+
+	.axis .tick {
+		stroke-opacity: 0.6;
+	}
+
+	.axis .tick-ext {
+		stroke: #000;
+		stroke-opacity: 0.1;
 	}
 
 	.line {
@@ -98,7 +107,7 @@ Data for
 				data.endDate = d3.isoParse(data.endDate);
 
 				for (var i = 0; i < data.inputs.length; i++) {
-					console.log(data.inputs[i].inputNo, ":", data.inputs[i].values.length);
+					// console.log(data.inputs[i].inputNo, ":", data.inputs[i].values.length);
 					for (var j = 0; j < data.inputs[i].values.length; j++) {
 						var value = data.inputs[i].values[j];
 						value.period = d3.isoParse(value.period);
@@ -108,10 +117,8 @@ Data for
 				var x_domain = d3.extent(data.inputs[0].values, function (d) { return d.period; });
 
 				var y_domain = [
-					// d3.min([ data.beginDate ]) * 0.5,
-					// d3.max([ data.endDate ]) * 1.1
-					d3.min(data.inputs[0].values, function (d) { return d.min; }) * 0.5,
-					d3.max(data.inputs[1].values, function (d) { return d.max; }) * 1.1
+					Math.min(d3.min(data.inputs[0].values, function (d) { return d.min; }), 0.0),
+					d3.max(data.inputs[1].values, function (d) { return d.max; }) * 1.0
 				];
 
 				var z_domain = data.inputs.map(function (c) { return c.inputNo; });
@@ -147,7 +154,7 @@ Data for
 					g.select(".axis--x") // change the x axis
 						// .duration(750)
 						.attr("transform", "translate(0," + height + ")")
-						.call(d3.axisBottom(x).ticks(24));
+						.call(d3.axisBottom(x).ticks(12));
 
 					g.select(".axis--y") // change the y axis
 						// .duration(750)
@@ -158,12 +165,19 @@ Data for
 					g.append("g")
 						.attr("class", "axis axis--x")
 						.attr("transform", "translate(0," + height + ")")
-						.style("font", "10px monospace")
-						.call(d3.axisBottom(x).ticks(24)/*.tickFormat(d3.timeFormat('%e.%m'))*/);
+						.call(d3.axisBottom(x).ticks(22));
+
+					// vertical lines
+					g.selectAll("g.axis--x g.tick")
+						.append("line")
+						.attr("class", "tick-ext")
+						.attr("x1", 0)
+						.attr("y1", 0)
+						.attr("x2", 0)
+						.attr("y2", -height);
 
 					g.append("g")
 						.attr("class", "axis axis--y")
-						.style("font", "10px monospace")
 						.call(d3.axisLeft(y).ticks(12))
 						.append("text")
 						.attr("transform", "rotate(-90)")
@@ -171,6 +185,15 @@ Data for
 						.attr("dy", "0.71em")
 						.attr("fill", "#999")
 						.text("Temperature, ºC");
+
+					// horizontal lines
+					g.selectAll("g.axis--y g.tick")
+						.append("line")
+						.attr("class", "tick-ext")
+						.attr("x1", 0)
+						.attr("y1", 0)
+						.attr("x2", width)
+						.attr("y2", 0);
 
 					var gs = g.selectAll(".input")
 						.data(data.inputs)
