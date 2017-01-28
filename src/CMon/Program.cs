@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.IO;
-using System.Linq;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -31,40 +31,37 @@ namespace CMon
 
 			Configuration = builder.Build();
 
-			RunMainThread();
+			var state = RunMainThread();
+
+			var color = Console.ForegroundColor;
+
+			Console.ForegroundColor = ConsoleColor.DarkGreen;
+			Console.WriteLine("Press any key to stop program execution...");
+			Console.ForegroundColor = color;
+
+			Console.ReadLine();
 		}
 
-		private static void RunMainThread()
+		private static object RunMainThread()
 		{
-			int defaultTimeout = 15000,
-				errorTimeout = 60000;
+			var timers = new ConcurrentDictionary<long, Timer>();
 
-			var timeout = 0;
-
-			while (true)
+			foreach (var deviceId in Devices)
 			{
-				foreach (var deviceId in Devices)
+				timers[deviceId] = new Timer(state =>
 				{
 					try
 					{
-						// Console.WriteLine($"Sleeping {timeout} ms");
-
-						Thread.Sleep(timeout);
-
 						SendRequest(deviceId).Wait();
-
-						// Console.WriteLine();
-
-						timeout = defaultTimeout;
 					}
 					catch (Exception e)
 					{
-						Console.WriteLine("Main exception.\n" + e);
-
-						timeout = errorTimeout;
+						Console.WriteLine($"Error sending request for device id {deviceId}\n" + e);
 					}
-				}
+				}, deviceId, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15));
 			}
+
+			return timers;
 		}
 
 		public static void SaveToDb(long deviceId, short input, decimal value)
@@ -88,42 +85,6 @@ namespace CMon
 			var device = repository.GetDevice(deviceId);
 
 			var inputs = repository.GetInputs(deviceId);
-
-			// await Get("https://ccu.sh/data.cgx?cmd={\"DataType\":\"ControlPoll\"}");
-			/*
-			 * 
-			 * var level = dataPoll["SignalLevel"];
-			 * var levelPercent = Math.round(level * 100 / 31);
-			 * 
-			 * dataPoll["ModemStatus"]
-			 * 
-			 * <option data-loc="si_modem_0"
->Инициализация модема...</option>
-<option data-loc="si_modem_1"
->Сервисный режим, обновление прошивки GSM модуля</option>
-<option data-loc="si_modem_2"
->Основное питание отсутствует, регистрация в GSM сети невозможна</option>
-<option data-loc="si_modem_3"
->SIM-карта не установлена</option>
-<option data-loc="si_modem_4"
->SIM-карта неисправна или отсутствует</option>
-<option data-loc="si_modem_5"
->Неверный PIN-код</option>
-<option data-loc="si_modem_6"
->SIM-карта заблокирована, требуется PUK-код</option>
-<option data-loc="si_modem_7"
->PIN-код принят</option>
-<option data-loc="si_modem_8"
->Зарегистрирован в домашней сети</option>
-<option data-loc="si_modem_9"
->Регистрация в процессе...</option>
-<option data-loc="si_modem_10"
->Зарегистрирован в роуминге</option>
-<option data-loc="si_modem_11"
->Неизвестное состояние GSM модуля</option>			 
-			 */
-
-			// await Get("https://ccu.sh/data.cgx?cmd={\"Command\":\"GetDeviceInfo\"}");
 
 			var url = "https://ccu.sh/data.cgx?cmd={\"Command\":\"GetStateAndEvents\"}";
 
@@ -156,14 +117,6 @@ namespace CMon
 				}
 
 				Console.WriteLine(message);
-
-				/*var t0 = GetInputTemperature(jo, 0);
-				SaveToDb(device.Id, 0, t0);
-
-				var t1 = GetInputTemperature(jo, 1);
-				SaveToDb(device.Id, 1, t1);
-
-				Console.WriteLine($"{DateTime.Now}   [{BoardTemp}] : {t:N4}   [0] : {t0:N4}   [1] : {t1:N4}");*/
 			}
 		}
 

@@ -159,7 +159,7 @@ Data for
 						.attr("class", "axis axis--x")
 						.attr("transform", "translate(0," + height + ")")
 						.style("font", "10px monospace")
-						.call(d3.axisBottom(x).ticks(24));
+						.call(d3.axisBottom(x).ticks(24)/*.tickFormat(d3.timeFormat('%e.%m'))*/);
 
 					g.append("g")
 						.attr("class", "axis axis--y")
