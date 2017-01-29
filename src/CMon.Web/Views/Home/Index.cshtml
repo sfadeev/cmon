@@ -39,7 +39,7 @@ Data for
 <a href="/?h=48">48</a>,
 <a href="/?h=96">96</a> hours
 
-<svg width="1100" height="300"></svg>
+<svg width="1100" height="320"></svg>
 <div id="chart"></div>
 
 @section scripts
@@ -78,7 +78,7 @@ Data for
 
 		(function () {
 			var svg = d3.select("svg"),
-				margin = { top: 20, right: 50, bottom: 20, left: 20 },
+				margin = { top: 20, right: 60, bottom: 20, left: 20 },
 				width = svg.attr("width") - margin.left - margin.right,
 				height = svg.attr("height") - margin.top - margin.bottom,
 				g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
@@ -118,7 +118,7 @@ Data for
 
 				var y_domain = [
 					Math.min(d3.min(data.inputs[0].values, function (d) { return d.min; }), 0.0),
-					d3.max(data.inputs[1].values, function (d) { return d.max; }) * 1.0
+					d3.max(data.inputs[1].values, function (d) { return d.max; }) * 1.1
 				];
 
 				var z_domain = data.inputs.map(function (c) { return c.inputNo; });
@@ -130,35 +130,35 @@ Data for
 				z = z.domain(z_domain);
 
 				var line = d3.line()
-					.x(function (d) { return x(d.period); })
-					.y(function (d) { return y(d.avg); });
+					.x(function(d) { return x(d.period); })
+					.y(function(d) { return y(d.avg); });
 
-				//console.log("x.domain:", x_domain);
-				//console.log("y.domain:", y_domain);
-				//console.log("z.domain:", z_domain);
+				// console.log("x.domain:", x_domain.map(function (x) { return x.toLocaleString(); }));
+				// console.log("y.domain:", y_domain);
+				// console.log("z.domain:", z_domain);
 
 				if (update) {
-					g = svg.select("g"); // .transition();
+					var t = svg.transition();
 
-					var gs = g.selectAll(".input")
+					t.select(".axis--x") // change the x axis
+						.duration(500)
+						.attr("transform", "translate(0," + height + ")")
+						.call(d3.axisBottom(x).ticks(48));
+
+					t.select(".axis--y") // change the y axis
+						.duration(500)
+						.call(d3.axisLeft(y).ticks(24));
+
+					g.selectAll(".input")
 						.data(data.inputs)
 						.enter().append("g")
 						.attr("class", "input");
 
 					// Make the changes
 					g.selectAll(".line")   // change the line
-						// .duration(750)
-						.attr("d", function (d) { return line(d.values); })
-						.style("stroke", function (d) { return z(d.inputNo); });
-
-					g.select(".axis--x") // change the x axis
-						// .duration(750)
-						.attr("transform", "translate(0," + height + ")")
-						.call(d3.axisBottom(x).ticks(12));
-
-					g.select(".axis--y") // change the y axis
-						// .duration(750)
-						.call(d3.axisLeft(y).ticks(12));
+						.data(data.inputs)
+						.attr("d", function(d) { return line(d.values); })
+						.style("stroke", function(d) { return z(d.inputNo); });
 
 				} else {
 
@@ -226,12 +226,14 @@ Data for
 				}
 			);
 
-			/*var interval = setInterval(
+			var interval = setInterval(
 				function() {
-					d3.json(getChartDataUrl2(), function (error, data) {
-						onDataLoaded(error, data, true);
-					});
-				}, 3000);*/
+					d3.json(getChartDataUrl2(),
+						function(error, data) {
+							onDataLoaded(error, data, true);
+						});
+				},
+				60000);
 		})();
 	</script>
 
