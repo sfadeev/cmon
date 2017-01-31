@@ -25,6 +25,8 @@ namespace CMon.Services
 		{
 			using (var db = new DbConnection(_connectionStrings.DefaultConnection))
 			{
+				var dbInput = db.GetTable<DbInput>().Where(x => x.DeviceId == deviceId).ToList();
+
 				var table = db.GetTable<DbInputValue>();
 
 				var q1 = from v in table
@@ -82,6 +84,7 @@ namespace CMon.Services
 					.Select(i => new InputStatistic
 					{
 						InputNo = i.Key,
+						Name = dbInput.FirstOrDefault(x => x.InputNo == i.Key)?.Name ?? "TEMP",
 						Values = i.Select(x =>
 							new InputPeriodValue
 							{

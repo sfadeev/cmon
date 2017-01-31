@@ -22,10 +22,13 @@
 	}
 
 	.line {
-		left: 0;
+		/*left: 0;*/
 		fill: none;
-		/*stroke: steelblue;*/
-		stroke-width: 1.2px;
+		stroke-width: 1.4px;
+	}
+
+	.area {
+		fill-opacity: 0.4;
 	}
 </style>
 
@@ -101,7 +104,7 @@ Data for
 
 			var onDataLoaded = function (error, data, update) {
 
-				if (error) throw error;
+				if (error) return; // throw error;
 
 				data.beginDate = d3.isoParse(data.beginDate);
 				data.endDate = d3.isoParse(data.endDate);
@@ -133,49 +136,87 @@ Data for
 					.x(function(d) { return x(d.period); })
 					.y(function(d) { return y(d.avg); });
 
+				var area = d3.area()
+					.x(function (d) { return x(d.period); })
+					.y0(function (d) { return y(d.min); })
+					.y1(function (d) { return y(d.max); });
+
 				// console.log("x.domain:", x_domain.map(function (x) { return x.toLocaleString(); }));
 				// console.log("y.domain:", y_domain);
 				// console.log("z.domain:", z_domain);
 
 				if (update) {
-					var t = svg.transition();
+					var t = svg.transition().duration(300);
 
-					t.select(".axis--x") // change the x axis
-						.duration(500)
+					// x axis
+					t.select(".axis--x")
 						.attr("transform", "translate(0," + height + ")")
-						.call(d3.axisBottom(x).ticks(48));
+						.call(d3.axisBottom(x).ticks(24));
 
-					t.select(".axis--y") // change the y axis
-						.duration(500)
-						.call(d3.axisLeft(y).ticks(24));
+					// vertical lines
+					g.selectAll("g.axis--x g.tick line.tick-ext")
+						.remove();
+					g.selectAll("g.axis--x g.tick")
+						.append("line")
+						.attr("class", "tick-ext")
+						.attr("x1", 0.5)
+						.attr("y1", 0)
+						.attr("x2", 0.5)
+						.attr("y2", -height);
+					
+					// y axis
+					t.select(".axis--y")
+						.call(d3.axisLeft(y).ticks(12));
 
+					// horizontal lines
+					g.selectAll("g.axis--y g.tick line.tick-ext")
+						.remove();
+					g.selectAll("g.axis--y g.tick")
+						.append("line")
+						.attr("class", "tick-ext")
+						.attr("x1", 0)
+						.attr("y1", 0.5)
+						.attr("x2", width)
+						.attr("y2", 0.5);
+
+					// inputs
 					g.selectAll(".input")
 						.data(data.inputs)
 						.enter().append("g")
 						.attr("class", "input");
 
-					// Make the changes
-					g.selectAll(".line")   // change the line
+					// change the area
+					g.selectAll(".area")
 						.data(data.inputs)
-						.attr("d", function(d) { return line(d.values); })
-						.style("stroke", function(d) { return z(d.inputNo); });
+						.attr("d", function (d) { return area(d.values); })
+						.style("fill", function (d) { return z(d.inputNo); })
+						.transition().duration(100);
+
+					// change the line
+					g.selectAll(".line")   
+						.data(data.inputs)
+						.attr("d", function (d) { return line(d.values); })
+						.style("stroke", function (d) { return z(d.inputNo); })
+						.transition().duration(100);
 
 				} else {
 
+					// x axis
 					g.append("g")
 						.attr("class", "axis axis--x")
 						.attr("transform", "translate(0," + height + ")")
-						.call(d3.axisBottom(x).ticks(22));
+						.call(d3.axisBottom(x).ticks(24));
 
 					// vertical lines
 					g.selectAll("g.axis--x g.tick")
 						.append("line")
 						.attr("class", "tick-ext")
-						.attr("x1", 0)
+						.attr("x1", 0.5)
 						.attr("y1", 0)
-						.attr("x2", 0)
+						.attr("x2", 0.5)
 						.attr("y2", -height);
 
+					// y axis
 					g.append("g")
 						.attr("class", "axis axis--y")
 						.call(d3.axisLeft(y).ticks(12))
@@ -191,9 +232,9 @@ Data for
 						.append("line")
 						.attr("class", "tick-ext")
 						.attr("x1", 0)
-						.attr("y1", 0)
+						.attr("y1", 0.5)
 						.attr("x2", width)
-						.attr("y2", 0);
+						.attr("y2", 0.5);
 
 					var gs = g.selectAll(".input")
 						.data(data.inputs)
@@ -201,22 +242,23 @@ Data for
 						.attr("class", "input");
 
 					gs.append("path")
+						.attr("class", "area")
+						.attr("d", function (d) { return area(d.values); })
+						.style("fill", function (d) { return z(d.inputNo); });
+
+					gs.append("path")
 						.attr("class", "line")
 						.attr("d", function (d) { return line(d.values); })
 						.style("stroke", function (d) { return z(d.inputNo); });
 
 					gs.append("text")
-						.datum(function (d) {
-							return { id: d.inputNo, value: d.values[d.values.length - 1] };
-						})
-						.attr("transform",
-							function (d) {
-								return "translate(" + x(d.value.period) + "," + y(d.value.avg) + ")";
-							})
-						.attr("x", -10)
-						.attr("dy", "-1.35em")
+						.datum(function (d) { return { inputNo: d.inputNo, name: d.name, value: d.values[d.values.length - 1] }; })
+						.attr("transform", function (d) { return "translate(" + x(d.value.period) + "," + y(d.value.avg) + ")"; })
+						.attr("x", 5.0)
+						.attr("dy", "0.3em")
 						.style("font", "10px monospace")
-						.text(function (d) { return d.id + " - " + d.value.avg; });
+						.style("fill", function (d) { return z(d.inputNo); })
+						.text(function (d) { return d.name; });
 				}
 			};
 
@@ -233,7 +275,7 @@ Data for
 							onDataLoaded(error, data, true);
 						});
 				},
-				60000);
+				15000);
 		})();
 	</script>
 

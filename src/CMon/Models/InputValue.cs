@@ -27,6 +27,8 @@ namespace CMon.Models
 	{
 		public short InputNo { get; set; }
 
+		public string Name { get; set; }
+
 		public IList<InputPeriodValue> Values { get; set; }
 	}
 

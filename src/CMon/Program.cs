@@ -15,7 +15,7 @@ namespace CMon
 {
 	public class Program
 	{
-		public static long[] Devices = { 1 };
+		public static long[] Devices = { 1, 2 };
 
 		public const short BoardTemp = 0xFF;
 
@@ -95,7 +95,7 @@ namespace CMon
 				var jo = JObject.Parse(json);
 
 				// if (jo.SelectToken("Events")?.HasValues == true)
-				if (json.Length >= 600)
+				if (/*device.Id == 1 &&*/ json.Length >= 609)
 				{
 					Console.WriteLine(url + "\n" + json);
 					Console.WriteLine();
