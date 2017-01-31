@@ -25,10 +25,29 @@
 		/*left: 0;*/
 		fill: none;
 		stroke-width: 1.4px;
+		cursor: pointer;
 	}
 
 	.area {
 		fill-opacity: 0.4;
+		cursor: pointer;
+	}
+
+	.overlay {
+		fill: none;
+		pointer-events: all;
+		/*fill: red;
+		fill-opacity: 0.05;*/
+	}
+
+	.focus circle {
+		fill: white;
+		stroke: steelblue;
+	}
+
+	.focus text {
+		background: white;
+		font: 11px monospace;
 	}
 </style>
 
@@ -42,7 +61,7 @@ Data for
 <a href="/?h=48">48</a>,
 <a href="/?h=96">96</a> hours
 
-<svg width="1100" height="320"></svg>
+<svg width="1100" height="400"></svg>
 <div id="chart"></div>
 
 @section scripts
@@ -86,6 +105,8 @@ Data for
 				height = svg.attr("height") - margin.top - margin.bottom,
 				g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+			var formatTime = d3.timeFormat("%X"),
+				formatValue = d3.format(",.2f");
 			// var parseTime = d3.timeParse("%Y-%m-%dT%H:%M:%S");
 
 			var x = d3.scaleTime().range([0, width]),
@@ -133,10 +154,12 @@ Data for
 				z = z.domain(z_domain);
 
 				var line = d3.line()
+					.curve(d3.curveMonotoneX)
 					.x(function(d) { return x(d.period); })
 					.y(function(d) { return y(d.avg); });
 
 				var area = d3.area()
+					.curve(d3.curveMonotoneX)
 					.x(function (d) { return x(d.period); })
 					.y0(function (d) { return y(d.min); })
 					.y1(function (d) { return y(d.max); });
@@ -259,7 +282,40 @@ Data for
 						.style("font", "10px monospace")
 						.style("fill", function (d) { return z(d.inputNo); })
 						.text(function (d) { return d.name; });
+
+					var focus = g.append("g")
+						.attr("class", "focus")
+						.style("display", "none");
+
+					focus.append("circle")
+						.attr("r", 3.5);
+
+					focus.append("text")
+						.attr("x", 9)
+						.attr("dy", "1.35em");
+
+					var bisectDate = d3.bisector(function(d) {
+						return d.period;
+					}).left;
+
+					g.append("rect")
+						.attr("class", "overlay")
+						.attr("width", width)
+						.attr("height", height)
+						.on("mouseover", function () { focus.style("display", null); })
+						.on("mouseout", function () { focus.style("display", "none"); })
+						.on("mousemove",
+							function () {
+								var x0 = x.invert(d3.mouse(this)[0]),
+									i = bisectDate(data.inputs[0].values, x0, 1),
+									d0 = data.inputs[0].values[i - 1],
+									d1 = data.inputs[0].values[i],
+									d = x0 - d0.period > d1.period - x0 ? d1 : d0;
+								focus.attr("transform", "translate(" + x(d.period) + "," + y(d.avg) + ")");
+								focus.select("text").text(formatValue(d.avg) + " : " + formatTime(d.period));
+							});
 				}
+
 			};
 
 			d3.json(getChartDataUrl2(),

@@ -14,3 +14,8 @@ https://bl.ocks.org/mbostock/34f08d5e11952a80609169b7917d4172
 Line with Missing Data
 https://bl.ocks.org/mbostock/0533f44f2cfabecc5e3a
 
+Line Chart with View Finder
+http://nvd3.org/examples/lineWithFocus.html
+
+X-Value Mouseover
+https://bl.ocks.org/mbostock/3902569

@@ -84,7 +84,7 @@ namespace CMon.Services
 					.Select(i => new InputStatistic
 					{
 						InputNo = i.Key,
-						Name = dbInput.FirstOrDefault(x => x.InputNo == i.Key)?.Name ?? "TEMP",
+						Name = dbInput.FirstOrDefault(x => x.InputNo == i.Key)?.Name ?? "CCUxxx",
 						Values = i.Select(x =>
 							new InputPeriodValue
 							{
