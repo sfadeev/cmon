@@ -22,7 +22,6 @@
 	}
 
 	.line {
-		/*left: 0;*/
 		fill: none;
 		stroke-width: 1.4px;
 		cursor: pointer;
@@ -40,12 +39,17 @@
 		fill-opacity: 0.05;*/
 	}
 
-	.focus circle {
-		fill: white;
-		stroke: steelblue;
+	.focus-line line {
+		stroke: #000;
+		stroke-opacity: 0.4;
 	}
 
-	.focus text {
+	.focus circle {
+		fill: white;
+		stroke-width: 1.4px;
+	}
+
+	.focus-line text, .focus text {
 		background: white;
 		font: 11px monospace;
 	}
@@ -105,8 +109,11 @@ Data for
 				height = svg.attr("height") - margin.top - margin.bottom,
 				g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-			var formatTime = d3.timeFormat("%X"),
-				formatValue = d3.format(",.2f");
+			var formatDateTime = d3.timeFormat("%x %X"),
+				formatTime = d3.timeFormat("%X"),
+				formatValue = d3.format(",.2f"),
+				bisectDate = d3.bisector(function (d) { return d.period; }).left;
+
 			// var parseTime = d3.timeParse("%Y-%m-%dT%H:%M:%S");
 
 			var x = d3.scaleTime().range([0, width]),
@@ -147,8 +154,6 @@ Data for
 
 				var z_domain = data.inputs.map(function (c) { return c.inputNo; });
 
-				// var inputs = data.inputs; // ['TEMP_IN', 'TEMP_HEAT', 'TEMP'];
-
 				x = x.domain(x_domain);
 				y = y.domain(y_domain);
 				z = z.domain(z_domain);
@@ -168,36 +173,24 @@ Data for
 				// console.log("y.domain:", y_domain);
 				// console.log("z.domain:", z_domain);
 
-				var focus = g.append("g")
-					.attr("class", "focus")
-					.style("display", "none");
-
-				focus.append("circle")
-					.attr("r", 3.5);
-
-				focus.append("text")
-					.attr("x", 9)
-					.attr("dy", "1.35em");
-
-				var bisectDate = d3.bisector(function (d) {
-					return d.period;
-				}).left;
-
 				var mousemove = function () {
 					var x0 = x.invert(d3.mouse(this)[0]);
 
-					var inputData = g.selectAll(".area").data();
+					g.selectAll(".area").data().forEach(function(input, i) {
 
-					var inputIndex = 0,
-						inputValues = inputData[inputIndex].values;
+						var valueIndex = bisectDate(input.values, x0, 1),
+							d0 = input.values[valueIndex - 1],
+							d1 = input.values[valueIndex],
+							d = x0 - d0.period > d1.period - x0 ? d1 : d0;
 
-					var valueIndex = bisectDate(inputValues, x0, 1),
-						d0 = inputValues[valueIndex - 1],
-						d1 = inputValues[valueIndex],
-						d = x0 - d0.period > d1.period - x0 ? d1 : d0;
+						g.select(".focus-line")
+							.attr("transform", "translate(" + x(d.period) + ", 0)")
+							.select("text").html(formatDateTime(d.period));
 
-					focus.attr("transform", "translate(" + x(d.period) + "," + y(d.avg) + ")");
-					focus.select("text").text(formatValue(d.avg) + " : " + formatTime(d.period));
+						g.select(".focus-" + input.inputNo)
+							.attr("transform", "translate(" + x(d.period) + "," + y(d.avg) + ")")
+							.select("text").text(formatValue(d.avg));
+					});
 				};
 
 				if (update) {
@@ -315,12 +308,42 @@ Data for
 						.style("fill", function (d) { return z(d.inputNo); })
 						.text(function (d) { return d.name; });
 
+					// focus line
+					var focuslLine = g.append("g")
+						.attr("class", "focus-line")
+						.style("display", "none");
+
+					focuslLine.append("line")
+						.attr("x1", 0)
+						.attr("y1", 0)
+						.attr("x2", 0)
+						.attr("y2", height);
+
+					focuslLine.append("text")
+						.attr("dx", 7);
+
+					// focus circles
+					var focus = g.selectAll(".focus")
+						.data(data.inputs)
+						.enter().append("g")
+						.attr("class", function (d) { return "focus focus-" + d.inputNo; })
+						.style("display", "none");
+
+					focus.append("circle")
+						.attr("r", 3.5)
+						.style("stroke", function (d) { return z(d.inputNo); });
+
+					focus.append("text")
+						.attr("x", 7)
+						.attr("dy", "-0.75em");
+
+					// overlay
 					g.append("rect")
 						.attr("class", "overlay")
 						.attr("width", width)
 						.attr("height", height)
-						.on("mouseover", function () { focus.style("display", null); })
-						.on("mouseout", function () { focus.style("display", "none"); })
+						.on("mouseover", function () { focuslLine.style("display", null); focus.style("display", null); })
+						.on("mouseout", function () { focuslLine.style("display", "none"); focus.style("display", "none"); })
 						.on("mousemove", mousemove);
 				}
 			};
