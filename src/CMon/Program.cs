@@ -1,21 +1,26 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.IO;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CMon.Entities;
 using CMon.Services;
-using LinqToDB;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 
 namespace CMon
 {
+	public class UserSecret
+	{
+		public const string Id = "cmon";
+	}
+
 	public class Program
 	{
-		public static long[] Devices = { 1, 2 };
+		public static long[] Devices = { 1 , 2 };
 
 		public const short BoardTemp = 0xFF;
 
@@ -25,8 +30,8 @@ namespace CMon
 		{
 			var builder = new ConfigurationBuilder()
 				.SetBasePath(Directory.GetCurrentDirectory())
-				.AddJsonFile("appsettings.json")
-				.AddUserSecrets()
+				// .AddJsonFile("appsettings.json")
+				.AddUserSecrets(UserSecret.Id)
 				.AddEnvironmentVariables();
 
 			Configuration = builder.Build();
@@ -39,7 +44,11 @@ namespace CMon
 			Console.WriteLine("Press any key to stop program execution...");
 			Console.ForegroundColor = color;
 
-			Console.ReadLine();
+			// Console.ReadLine();
+
+			while (true)
+			{
+			}
 		}
 
 		private static object RunMainThread()
@@ -52,7 +61,7 @@ namespace CMon
 				{
 					try
 					{
-						SendRequest(deviceId).Wait();
+						PollAsync(deviceId).Wait();
 					}
 					catch (Exception e)
 					{
@@ -64,21 +73,7 @@ namespace CMon
 			return timers;
 		}
 
-		public static void SaveToDb(long deviceId, short input, decimal value)
-		{
-			using (var db = new DbConnection(Configuration.GetConnectionString("DefaultConnection")))
-			{
-				db.Insert(new DbInputValue
-				{
-					DeviceId = deviceId,
-					InputNum = input,
-					Value = value,
-					CreatedAt = DateTime.UtcNow
-				});
-			}
-		}
-
-		public static async Task SendRequest(long deviceId)
+		public static async Task PollAsync(long deviceId)
 		{
 			var repository = new DefaultDeviceRepository(Configuration.GetConnectionString("DefaultConnection"));
 
@@ -104,16 +99,16 @@ namespace CMon
 				}
 
 				var t = GetBoardTemperature(jo);
-				SaveToDb(device.Id, BoardTemp, t);
+				repository.SaveToDb(device.Id, BoardTemp, t);
 
-				var message = $"[{device.Id}] - {DateTime.Now:s}  |  [{BoardTemp}] : {t:N4}";
+				var message = $"[{device.Id}] {DateTime.Now:s} - {BoardTemp}:{t:N4}";
 
 				foreach (var input in inputs)
 				{
 					t = GetInputTemperature(jo, input.InputNo - 1);
-					SaveToDb(device.Id, input.InputNo, t);
+					repository.SaveToDb(device.Id, input.InputNo, t);
 
-					message += $"  |  [{input.InputNo}] : {t:N4}";
+					message += $" - {input.InputNo}:{t:N4}";
 				}
 
 				Console.WriteLine(message);
@@ -127,12 +122,19 @@ namespace CMon
 				try
 				{
 					var auth = $"{device.Username}@{device.Imei}:{device.Password}";
+					var authBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(auth));
 
-					client.DefaultRequestHeaders.Add(
-						"Authorization", "Basic " + Convert.ToBase64String(Encoding.UTF8.GetBytes(auth)));
+					client.DefaultRequestHeaders.Add("Authorization", "Basic " + authBase64);
 
 					var response = await client.GetAsync(url);
-					response.EnsureSuccessStatusCode();
+
+					// response.EnsureSuccessStatusCode();
+
+					if (response.StatusCode != HttpStatusCode.OK)
+					{
+						Console.WriteLine($"[{device.Id}] {DateTime.Now:s} - {(int)response.StatusCode} {response.StatusCode}");
+						return null;
+					}
 
 					return await response.Content.ReadAsStringAsync();
 				}

@@ -1,6 +1,4 @@
 {
-	"userSecretsId": "CMon",
-
 	"version": "1.0.0-*",
 	"buildOptions": {
 		"debugType": "portable"

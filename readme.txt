@@ -26,3 +26,21 @@ https://bl.ocks.org/mbostock/3902569
 
 Time Range Controls
 http://docs.grafana.org/reference/timerange/
+
+
+-----------------
+
+Publish to a Linux Production Environment
+https://docs.microsoft.com/en-us/aspnet/core/publishing/linuxproduction
+
+Publishing an ASP.NET Core website to a cheap Linux VM host
+http://www.hanselman.com/blog/PublishingAnASPNETCoreWebsiteToACheapLinuxVMHost.aspx
+
+NGINX for ASP.NET Core In-Depth
+http://rehansaeed.com/nginx-asp-net-core-depth/
+
+systemd.unit — Unit configuration
+https://www.freedesktop.org/software/systemd/man/systemd.unit.html
+
+systemd.exec — Execution environment configuration
+https://www.freedesktop.org/software/systemd/man/systemd.exec.html
