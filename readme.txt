@@ -19,3 +19,10 @@ http://nvd3.org/examples/lineWithFocus.html
 
 X-Value Mouseover
 https://bl.ocks.org/mbostock/3902569
+
+
+----------------
+
+
+Time Range Controls
+http://docs.grafana.org/reference/timerange/

@@ -168,6 +168,38 @@ Data for
 				// console.log("y.domain:", y_domain);
 				// console.log("z.domain:", z_domain);
 
+				var focus = g.append("g")
+					.attr("class", "focus")
+					.style("display", "none");
+
+				focus.append("circle")
+					.attr("r", 3.5);
+
+				focus.append("text")
+					.attr("x", 9)
+					.attr("dy", "1.35em");
+
+				var bisectDate = d3.bisector(function (d) {
+					return d.period;
+				}).left;
+
+				var mousemove = function () {
+					var x0 = x.invert(d3.mouse(this)[0]);
+
+					var inputData = g.selectAll(".area").data();
+
+					var inputIndex = 0,
+						inputValues = inputData[inputIndex].values;
+
+					var valueIndex = bisectDate(inputValues, x0, 1),
+						d0 = inputValues[valueIndex - 1],
+						d1 = inputValues[valueIndex],
+						d = x0 - d0.period > d1.period - x0 ? d1 : d0;
+
+					focus.attr("transform", "translate(" + x(d.period) + "," + y(d.avg) + ")");
+					focus.select("text").text(formatValue(d.avg) + " : " + formatTime(d.period));
+				};
+
 				if (update) {
 					var t = svg.transition().duration(300);
 
@@ -283,39 +315,14 @@ Data for
 						.style("fill", function (d) { return z(d.inputNo); })
 						.text(function (d) { return d.name; });
 
-					var focus = g.append("g")
-						.attr("class", "focus")
-						.style("display", "none");
-
-					focus.append("circle")
-						.attr("r", 3.5);
-
-					focus.append("text")
-						.attr("x", 9)
-						.attr("dy", "1.35em");
-
-					var bisectDate = d3.bisector(function(d) {
-						return d.period;
-					}).left;
-
 					g.append("rect")
 						.attr("class", "overlay")
 						.attr("width", width)
 						.attr("height", height)
 						.on("mouseover", function () { focus.style("display", null); })
 						.on("mouseout", function () { focus.style("display", "none"); })
-						.on("mousemove",
-							function () {
-								var x0 = x.invert(d3.mouse(this)[0]),
-									i = bisectDate(data.inputs[0].values, x0, 1),
-									d0 = data.inputs[0].values[i - 1],
-									d1 = data.inputs[0].values[i],
-									d = x0 - d0.period > d1.period - x0 ? d1 : d0;
-								focus.attr("transform", "translate(" + x(d.period) + "," + y(d.avg) + ")");
-								focus.select("text").text(formatValue(d.avg) + " : " + formatTime(d.period));
-							});
+						.on("mousemove", mousemove);
 				}
-
 			};
 
 			d3.json(getChartDataUrl2(),
