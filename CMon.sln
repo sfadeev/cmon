@@ -16,6 +16,8 @@ Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "CMon.Web", "src\CMon.Web\CM
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "CMon.Tests", "test\CMon.Tests\CMon.Tests.xproj", "{A8D002C0-4F29-4E5C-BFE4-4AF8E995FBE4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{825AEACF-5B05-4BEC-96C3-7F742E32676F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,5 +43,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{E17AAE46-A2AD-4237-B41C-E5C00159041A} = {C99EEF81-353B-41F1-BD1A-AC262CDC3AF4}
 		{12709B81-F03F-4ED9-B3A8-FFC470ADAF0F} = {C99EEF81-353B-41F1-BD1A-AC262CDC3AF4}
+		{A8D002C0-4F29-4E5C-BFE4-4AF8E995FBE4} = {825AEACF-5B05-4BEC-96C3-7F742E32676F}
 	EndGlobalSection
 EndGlobal
