@@ -44,11 +44,41 @@ namespace CMon
 			Console.WriteLine("Press any key to stop program execution...");
 			Console.ForegroundColor = color;
 
-			// Console.ReadLine();
+			// Console.Read();
 
-			while (true)
+			// http://stackoverflow.com/questions/38549006/docker-container-exits-immediately-even-with-console-readline-in-a-net-core-c?noredirect=1&lq=1
+			// http://stackoverflow.com/questions/40506122/control-lifetime-of-net-core-console-application-hosted-in-docker?rq=1
+			// https://github.com/aspnet/Hosting/blob/dev/src/Microsoft.AspNetCore.Hosting/WebHostExtensions.cs
+			new ManualResetEventSlim(false).Wait();
+
+			/*var done = new ManualResetEventSlim(false);
+			using (var cts = new CancellationTokenSource())
 			{
-			}
+				Action shutdown = () =>
+				{
+					if (!cts.IsCancellationRequested)
+					{
+						Console.WriteLine("Application is shutting down...");
+						cts.Cancel();
+					}
+
+					done.Wait();
+				};
+
+#if NETSTANDARD1_5
+                var assemblyLoadContext = AssemblyLoadContext.GetLoadContext(typeof(WebHostExtensions).GetTypeInfo().Assembly);
+                assemblyLoadContext.Unloading += context => shutdown();
+#endif
+				Console.CancelKeyPress += (sender, eventArgs) =>
+				{
+					shutdown();
+					// Don't terminate the process immediately, wait for the Main thread to exit gracefully.
+					eventArgs.Cancel = true;
+				};
+
+				// host.Run(cts.Token, "Application started. Press Ctrl+C to shut down.");
+				done.Set();
+			}*/
 		}
 
 		private static object RunMainThread()
