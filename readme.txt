@@ -27,6 +27,11 @@ https://bl.ocks.org/mbostock/3902569
 Time Range Controls
 http://docs.grafana.org/reference/timerange/
 
+Karaf Decanter
+http://karaf.apache.org/projects.html#decanter
+
+Kibana / X-Pack
+https://www.elastic.co/products/x-pack
 
 -----------------
 
