@@ -1,11 +1,6 @@
 ﻿using CMon.Services;
-using CMon.Web.Data;
-using CMon.Web.Models;
-using CMon.Web.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -40,19 +35,10 @@ namespace CMon.Web
 			services.Configure<ConnectionStringOptions>(Configuration.GetSection("ConnectionStrings"));
 
 			// Add framework services.
-			services.AddDbContext<ApplicationDbContext>(options =>
-				options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
-			services.AddIdentity<ApplicationUser, IdentityRole>()
-				.AddEntityFrameworkStores<ApplicationDbContext>()
-				.AddDefaultTokenProviders();
 
 			services.AddMvc();
 
 			// Add application services.
-			services.AddTransient<IEmailSender, AuthMessageSender>();
-			services.AddTransient<ISmsSender, AuthMessageSender>();
-
 			services.AddTransient<IInputValueProvider, DefaultInputValueProvider>();
 		}
 
@@ -65,7 +51,7 @@ namespace CMon.Web
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
-				app.UseDatabaseErrorPage();
+				// app.UseDatabaseErrorPage();
 				// app.UseBrowserLink();
 			}
 			else
@@ -74,8 +60,6 @@ namespace CMon.Web
 			}
 
 			app.UseStaticFiles();
-
-			app.UseIdentity();
 
 			// Add external authentication middleware below. To configure them please see http://go.microsoft.com/fwlink/?LinkID=532715
 
