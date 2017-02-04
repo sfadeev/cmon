@@ -90,12 +90,16 @@ Data for
 			return '/api/values?deviceId=' + d + '&h=' + h + '&t=' + new Date().getTime();
 		}
 
-		(function () {
+		(function (d3) {
 			var svg = d3.select("svg"),
 				margin = { top: 20, right: 60, bottom: 20, left: 20 },
 				width = svg.attr("width") - margin.left - margin.right,
 				height = svg.attr("height") - margin.top - margin.bottom,
 				g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+			var options = {
+				alwaysShowZero: true
+			};
 
 			var formatDateTime = d3.timeFormat("%x %X"),
 				formatTime = d3.timeFormat("%X"),
@@ -133,12 +137,18 @@ Data for
 					}
 				}
 
-				var x_domain = d3.extent(data.inputs[0].values, function (d) { return d.period; });
+				var x_domain = [data.beginDate, data.endDate];
+				// var x_domain = d3.extent(data.inputs[0].values, function (d) { return d.period; });
 
 				var y_domain = [
-					Math.min(d3.min(data.inputs[0].values, function (d) { return d.min; }), 0.0),
-					d3.max(data.inputs[1].values, function (d) { return d.max; }) * 1.1
+					d3.min(data.inputs, function (i) { return d3.min(i.values, function (d) { return d.min; }) }) || 0.0,
+					d3.max(data.inputs, function (i) { return d3.max(i.values, function (d) { return d.max; }) }) || 0.0 * 1.1
 				];
+
+				if (options.alwaysShowZero) {
+					y_domain[0] = Math.min(y_domain[0], 0.0);
+					y_domain[1] = Math.max(y_domain[1], 0.0);
+				}
 
 				var z_domain = data.inputs.map(function (c) { return c.inputNo; });
 
@@ -350,7 +360,7 @@ Data for
 						});
 				},
 				15000);
-		})();
+		})(window.d3);
 	</script>
 
 }
