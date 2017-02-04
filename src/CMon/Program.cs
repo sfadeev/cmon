@@ -125,7 +125,7 @@ namespace CMon
 					Console.WriteLine(url + "\n" + json);
 					Console.WriteLine();
 
-					File.WriteAllText("c:\\temp\\ccu\\" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "-GetStateAndEvents.json", json);
+					// File.WriteAllText("c:\\temp\\ccu\\" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "-GetStateAndEvents.json", json);
 				}
 
 				var t = GetBoardTemperature(jo);
