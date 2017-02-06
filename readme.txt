@@ -49,3 +49,8 @@ https://www.freedesktop.org/software/systemd/man/systemd.unit.html
 
 systemd.exec — Execution environment configuration
 https://www.freedesktop.org/software/systemd/man/systemd.exec.html
+
+---------------------------------
+
+Real-time applications using ASP.NET Core, SignalR & Angular
+https://chsakell.com/2016/10/10/real-time-applications-using-asp-net-core-signalr-angular/
