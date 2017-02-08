@@ -99,7 +99,7 @@ Data for
 				g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
 			var options = {
-				alwaysShowZero: true
+				showZero: true
 			};
 
 			var formatDateTime = d3.timeFormat("%x %X"),
@@ -142,11 +142,11 @@ Data for
 				// var x_domain = d3.extent(data.inputs[0].values, function (d) { return d.period; });
 
 				var y_domain = [
-					d3.min(data.inputs, function (i) { return d3.min(i.values, function (d) { return d.min; }) }) || 0.0,
-					d3.max(data.inputs, function (i) { return d3.max(i.values, function (d) { return d.max; }) }) || 0.0 * 1.1
+					d3.min(data.inputs, function (i) { return d3.min(i.values, function (d) { return d.min; }) }) * 0.75 || 0.0,
+					d3.max(data.inputs, function (i) { return d3.max(i.values, function (d) { return d.max; }) }) * 1.10 || 0.0
 				];
 
-				if (options.alwaysShowZero) {
+				if (options.showZero) {
 					y_domain[0] = Math.min(y_domain[0], 0.0);
 					y_domain[1] = Math.max(y_domain[1], 0.0);
 				}
@@ -179,7 +179,7 @@ Data for
 
 						var valueIndex = bisectDate(input.values, x0, 1),
 							d0 = input.values[valueIndex - 1],
-							d1 = input.values[valueIndex],
+							d1 = input.values[valueIndex] || d0,
 							d = x0 - d0.period > d1.period - x0 ? d1 : d0;
 
 						g.select(".focus-line")
