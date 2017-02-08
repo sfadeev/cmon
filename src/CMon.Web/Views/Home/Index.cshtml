@@ -54,15 +54,20 @@
 	}
 </style>
 
-Data for
-<a href="/?h=1">1</a>,
-<a href="/?h=2">2</a>,
-<a href="/?h=4">4</a>,
-<a href="/?h=8">8</a>,
-<a href="/?h=12">12</a>,
-<a href="/?h=24">24</a>,
-<a href="/?h=48">48</a>,
-<a href="/?h=96">96</a> hours
+<br />
+
+<label>Hours:</label>
+
+<div class="btn-group hours" role="group">
+	<button type="button" class="btn btn-default">1</button>
+	<button type="button" class="btn btn-default">2</button>
+	<button type="button" class="btn btn-default">4</button>
+	<button type="button" class="btn btn-default">8</button>
+	<button type="button" class="btn btn-default">12</button>
+	<button type="button" class="btn btn-default">24</button>
+	<button type="button" class="btn btn-default">48</button>
+</div>
+
 <br />
 
 <svg width="1100" height="320"></svg>
@@ -86,8 +91,8 @@ Data for
 		}
 
 		function getDataUrl() {
-			var d = getParameterByName('d') || '1',
-				h = getParameterByName('h') || '1';
+			var d = getParameterByName('d') || '',
+				h = window.hours || '1';
 			return '/api/values?deviceId=' + d + '&h=' + h + '&t=' + new Date().getTime();
 		}
 
@@ -347,20 +352,26 @@ Data for
 				}
 			};
 
-			d3.json(getDataUrl(),
-				function(error, data) {
-					onDataLoaded(error, data, false);
-				}
-			);
+			function draw(update) {
+				d3.json(getDataUrl(),
+					function (error, data) {
+						onDataLoaded(error, data, update);
+					}
+				);
+			}
 
-			var interval = setInterval(
-				function() {
-					d3.json(getDataUrl(),
-						function(error, data) {
-							onDataLoaded(error, data, true);
-						});
-				},
-				15000);
+			draw(false);
+
+			setInterval(function() { draw(true); }, 15000);
+
+			$(".hours .btn").click(function () {
+				window.hours = $(this).text();
+				draw(true);
+			});
+
+			$(window).resize(function() {
+			});
+
 		})(window.d3);
 	</script>
 
