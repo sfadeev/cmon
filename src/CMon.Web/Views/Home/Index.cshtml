@@ -1,8 +1,5 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿<style>
 
-<style>
 	.axis {
 		font: 10px monospace;
 	}
@@ -54,23 +51,23 @@
 	}
 </style>
 
-<br />
+<h1></h1>
 
-<label>Hours:</label>
-
-<div class="btn-group hours" role="group">
-	<button type="button" class="btn btn-default">1</button>
-	<button type="button" class="btn btn-default">2</button>
-	<button type="button" class="btn btn-default">4</button>
-	<button type="button" class="btn btn-default">8</button>
-	<button type="button" class="btn btn-default">12</button>
-	<button type="button" class="btn btn-default">24</button>
-	<button type="button" class="btn btn-default">48</button>
+<div class="row">
+	<div class="col-md-12">
+		<span>Hours:</span>
+		<div class="btn-group btn-group-sm hours" role="group">
+			<button type="button" class="btn btn-default">1</button>
+			<button type="button" class="btn btn-default">2</button>
+			<button type="button" class="btn btn-default">4</button>
+			<button type="button" class="btn btn-default">8</button>
+			<button type="button" class="btn btn-default">12</button>
+			<button type="button" class="btn btn-default">24</button>
+			<button type="button" class="btn btn-default">48</button>
+		</div>
+		<div id="chart"></div>
+	</div>
 </div>
-
-<br />
-
-<svg width="1100" height="320"></svg>
 
 @section scripts
 {
@@ -96,59 +93,91 @@
 			return '/api/values?deviceId=' + d + '&h=' + h + '&t=' + new Date().getTime();
 		}
 
-		(function (d3) {
-			var svg = d3.select("svg"),
-				margin = { top: 20, right: 60, bottom: 20, left: 20 },
-				width = svg.attr("width") - margin.left - margin.right,
-				height = svg.attr("height") - margin.top - margin.bottom,
-				g = svg.append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+		(function(d3) {
 
-			var options = {
-				showZero: true
-			};
+			var chart = d3.select('#chart');
 
 			var formatDateTime = d3.timeFormat("%x %X"),
 				formatTime = d3.timeFormat("%X"),
 				formatValue = d3.format(",.2f"),
-				bisectDate = d3.bisector(function (d) { return d.period; }).left;
+				bisectDate = d3.bisector(function(d) { return d.period; }).left;
 
 			// var parseTime = d3.timeParse("%Y-%m-%dT%H:%M:%S");
 
-			var x = d3.scaleTime().range([0, width]),
-				y = d3.scaleLinear().range([height, 0]),
+			var svg,
+				g,
+				x,
+				y,
+				z,
+				width,
+				height;
+
+			var line = d3.line()
+				.curve(d3.curveMonotoneX)
+				// .defined(function (d) { return d.avg; }) // https://github.com/d3/d3-shape/blob/master/README.md#line_defined
+				.x(function(d) { return x(d.period); })
+				.y(function(d) { return y(d.avg); });
+
+			var area = d3.area()
+				.curve(d3.curveMonotoneX)
+				.x(function(d) { return x(d.period); })
+				.y0(function(d) { return y(d.min); })
+				.y1(function(d) { return y(d.max); });
+
+			var options = {
+					container: { width: 600, height: 400 },
+					margin: { top: 20, right: 60, bottom: 20, left: 20 },
+					ticks: { x: 24, y: 12 },
+					showZero: true
+				};
+
+			var init = function() {
+
+				options.container.width = parseInt(chart.style('width'), 10);
+				options.ticks.x = options.container.width / 60;
+
+				chart.select('svg')
+					.remove();
+
+				svg = chart.append("svg")
+					.attr("width", options.container.width + "px")
+					.attr("height", options.container.height + "px");
+
+				g = svg.append("g")
+					.attr("transform", "translate(" + options.margin.left + "," + options.margin.top + ")");
+
+				width = options.container.width - options.margin.left - options.margin.right;
+				height = options.container.height - options.margin.top - options.margin.bottom;
+
+				x = d3.scaleTime().range([0, width]);
+				y = d3.scaleLinear().range([height, 0]);
 				z = d3.scaleOrdinal(d3.schemeCategory10);
 
-			/* var line = d3.line()
-				// .defined(function (d) { return d.avg; }) // https://github.com/d3/d3-shape/blob/master/README.md#line_defined
-				// .curve(d3.curveLinear)
-				// .curve(d3.curveMonotoneX)
-				// .curve(d3.curveBasis)
-				// .curve(d3.curveStep)
-				// .curve(d3.curveStepAfter)
-				.x(function(d) { return x(d.period); })
-				.y(function(d) { return y(d.avg); }); */
+			}
 
-			var onDataLoaded = function (error, data, update) {
-
-				if (error) return; // throw error; // todo: log error
+			var parse = function (data) {
 
 				data.beginDate = d3.isoParse(data.beginDate);
 				data.endDate = d3.isoParse(data.endDate);
 
 				for (var i = 0; i < data.inputs.length; i++) {
-					// console.log(data.inputs[i].inputNo, ":", data.inputs[i].values.length);
 					for (var j = 0; j < data.inputs[i].values.length; j++) {
 						var value = data.inputs[i].values[j];
 						value.period = d3.isoParse(value.period);
 					}
 				}
 
+				return data;
+			}
+
+			var draw = function(data, update) {
+
 				var x_domain = [data.beginDate, data.endDate];
 				// var x_domain = d3.extent(data.inputs[0].values, function (d) { return d.period; });
 
 				var y_domain = [
-					d3.min(data.inputs, function (i) { return d3.min(i.values, function (d) { return d.min; }) }) * 0.75 || 0.0,
-					d3.max(data.inputs, function (i) { return d3.max(i.values, function (d) { return d.max; }) }) * 1.10 || 0.0
+					d3.min(data.inputs, function(i) { return d3.min(i.values, function(d) { return d.min; }) }) * 0.75 || 0.0,
+					d3.max(data.inputs, function(i) { return d3.max(i.values, function(d) { return d.max; }) }) * 1.10 || 0.0
 				];
 
 				if (options.showZero) {
@@ -156,28 +185,13 @@
 					y_domain[1] = Math.max(y_domain[1], 0.0);
 				}
 
-				var z_domain = data.inputs.map(function (c) { return c.inputNo; });
+				var z_domain = data.inputs.map(function(c) { return c.inputNo; });
 
 				x = x.domain(x_domain);
 				y = y.domain(y_domain);
 				z = z.domain(z_domain);
 
-				var line = d3.line()
-					.curve(d3.curveMonotoneX)
-					.x(function(d) { return x(d.period); })
-					.y(function(d) { return y(d.avg); });
-
-				var area = d3.area()
-					.curve(d3.curveMonotoneX)
-					.x(function (d) { return x(d.period); })
-					.y0(function (d) { return y(d.min); })
-					.y1(function (d) { return y(d.max); });
-
-				// console.log("x.domain:", x_domain.map(function (x) { return x.toLocaleString(); }));
-				// console.log("y.domain:", y_domain);
-				// console.log("z.domain:", z_domain);
-
-				var mousemove = function () {
+				var mousemove = function() {
 					var x0 = x.invert(d3.mouse(this)[0]);
 
 					g.selectAll(".area").data().forEach(function(input, i) {
@@ -203,7 +217,7 @@
 					// x axis
 					t.select(".axis--x")
 						.attr("transform", "translate(0," + height + ")")
-						.call(d3.axisBottom(x).ticks(24));
+						.call(d3.axisBottom(x).ticks(options.ticks.x));
 
 					// vertical lines
 					g.selectAll("g.axis--x g.tick line.tick-ext")
@@ -215,10 +229,10 @@
 						.attr("y1", 0)
 						.attr("x2", 0.5)
 						.attr("y2", -height);
-					
+
 					// y axis
 					t.select(".axis--y")
-						.call(d3.axisLeft(y).ticks(12));
+						.call(d3.axisLeft(y).ticks(options.ticks.y));
 
 					// horizontal lines
 					g.selectAll("g.axis--y g.tick line.tick-ext")
@@ -240,15 +254,15 @@
 					// change the area
 					g.selectAll(".area")
 						.data(data.inputs)
-						.attr("d", function (d) { return area(d.values); })
-						.style("fill", function (d) { return z(d.inputNo); })
+						.attr("d", function(d) { return area(d.values); })
+						.style("fill", function(d) { return z(d.inputNo); })
 						.transition().duration(100);
 
 					// change the line
-					g.selectAll(".line")   
+					g.selectAll(".line")
 						.data(data.inputs)
-						.attr("d", function (d) { return line(d.values); })
-						.style("stroke", function (d) { return z(d.inputNo); })
+						.attr("d", function(d) { return line(d.values); })
+						.style("stroke", function(d) { return z(d.inputNo); })
 						.transition().duration(100);
 
 				} else {
@@ -257,7 +271,7 @@
 					g.append("g")
 						.attr("class", "axis axis--x")
 						.attr("transform", "translate(0," + height + ")")
-						.call(d3.axisBottom(x).ticks(24));
+						.call(d3.axisBottom(x).ticks(options.ticks.x));
 
 					// vertical lines
 					g.selectAll("g.axis--x g.tick")
@@ -271,7 +285,7 @@
 					// y axis
 					g.append("g")
 						.attr("class", "axis axis--y")
-						.call(d3.axisLeft(y).ticks(12))
+						.call(d3.axisLeft(y).ticks(options.ticks.y))
 						.append("text")
 						.attr("transform", "rotate(-90)")
 						.attr("y", 7)
@@ -295,22 +309,22 @@
 
 					gs.append("path")
 						.attr("class", "area")
-						.attr("d", function (d) { return area(d.values); })
-						.style("fill", function (d) { return z(d.inputNo); });
+						.attr("d", function(d) { return area(d.values); })
+						.style("fill", function(d) { return z(d.inputNo); });
 
 					gs.append("path")
 						.attr("class", "line")
-						.attr("d", function (d) { return line(d.values); })
-						.style("stroke", function (d) { return z(d.inputNo); });
+						.attr("d", function(d) { return line(d.values); })
+						.style("stroke", function(d) { return z(d.inputNo); });
 
 					gs.append("text")
-						.datum(function (d) { return { inputNo: d.inputNo, name: d.name, value: d.values[d.values.length - 1] }; })
-						.attr("transform", function (d) { return "translate(" + x(d.value.period) + "," + y(d.value.avg) + ")"; })
+						.datum(function(d) { return { inputNo: d.inputNo, name: d.name, value: d.values[d.values.length - 1] }; })
+						.attr("transform", function(d) { return "translate(" + x(d.value.period) + "," + y(d.value.avg) + ")"; })
 						.attr("x", 5.0)
 						.attr("dy", "0.3em")
 						.style("font", "10px monospace")
-						.style("fill", function (d) { return z(d.inputNo); })
-						.text(function (d) { return d.name; });
+						.style("fill", function(d) { return z(d.inputNo); })
+						.text(function(d) { return d.name; });
 
 					// focus line
 					var focuslLine = g.append("g")
@@ -330,12 +344,12 @@
 					var focus = g.selectAll(".focus")
 						.data(data.inputs)
 						.enter().append("g")
-						.attr("class", function (d) { return "focus focus-" + d.inputNo; })
+						.attr("class", function(d) { return "focus focus-" + d.inputNo; })
 						.style("display", "none");
 
 					focus.append("circle")
 						.attr("r", 3.5)
-						.style("stroke", function (d) { return z(d.inputNo); });
+						.style("stroke", function(d) { return z(d.inputNo); });
 
 					focus.append("text")
 						.attr("x", 7)
@@ -346,30 +360,44 @@
 						.attr("class", "overlay")
 						.attr("width", width)
 						.attr("height", height)
-						.on("mouseover", function () { focuslLine.style("display", null); focus.style("display", null); })
-						.on("mouseout", function () { focuslLine.style("display", "none"); focus.style("display", "none"); })
+						.on("mouseover",
+							function() {
+								focuslLine.style("display", null);
+								focus.style("display", null);
+							})
+						.on("mouseout",
+							function() {
+								focuslLine.style("display", "none");
+								focus.style("display", "none");
+							})
 						.on("mousemove", mousemove);
 				}
 			};
 
-			function draw(update) {
+			var loadData = function(update) {
 				d3.json(getDataUrl(),
-					function (error, data) {
-						onDataLoaded(error, data, update);
+					function(error, data) {
+						if (error) return; // throw error; // todo: log error
+
+						options.data = parse(data);
+						draw(data, update);
 					}
 				);
 			}
 
-			draw(false);
+			init();
+			loadData(false);
 
-			setInterval(function() { draw(true); }, 15000);
+			setInterval(function() { loadData(true); }, 15000);
 
-			$(".hours .btn").click(function () {
+			$(".hours .btn").click(function() {
 				window.hours = $(this).text();
-				draw(true);
+				loadData(true);
 			});
 
 			$(window).resize(function() {
+				init();
+				draw(options.data, false);
 			});
 
 		})(window.d3);
