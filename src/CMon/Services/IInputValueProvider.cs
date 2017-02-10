@@ -58,7 +58,7 @@ namespace CMon.Services
 						v.Value
 					};
 
-				var arr2 = q2.ToArray();
+				// var arr2 = q2.ToArray();
 
 				var q3 = from v in q2
 					group v by new
@@ -82,7 +82,7 @@ namespace CMon.Services
 
 				// var sql = q3.ToString();
 
-				var arr3 = q3.OrderBy(x => x.InputNum).ThenBy(x => x.Period).ToArray();
+				// var arr3 = q3.OrderBy(x => x.InputNum).ThenBy(x => x.Period).ToArray();
 
 				var lookup = q3.OrderBy(x => x.InputNum).ThenBy(x => x.Period).ToLookup(x => x.InputNum, x => x);
 
