@@ -3,6 +3,15 @@
     padding-bottom: 20px;
 }
 
+.navbar {
+	margin-bottom: 15px;
+}
+
+.navbar-default {
+    background-color: #fff;
+    border-color: #e7e7e7;
+}
+
 /* Wrapping element */
 /* Set some basic padding to keep content from hitting the edges */
 .body-content {
