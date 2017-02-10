@@ -6,15 +6,25 @@
 
 <div class="row">
 	<div class="col-md-12">
-		<strong>#@Model.Id</strong> температура за часы
-		<div class="btn-group btn-group-sm hours" role="group">
-			<button type="button" class="btn btn-default">1</button>
-			<button type="button" class="btn btn-default">2</button>
-			<button type="button" class="btn btn-default">4</button>
-			<button type="button" class="btn btn-default">8</button>
-			<button type="button" class="btn btn-default">12</button>
-			<button type="button" class="btn btn-default">24</button>
-			<button type="button" class="btn btn-default">48</button>
+		<div class="btn-toolbar hours" role="toolbar">
+			<div class="btn-group btn-group-xs" role="group">
+				<button type="button" class="btn btn-default" data-hours="1">1h</button>
+				<button type="button" class="btn btn-default" data-hours="2">2h</button>
+				<button type="button" class="btn btn-default" data-hours="4">4h</button>
+				<button type="button" class="btn btn-default" data-hours="8">8h</button>
+				<button type="button" class="btn btn-default" data-hours="12">12h</button>
+			</div>
+			<div class="btn-group btn-group-xs" role="group">
+				<button type="button" class="btn btn-default" data-hours="24">1d</button>
+				<button type="button" class="btn btn-default" data-hours="48">2d</button>
+				<button type="button" class="btn btn-default" data-hours="72">3d</button>
+			</div>
+			<div class="btn-group btn-group-xs" role="group">
+				<button type="button" class="btn btn-default" data-hours="168">1w</button>
+				<button type="button" class="btn btn-default" data-hours="336">2w</button>
+				<button type="button" class="btn btn-default" data-hours="504">3w</button>
+				<button type="button" class="btn btn-default" data-hours="672">4w</button>
+			</div>
 		</div>
 		<div id="chart"></div>
 	</div>
@@ -25,24 +35,6 @@
 	<script src="//d3js.org/d3.v4.min.js"></script>
 
 	<script>
-
-		function getParameterByName(name, url) {
-			if (!url) {
-				url = window.location.href;
-			}
-			name = name.replace(/[\[\]]/g, "\\$&");
-			var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
-				results = regex.exec(url);
-			if (!results) return null;
-			if (!results[2]) return '';
-			return decodeURIComponent(results[2].replace(/\+/g, " "));
-		}
-
-		function getDataUrl() {
-			var d = '@Model.Id',
-				h = window.hours || '1';
-			return '/api/values?deviceId=' + d + '&h=' + h + '&t=' + new Date().getTime();
-		}
 
 		(function(d3) {
 
@@ -76,11 +68,12 @@
 				.y1(function(d) { return y(d.max); });
 
 			var options = {
-					container: { width: 600, height: 300 },
-					margin: { top: 20, right: 60, bottom: 20, left: 20 },
-					ticks: { x: 24, y: 12 },
-					showZero: true
-				};
+				container: { width: 600, height: 300 },
+				margin: { top: 20, right: 60, bottom: 20, left: 20 },
+				ticks: { x: 24, y: 12 },
+				showZero: true,
+				hours: 1
+			};
 
 			var init = function() {
 
@@ -325,6 +318,10 @@
 				}
 			};
 
+			function getDataUrl() {
+				return '/api/values?deviceId=@(Model.Id)&h=' + options.hours + '&t=' + new Date().getTime();
+			}
+
 			var loadData = function(update) {
 				d3.json(getDataUrl(),
 					function(error, data) {
@@ -341,8 +338,8 @@
 
 			setInterval(function() { loadData(true); }, 15000);
 
-			$(".hours .btn").click(function() {
-				window.hours = $(this).text();
+			$(".hours .btn").click(function () {
+				options.hours = $(this).data("hours");
 				loadData(true);
 			});
 

@@ -24,7 +24,7 @@ namespace CMon.Web.Controllers
 			var endDate = DateTime.UtcNow;
 			var beginDate = endDate.AddHours(-h);
 
-			return _valueProvider.GetValues(deviceId, beginDate, endDate, 1);
+			return _valueProvider.GetValues(deviceId, beginDate, endDate);
 		}
 
 		// GET api/values/5
