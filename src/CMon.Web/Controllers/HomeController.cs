@@ -2,7 +2,7 @@
 
 namespace CMon.Web.Controllers
 {
-    public class HomeController : Controller
+	public class HomeController : Controller
     {
         public IActionResult Index()
         {
@@ -11,15 +11,11 @@ namespace CMon.Web.Controllers
 
         public IActionResult About()
         {
-            ViewData["Message"] = "Your application description page.";
-
             return View();
         }
 
         public IActionResult Contact()
         {
-            ViewData["Message"] = "Your contact page.";
-
             return View();
         }
 

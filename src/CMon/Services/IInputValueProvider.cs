@@ -9,11 +9,13 @@ namespace CMon.Services
 {
 	public interface IInputValueProvider
     {
-		DeviceStatistic GetValues(long deviceId,  DateTime begin, DateTime end, int groupByMinutes);
+		DeviceStatistic GetValues(long deviceId,  DateTime begin, DateTime end, int? minutes = null);
     }
 
 	public class DefaultInputValueProvider : IInputValueProvider
 	{
+		private static readonly int MaxDataPoints = 250;
+
 		private readonly ConnectionStringOptions _connectionStrings;
 
 		public DefaultInputValueProvider(IOptions<ConnectionStringOptions> connectionStringOptions)
@@ -21,8 +23,10 @@ namespace CMon.Services
 			_connectionStrings = connectionStringOptions.Value;
 		}
 
-		public DeviceStatistic GetValues(long deviceId, DateTime begin, DateTime end, int groupByMinutes)
+		public DeviceStatistic GetValues(long deviceId, DateTime begin, DateTime end, int? minutes = null)
 		{
+			var groupByMinutes = Math.Max(minutes ?? (int)end.Subtract(begin).TotalMinutes / MaxDataPoints, 1);
+
 			using (var db = new DbConnection(_connectionStrings.DefaultConnection))
 			{
 				var dbInput = db.GetTable<DbInput>().Where(x => x.DeviceId == deviceId).ToList();
@@ -50,9 +54,11 @@ namespace CMon.Services
 						v.Month,
 						v.Day,
 						v.Hour,
-						Minute = v.Minute == 60 ? 0 : v.Minute,
+						Minute = v.Minute > 59 ? 0 : v.Minute,
 						v.Value
 					};
+
+				// var arr2 = q2.ToArray();
 
 				var q3 = from v in q2
 					group v by new
@@ -76,7 +82,7 @@ namespace CMon.Services
 
 				// var sql = q3.ToString();
 
-				// var arr = q3.OrderBy(x => x.InputNum).ThenBy(x => x.Period).ToArray();
+				// var arr3 = q3.OrderBy(x => x.InputNum).ThenBy(x => x.Period).ToArray();
 
 				var lookup = q3.OrderBy(x => x.InputNum).ThenBy(x => x.Period).ToLookup(x => x.InputNum, x => x);
 

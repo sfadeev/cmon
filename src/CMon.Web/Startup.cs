@@ -35,7 +35,7 @@ namespace CMon.Web
 			services.Configure<ConnectionStringOptions>(Configuration.GetSection("ConnectionStrings"));
 
 			// Add framework services.
-
+			services.AddRouting(options => options.LowercaseUrls = true);
 			services.AddMvc();
 
 			// Add application services.
@@ -65,6 +65,11 @@ namespace CMon.Web
 
 			app.UseMvc(routes =>
 			{
+				routes.MapRoute(
+					name: "device.index",
+					template: "d/{deviceId:long}",
+					defaults: new { controller = "Device", action = "Index" });
+
 				routes.MapRoute(
 					name: "default",
 					template: "{controller=Home}/{action=Index}/{id?}");
