@@ -33,6 +33,15 @@ http://karaf.apache.org/projects.html#decanter
 Kibana / X-Pack
 https://www.elastic.co/products/x-pack
 
+
+-----------------
+
+Date Math Expressions
+https://www.elastic.co/guide/en/elasticsearch/client/net-api/current/date-math-expressions.html
+
+Date Math
+https://www.elastic.co/guide/en/elasticsearch/reference/5.0/common-options.html#date-math
+
 -----------------
 
 Publish to a Linux Production Environment

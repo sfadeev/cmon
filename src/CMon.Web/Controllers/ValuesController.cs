@@ -1,5 +1,4 @@
-﻿using System;
-using CMon.Models;
+﻿using CMon.Models;
 using CMon.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,12 +18,11 @@ namespace CMon.Web.Controllers
 
 		// GET: api/values
 		[HttpGet]
-		public DeviceStatistic GetValues(long deviceId, int h)
+		public DeviceStatistic GetValues(long deviceId, string from, string to)
 		{
-			var endDate = DateTime.UtcNow;
-			var beginDate = endDate.AddHours(-h);
+			var request = new InputValueRequest { DeviceId = deviceId, BeginDate = @from, EndDate = to };
 
-			return _valueProvider.GetValues(deviceId, beginDate, endDate);
+			return _valueProvider.GetValues(request);
 		}
 
 		// GET api/values/5

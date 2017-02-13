@@ -7,23 +7,30 @@
 <div class="row">
 	<div class="col-md-12">
 		<div class="btn-toolbar hours" role="toolbar">
-			<div class="btn-group btn-group-xs" role="group">
-				<button type="button" class="btn btn-default" data-hours="1">1h</button>
-				<button type="button" class="btn btn-default" data-hours="2">2h</button>
-				<button type="button" class="btn btn-default" data-hours="4">4h</button>
-				<button type="button" class="btn btn-default" data-hours="8">8h</button>
-				<button type="button" class="btn btn-default" data-hours="12">12h</button>
+			<div class="btn-group btn-group-sm" role="group">
+				<button type="button" class="btn btn-default">1h</button>
+				<button type="button" class="btn btn-default">2h</button>
+				<button type="button" class="btn btn-default">4h</button>
+				<button type="button" class="btn btn-default">8h</button>
+				<button type="button" class="btn btn-default">12h</button>
 			</div>
-			<div class="btn-group btn-group-xs" role="group">
-				<button type="button" class="btn btn-default" data-hours="24">1d</button>
-				<button type="button" class="btn btn-default" data-hours="48">2d</button>
-				<button type="button" class="btn btn-default" data-hours="72">3d</button>
+			<div class="btn-group btn-group-sm" role="group">
+				<button type="button" class="btn btn-default">1d</button>
+				<button type="button" class="btn btn-default">2d</button>
+				<button type="button" class="btn btn-default">3d</button>
 			</div>
-			<div class="btn-group btn-group-xs" role="group">
-				<button type="button" class="btn btn-default" data-hours="168">1w</button>
-				<button type="button" class="btn btn-default" data-hours="336">2w</button>
-				<button type="button" class="btn btn-default" data-hours="504">3w</button>
-				<button type="button" class="btn btn-default" data-hours="672">4w</button>
+			<div class="btn-group btn-group-sm" role="group" style="margin-right: 5px;">
+				<button type="button" class="btn btn-default">1w</button>
+			</div>
+			<div class="input-group input-group-sm col-sm-2">
+				<input type="text" class="form-control" id="from" value="now-1h">
+				<div class="input-group-btn"></div>
+				<input type="text" class="form-control" id="to" value="now">
+				<div class="input-group-btn">
+					<button type="button" class="btn btn-default">
+						<span class="glyphicon glyphicon-refresh"></span>
+					</button>
+				</div>
 			</div>
 		</div>
 		<div id="chart"></div>
@@ -68,7 +75,7 @@
 				.y1(function(d) { return y(d.max); });
 
 			var options = {
-				container: { width: 600, height: 300 },
+				container: { width: 600, minHeight: 300, maxHeight: 400 },
 				margin: { top: 20, right: 60, bottom: 20, left: 20 },
 				ticks: { x: 24, y: 12 },
 				showZero: true,
@@ -78,6 +85,13 @@
 			var init = function() {
 
 				options.container.width = parseInt(chart.style('width'), 10);
+				options.container.height =
+					Math.min(
+						Math.max(
+							document.documentElement.clientHeight - 200,
+							options.container.minHeight),
+						options.container.maxHeight);
+
 				options.ticks.x = options.container.width / 60;
 
 				chart.select('svg')
@@ -319,7 +333,7 @@
 			};
 
 			function getDataUrl() {
-				return '/api/values?deviceId=@(Model.Id)&h=' + options.hours + '&t=' + new Date().getTime();
+				return '/api/values?deviceId=@(Model.Id)&from=' + $("#from").val() + '&to=' + $("#to").val() + '&t=' + new Date().getTime();
 			}
 
 			var loadData = function(update) {
@@ -336,14 +350,21 @@
 			init();
 			loadData(false);
 
-			setInterval(function() { loadData(true); }, 15000);
+			setInterval(function() {
+				if ($("#to").val() === "now") loadData(true);
+			}, 15000);
 
-			$(".hours .btn").click(function () {
-				options.hours = $(this).data("hours");
+			$(".btn-group .btn").click(function () {
+				$("#from").val("now-" + $(this).text());
+				$("#to").val("now");
 				loadData(true);
 			});
 
-			$(window).resize(function() {
+			$(".input-group .btn").click(function () {
+				loadData(true);
+			});
+
+			$(window).resize(function () {
 				init();
 				draw(options.data, false);
 			});
