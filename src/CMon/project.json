@@ -5,6 +5,7 @@
 	},
 
   "dependencies": {
+    "DateMath": "1.0.0",
     "linq2db.Core": "1.7.5",
     "Microsoft.Extensions.Configuration": "1.1.0",
     "Microsoft.Extensions.Configuration.EnvironmentVariables": "1.1.0",

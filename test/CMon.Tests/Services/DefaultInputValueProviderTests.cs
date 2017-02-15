@@ -37,7 +37,12 @@ namespace CMon.Tests.Services
 			var now = DateTime.UtcNow;
 
 			// act
-			var stats = provider.GetValues(0, now.AddHours(-2), now, 10);
+	        var stats = provider.GetValues(new InputValueRequest
+	        {
+		        DeviceId = 0,
+		        BeginDate = "now-2y",
+		        EndDate = "now"
+	        });
 
 			// assert
 			Assert.NotNull(stats);

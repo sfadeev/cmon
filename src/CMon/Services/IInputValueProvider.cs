@@ -2,6 +2,7 @@
 using System.Linq;
 using CMon.Entities;
 using CMon.Models;
+using DaleNewman;
 using LinqToDB;
 using Microsoft.Extensions.Options;
 
@@ -9,13 +10,31 @@ namespace CMon.Services
 {
 	public interface IInputValueProvider
     {
-		DeviceStatistic GetValues(long deviceId,  DateTime begin, DateTime end, int? minutes = null);
+		DeviceStatistic GetValues(InputValueRequest request);
     }
+
+	public class InputValueOptions
+	{
+		public int MaxDataPoints { get; set; }  = 500;
+
+		public int MinGroupByMinutes { get; set; }  = 1;
+
+		public int MaxGroupByMinutes { get; set; }  = 59;
+
+		public int? GroupByMinutes { get; set; }
+	}
+
+	public class InputValueRequest
+	{
+		public long DeviceId { get; set; }
+
+		public string BeginDate { get; set; }
+
+		public string EndDate { get; set; }
+	}
 
 	public class DefaultInputValueProvider : IInputValueProvider
 	{
-		private static readonly int MaxDataPoints = 250;
-
 		private readonly ConnectionStringOptions _connectionStrings;
 
 		public DefaultInputValueProvider(IOptions<ConnectionStringOptions> connectionStringOptions)
@@ -23,18 +42,26 @@ namespace CMon.Services
 			_connectionStrings = connectionStringOptions.Value;
 		}
 
-		public DeviceStatistic GetValues(long deviceId, DateTime begin, DateTime end, int? minutes = null)
+		public DeviceStatistic GetValues(InputValueRequest request)
 		{
-			var groupByMinutes = Math.Max(minutes ?? (int)end.Subtract(begin).TotalMinutes / MaxDataPoints, 1);
+			var options = new InputValueOptions();
+
+			var beginDate = DateMath.Parse(request.BeginDate); 
+			var endDate = DateMath.Parse(request.EndDate);
+
+			var groupByMinutes = options.GroupByMinutes ?? (int) endDate.Subtract(beginDate).TotalMinutes / options.MaxDataPoints;
+
+			groupByMinutes = Math.Max(Math.Min(
+					groupByMinutes, options.MaxGroupByMinutes), options.MinGroupByMinutes);
 
 			using (var db = new DbConnection(_connectionStrings.DefaultConnection))
 			{
-				var dbInput = db.GetTable<DbInput>().Where(x => x.DeviceId == deviceId).ToList();
+				var dbInput = db.GetTable<DbInput>().Where(x => x.DeviceId == request.DeviceId).ToList();
 
 				var table = db.GetTable<DbInputValue>();
 
 				var q1 = from v in table
-					where v.DeviceId == deviceId && v.CreatedAt > begin && v.CreatedAt <= end
+					where v.DeviceId == request.DeviceId && v.CreatedAt > beginDate && v.CreatedAt <= endDate
 					select new
 					{
 						v.InputNum,
@@ -54,7 +81,7 @@ namespace CMon.Services
 						v.Month,
 						v.Day,
 						v.Hour,
-						Minute = v.Minute > 59 ? 0 : v.Minute,
+						Minute = v.Minute > 59 ? 59 : v.Minute,
 						v.Value
 					};
 
@@ -103,8 +130,8 @@ namespace CMon.Services
 
 				return new DeviceStatistic
 				{
-					BeginDate = begin,
-					EndDate = end,
+					BeginDate = beginDate,
+					EndDate = endDate,
 					Inputs = inputs
 				};
 			}
