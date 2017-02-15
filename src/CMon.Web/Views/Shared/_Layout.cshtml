@@ -6,7 +6,9 @@
 <html>
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="google-site-verification" content="uTtk4l8cK8HfssECFR_daQ4TF_-PMiFVMCUPGlnelOE" />
+	<meta name="yandex-verification" content="12835df1d1494c86" />
     <title>@ViewData["Title"] | @appName</title>
 
     <environment names="Development">
@@ -80,5 +82,8 @@
     </environment>
 
     @RenderSection("scripts", required: false)
+	
+	@await Html.PartialAsync("_GoogleAnalytics")
+	@await Html.PartialAsync("_YandexMetrika")
 </body>
 </html>
