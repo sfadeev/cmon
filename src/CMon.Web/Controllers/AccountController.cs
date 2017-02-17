@@ -1,9 +1,9 @@
 ﻿using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using AspNetCoreIdentity.Models;
-using AspNetCoreIdentity.Models.AccountViewModels;
 using AspNetCoreIdentity.Services;
+using CMon.Web.Models;
+using CMon.Web.Models.AccountViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

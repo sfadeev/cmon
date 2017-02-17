@@ -1,7 +1,10 @@
 ﻿@using System.Collections.Generic
+@using CMon.Web.Models
+@using CMon.Web.Models.AccountViewModels
 @using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Http.Authentication
-@model LoginViewModel
+@using Microsoft.AspNetCore.Identity
+@model CMon.Web.Models.AccountViewModels.LoginViewModel
 @inject SignInManager<ApplicationUser> SignInManager
 
 @{

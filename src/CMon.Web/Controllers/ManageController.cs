@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using AspNetCoreIdentity.Models;
-using AspNetCoreIdentity.Models.ManageViewModels;
 using AspNetCoreIdentity.Services;
+using CMon.Web.Models;
+using CMon.Web.Models.ManageViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;

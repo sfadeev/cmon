@@ -25,7 +25,8 @@
       "type": "build"
     },
     "Microsoft.AspNetCore.Identity": "1.1.0",
-    "linq2db.Core": "1.7.5"
+    "linq2db.Core": "1.7.5",
+    "LinqToDB.Identity": "1.1.0-*"
 	},
 
 	"tools": {
