@@ -1,16 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Threading.Tasks;
+using AspNetCoreIdentity.Models;
+using AspNetCoreIdentity.Models.ManageViewModels;
+using AspNetCoreIdentity.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
-using AspNetCoreIdentity.Models;
-using AspNetCoreIdentity.Models.ManageViewModels;
-using AspNetCoreIdentity.Services;
 
-namespace AspNetCoreIdentity.Controllers
+namespace CMon.Web.Controllers
 {
     [Authorize]
     public class ManageController : Controller
