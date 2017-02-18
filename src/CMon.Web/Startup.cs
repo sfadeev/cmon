@@ -1,4 +1,11 @@
-﻿using CMon.Services;
+﻿using AspNetCoreIdentity.Services;
+using CMon.Services;
+using CMon.Web.Entities;
+using CMon.Web.Models;
+using LinqToDB;
+using LinqToDB.Data;
+using LinqToDB.DataProvider.PostgreSQL;
+using LinqToDB.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -32,7 +39,26 @@ namespace CMon.Web
 		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
+			// Set connection configuration
+			DataConnection
+				.AddConfiguration(
+					"Default",
+					// Configuration["Data:DefaultConnection:ConnectionString"],
+					Configuration.GetSection("ConnectionStrings").Get<ConnectionStringOptions>().DefaultConnection,
+					new PostgreSQLDataProvider("Default", PostgreSQLVersion.v93));
+
+			DataConnection.DefaultConfiguration = "Default";
+
 			services.Configure<ConnectionStringOptions>(Configuration.GetSection("ConnectionStrings"));
+
+			services.AddIdentity<DbUser, IdentityRole<long>>(options =>
+				{
+					options.Cookies.ApplicationCookie.AuthenticationScheme = "ApplicationCookie";
+					options.Cookies.ApplicationCookie.CookieName = "Interop";
+					// options.Cookies.ApplicationCookie.DataProtectionProvider = DataProtectionProvider.Create(new DirectoryInfo("C:\\Github\\Identity\\artifacts"));
+				})
+				.AddLinqToDBStores(new DefaultConnectionFactory<DataContext, ApplicationDataConnection>(), typeof(long))
+				.AddDefaultTokenProviders();
 
 			// Add framework services.
 			services.AddRouting(options => options.LowercaseUrls = true);
@@ -40,6 +66,9 @@ namespace CMon.Web
 
 			// Add application services.
 			services.AddTransient<IInputValueProvider, DefaultInputValueProvider>();
+
+			services.AddTransient<IEmailSender, AuthMessageSender>();
+			services.AddTransient<ISmsSender, AuthMessageSender>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -59,6 +88,41 @@ namespace CMon.Web
 				app.UseExceptionHandler("/Home/Error");
 			}
 
+			// var connectionString = Configuration.GetSection("ConnectionStrings").Get<ConnectionStringOptions>().DefaultConnection;
+			/*var connectionString = new SqlConnectionStringBuilder(Configuration["Data:DefaultConnection:ConnectionString"])
+			{
+				InitialCatalog = "master"
+			}.ConnectionString;*/
+
+			// using (var db = new DataConnection(SqlServerTools.GetDataProvider(), connectionString))
+			/*using (var db = new DataConnection(PostgreSQLTools.GetDataProvider(), connectionString))
+			{
+				try
+				{
+					var sql = "create database [" +
+							  new SqlConnectionStringBuilder(Configuration["Data:DefaultConnection:ConnectionString"])
+								  .InitialCatalog + "]";
+					db.Execute(sql);
+				}
+				catch
+				{
+					//
+				}
+
+			}*/
+
+			// Try to create tables
+			/*using (var db = new ApplicationDataConnection(connectionString))
+			{
+				TryCreateTable<ApplicationUser>(db);
+				TryCreateTable<IdentityRole>(db);
+				TryCreateTable<IdentityUserClaim<string>>(db);
+				TryCreateTable<IdentityRoleClaim<string>>(db);
+				TryCreateTable<IdentityUserLogin<string>>(db);
+				TryCreateTable<IdentityUserRole<string>>(db);
+				TryCreateTable<IdentityUserToken<string>>(db);
+			}*/
+
 			app.UseStaticFiles();
 
 			// Add external authentication middleware below. To configure them please see http://go.microsoft.com/fwlink/?LinkID=532715
@@ -75,5 +139,18 @@ namespace CMon.Web
 					template: "{controller=Home}/{action=Index}/{id?}");
 			});
 		}
+
+		/*private void TryCreateTable<T>(ApplicationDataConnection db)
+			where T : class
+		{
+			try
+			{
+				db.CreateTable<T>();
+			}
+			catch
+			{
+				//
+			}
+		}*/
 	}
 }

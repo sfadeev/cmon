@@ -1,17 +1,20 @@
 ﻿@using System.Collections.Generic
+@using CMon.Web.Entities
 @using CMon.Web.Models
 @using CMon.Web.Models.AccountViewModels
+@using LinqToDB.Identity
 @using Microsoft.AspNetCore.Http
 @using Microsoft.AspNetCore.Http.Authentication
 @using Microsoft.AspNetCore.Identity
 @model CMon.Web.Models.AccountViewModels.LoginViewModel
-@inject SignInManager<ApplicationUser> SignInManager
+@inject SignInManager<DbUser> SignInManager
 
 @{
     ViewData["Title"] = "Log in";
 }
 
 <h2>@ViewData["Title"].</h2>
+
 <div class="row">
     <div class="col-md-8">
         <section>

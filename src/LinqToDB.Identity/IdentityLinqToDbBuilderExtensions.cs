@@ -32,16 +32,17 @@ namespace Microsoft.Extensions.DependencyInjection
 		/// <param name="factory">
 		///     <see cref="IConnectionFactory{TContext,TConnection}" />
 		/// </param>
+		/// <param name="keyType"></param>
 		/// <returns>The <see cref="IdentityBuilder" /> instance this method extends.</returns>
 		// ReSharper disable once InconsistentNaming
 		public static IdentityBuilder AddLinqToDBStores<TContext, TConnection>(this IdentityBuilder builder,
-			IConnectionFactory<TContext, TConnection> factory)
+			IConnectionFactory<TContext, TConnection> factory, Type keyType = null)
 			where TContext : IDataContext
 			where TConnection : DataConnection
 		{
 			builder.Services.AddSingleton(factory);
 
-			builder.Services.TryAdd(GetDefaultServices(builder.UserType, builder.RoleType, typeof(TContext), typeof(TConnection)));
+			builder.Services.TryAdd(GetDefaultServices(builder.UserType, builder.RoleType, typeof(TContext), typeof(TConnection), keyType));
 			return builder;
 		}
 
