@@ -1,7 +1,6 @@
 ﻿using AspNetCoreIdentity.Services;
 using CMon.Services;
 using CMon.Web.Entities;
-using CMon.Web.Models;
 using LinqToDB;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.PostgreSQL;
@@ -51,13 +50,15 @@ namespace CMon.Web
 
 			services.Configure<ConnectionStringOptions>(Configuration.GetSection("ConnectionStrings"));
 
-			services.AddIdentity<DbUser, IdentityRole<long>>(options =>
+			services.AddIdentity<DbUser, DbRole>(options =>
 				{
 					options.Cookies.ApplicationCookie.AuthenticationScheme = "ApplicationCookie";
 					options.Cookies.ApplicationCookie.CookieName = "Interop";
 					// options.Cookies.ApplicationCookie.DataProtectionProvider = DataProtectionProvider.Create(new DirectoryInfo("C:\\Github\\Identity\\artifacts"));
 				})
-				.AddLinqToDBStores(new DefaultConnectionFactory<DataContext, ApplicationDataConnection>(), typeof(long))
+				.AddUserStore<UserStore<DataContext, IdentityDbConnection, DbUser, DbRole, long, DbUserClaim, DbUserRole, DbUserLogin, DbUserToken, DbRoleClaim>>()
+				.AddRoleStore<RoleStore<DataContext, IdentityDbConnection, DbRole, long, DbUserRole, DbRoleClaim>>()
+				.AddLinqToDBConnectionFactory(new DefaultConnectionFactory<DataContext, IdentityDbConnection>(), typeof(long))
 				.AddDefaultTokenProviders();
 
 			// Add framework services.
@@ -112,7 +113,7 @@ namespace CMon.Web
 			}*/
 
 			// Try to create tables
-			/*using (var db = new ApplicationDataConnection(connectionString))
+			/*using (var db = new IdentityDbConnection(connectionString))
 			{
 				TryCreateTable<ApplicationUser>(db);
 				TryCreateTable<IdentityRole>(db);
@@ -140,7 +141,7 @@ namespace CMon.Web
 			});
 		}
 
-		/*private void TryCreateTable<T>(ApplicationDataConnection db)
+		/*private void TryCreateTable<T>(IdentityDbConnection db)
 			where T : class
 		{
 			try

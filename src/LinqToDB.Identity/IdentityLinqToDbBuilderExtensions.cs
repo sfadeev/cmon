@@ -76,6 +76,26 @@ namespace Microsoft.Extensions.DependencyInjection
 			return builder;
 		}
 
+
+		// ReSharper disable once InconsistentNaming
+		/// <summary>
+		/// </summary>
+		/// <param name="builder"></param>
+		/// <param name="factory"></param>
+		/// <param name="keyType"></param>
+		/// <typeparam name="TContext"></typeparam>
+		/// <typeparam name="TConnection"></typeparam>
+		/// <returns></returns>
+		public static IdentityBuilder AddLinqToDBConnectionFactory<TContext, TConnection>(this IdentityBuilder builder,
+			IConnectionFactory<TContext, TConnection> factory, Type keyType = null)
+			where TContext : IDataContext
+			where TConnection : DataConnection
+		{
+			builder.Services.AddSingleton(factory);
+
+			return builder;
+		}
+
 		private static IServiceCollection GetDefaultServices(Type userType, Type roleType, Type contextType,
 			Type connectionType, Type keyType = null)
 		{

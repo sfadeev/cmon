@@ -5,15 +5,15 @@ using LinqToDB.Mapping;
 namespace CMon.Web.Entities
 {
 	[Table(Schema = "public", Name = "users")]
-	public class DbUser : IdentityUser<long>
+	public class DbUser : IdentityUser<long, DbUserClaim, DbUserRole, DbUserLogin>
 	{
-		[Column("id"), PrimaryKey, Identity]
+		[Column("id"), PrimaryKey, Identity, NotNull]
 		public override long Id { get; set; }
 
-		[Column("user_name"), NotNull]
+		[Column("user_name")]
 		public override string UserName { get; set; }
 
-		[Column("normalized_user_name"), NotNull]
+		[Column("normalized_user_name")]
 		public override string NormalizedUserName { get; set; }
 
 		[Column("first_name")]

@@ -3,14 +3,14 @@ using LinqToDB.Mapping;
 
 namespace CMon.Web.Entities
 {
-	[Table(Schema = "public", Name = "user_claim")]
-	public class DbUserClaim : IdentityUserClaim<long>
+	[Table(Schema = "public", Name = "role_claim")]
+	public class DbRoleClaim : IdentityRoleClaim<long>
 	{
 		[Column("id"), PrimaryKey(Order = 0)]
 		public override int Id { get; set; }
 
-		[Column("user_id"), PrimaryKey(Order = 1)]
-		public override long UserId { get; set; }
+		[Column("role_id"), PrimaryKey(Order = 1)]
+		public override long RoleId { get; set; }
 
 		[Column("claim_type"), NotNull]
 		public override string ClaimType { get; set; }
