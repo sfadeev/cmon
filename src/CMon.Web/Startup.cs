@@ -1,7 +1,6 @@
 ﻿using AspNetCoreIdentity.Services;
 using CMon.Services;
 using CMon.Web.Entities;
-using LinqToDB;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.Identity;
@@ -39,37 +38,46 @@ namespace CMon.Web
 		public void ConfigureServices(IServiceCollection services)
 		{
 			// Set connection configuration
+			var connectionStringsSection = Configuration.GetSection("ConnectionStrings");
+
 			DataConnection
 				.AddConfiguration(
 					"Default",
 					// Configuration["Data:DefaultConnection:ConnectionString"],
-					Configuration.GetSection("ConnectionStrings").Get<ConnectionStringOptions>().DefaultConnection,
+					connectionStringsSection.Get<ConnectionStringOptions>().DefaultConnection,
 					new PostgreSQLDataProvider("Default", PostgreSQLVersion.v93));
 
 			DataConnection.DefaultConfiguration = "Default";
 
-			services.Configure<ConnectionStringOptions>(Configuration.GetSection("ConnectionStrings"));
+			services.Configure<ConnectionStringOptions>(connectionStringsSection);
 
-			services.AddIdentity<DbUser, DbRole>(options =>
+			services.AddIdentity<DbUser, DbRole>(/*options =>
 				{
 					options.Cookies.ApplicationCookie.AuthenticationScheme = "ApplicationCookie";
 					options.Cookies.ApplicationCookie.CookieName = "Interop";
-					// options.Cookies.ApplicationCookie.DataProtectionProvider = DataProtectionProvider.Create(new DirectoryInfo("C:\\Github\\Identity\\artifacts"));
-				})
-				.AddUserStore<UserStore<DataContext, IdentityDbConnection, DbUser, DbRole, long, DbUserClaim, DbUserRole, DbUserLogin, DbUserToken, DbRoleClaim>>()
-				.AddRoleStore<RoleStore<DataContext, IdentityDbConnection, DbRole, long, DbUserRole, DbRoleClaim>>()
-				.AddLinqToDBConnectionFactory(new DefaultConnectionFactory<DataContext, IdentityDbConnection>(), typeof(long))
+					options.Cookies.ApplicationCookie.AutomaticAuthenticate = true;
+					options.Cookies.ApplicationCookie.AutomaticChallenge = true;
+					options.Cookies.ApplicationCookie.DataProtectionProvider =
+						DataProtectionProvider.Create(new DirectoryInfo("C:\\Github\\Identity\\artifacts"));
+				}*/)
+				.AddLinqToDBStores(new DefaultConnectionFactory<IdentityDataContext, IdentityDbConnection>(), typeof(long))
 				.AddDefaultTokenProviders();
 
 			// Add framework services.
-			services.AddRouting(options => options.LowercaseUrls = true);
+			services.AddRouting(options =>
+			{
+				options.AppendTrailingSlash = true;
+				options.LowercaseUrls = true;
+			});
+
 			services.AddMvc();
 
 			// Add application services.
-			services.AddTransient<IInputValueProvider, DefaultInputValueProvider>();
 
 			services.AddTransient<IEmailSender, AuthMessageSender>();
 			services.AddTransient<ISmsSender, AuthMessageSender>();
+
+			services.AddTransient<IInputValueProvider, DefaultInputValueProvider>();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -89,44 +97,13 @@ namespace CMon.Web
 				app.UseExceptionHandler("/Home/Error");
 			}
 
-			// var connectionString = Configuration.GetSection("ConnectionStrings").Get<ConnectionStringOptions>().DefaultConnection;
-			/*var connectionString = new SqlConnectionStringBuilder(Configuration["Data:DefaultConnection:ConnectionString"])
-			{
-				InitialCatalog = "master"
-			}.ConnectionString;*/
-
-			// using (var db = new DataConnection(SqlServerTools.GetDataProvider(), connectionString))
-			/*using (var db = new DataConnection(PostgreSQLTools.GetDataProvider(), connectionString))
-			{
-				try
-				{
-					var sql = "create database [" +
-							  new SqlConnectionStringBuilder(Configuration["Data:DefaultConnection:ConnectionString"])
-								  .InitialCatalog + "]";
-					db.Execute(sql);
-				}
-				catch
-				{
-					//
-				}
-
-			}*/
-
-			// Try to create tables
-			/*using (var db = new IdentityDbConnection(connectionString))
-			{
-				TryCreateTable<ApplicationUser>(db);
-				TryCreateTable<IdentityRole>(db);
-				TryCreateTable<IdentityUserClaim<string>>(db);
-				TryCreateTable<IdentityRoleClaim<string>>(db);
-				TryCreateTable<IdentityUserLogin<string>>(db);
-				TryCreateTable<IdentityUserRole<string>>(db);
-				TryCreateTable<IdentityUserToken<string>>(db);
-			}*/
-
 			app.UseStaticFiles();
 
+			app.UseIdentity();
+
 			// Add external authentication middleware below. To configure them please see http://go.microsoft.com/fwlink/?LinkID=532715
+
+			app.UseCookieAuthentication();
 
 			app.UseMvc(routes =>
 			{
@@ -140,18 +117,5 @@ namespace CMon.Web
 					template: "{controller=Home}/{action=Index}/{id?}");
 			});
 		}
-
-		/*private void TryCreateTable<T>(IdentityDbConnection db)
-			where T : class
-		{
-			try
-			{
-				db.CreateTable<T>();
-			}
-			catch
-			{
-				//
-			}
-		}*/
 	}
 }

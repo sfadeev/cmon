@@ -5,7 +5,7 @@ using LinqToDB.Mapping;
 namespace CMon.Web.Entities
 {
 	[Table(Schema = "public", Name = "roles")]
-	public class DbRole : IdentityRole<long, DbUserRole, DbRoleClaim>
+	public class DbRole : IdentityRole<long>
 	{
 		[Column("id"), PrimaryKey, Identity, NotNull]
 		public override long Id { get; set; }
