@@ -102,6 +102,11 @@ namespace CMon.Web
 			app.UseIdentity();
 
 			// Add external authentication middleware below. To configure them please see http://go.microsoft.com/fwlink/?LinkID=532715
+			app.UseGoogleAuthentication(new GoogleOptions
+			{
+				ClientId = Configuration["Authentication:Google:ClientId"],
+				ClientSecret = Configuration["Authentication:Google:ClientSecret"]
+			});
 
 			app.UseCookieAuthentication();
 

@@ -2,9 +2,7 @@
 using System.Threading.Tasks;
 using AspNetCoreIdentity.Services;
 using CMon.Web.Entities;
-using CMon.Web.Models;
 using CMon.Web.Models.ManageViewModels;
-using LinqToDB.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
