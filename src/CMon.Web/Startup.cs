@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.IO;
 using AspNetCoreIdentity.Services;
 using CMon.Services;
 using CMon.Web.Entities;
@@ -6,6 +7,7 @@ using LinqToDB.Data;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.Identity;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -13,6 +15,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Serilog;
 
 namespace CMon.Web
 {
@@ -23,17 +26,22 @@ namespace CMon.Web
 			var builder = new ConfigurationBuilder()
 				.SetBasePath(env.ContentRootPath)
 				.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
-				.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true);
+				.AddJsonFile($"appsettings.{env.EnvironmentName}.json", optional: true, reloadOnChange: true);
 
 			// if (env.IsDevelopment())
 			{
-				// For more details on using the user secret store see http://go.microsoft.com/fwlink/?LinkID=532709
 				builder.AddUserSecrets(UserSecret.Id);
 			}
 
 			builder.AddEnvironmentVariables();
 
 			Configuration = builder.Build();
+
+			// Serilog.Debugging.SelfLog.Enable(Console.Error);
+
+			Log.Logger = new LoggerConfiguration()
+			   .ReadFrom.Configuration(Configuration)
+			   .CreateLogger();
 		}
 
 		public IConfigurationRoot Configuration { get; }
@@ -52,6 +60,8 @@ namespace CMon.Web
 					new PostgreSQLDataProvider("Default", PostgreSQLVersion.v93));
 
 			DataConnection.DefaultConfiguration = "Default";
+
+			services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo("/tmp"));
 
 			services.Configure<ConnectionStringOptions>(connectionStringsSection);
 
@@ -99,18 +109,24 @@ namespace CMon.Web
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+		public void Configure(IApplicationBuilder app,
+			IHostingEnvironment env, ILoggerFactory loggerFactory, IApplicationLifetime appLifetime)
 		{
-			loggerFactory.AddConsole(Configuration.GetSection("Logging"));
-			loggerFactory.AddDebug();
+			loggerFactory
+				// .AddConsole(Configuration.GetSection("Logging"))
+				// .AddDebug()
+				.AddSerilog();
 
-			if (env.IsDevelopment())
+			// Ensure any buffered events are sent at shutdown
+			appLifetime.ApplicationStopped.Register(Log.CloseAndFlush);
+
+			/*if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
 				// app.UseDatabaseErrorPage();
 				// app.UseBrowserLink();
 			}
-			else
+			else*/
 			{
 				app.UseExceptionHandler("/Home/Error");
 			}
@@ -127,6 +143,7 @@ namespace CMon.Web
 			{
 				ClientId = Configuration["Authentication:Google:ClientId"],
 				ClientSecret = Configuration["Authentication:Google:ClientSecret"]
+				
 			});
 
 			app.UseCookieAuthentication();

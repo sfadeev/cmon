@@ -10,6 +10,7 @@ using CMon.Entities;
 using CMon.Services;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
+using Serilog;
 
 namespace CMon
 {
@@ -30,19 +31,20 @@ namespace CMon
 		{
 			var builder = new ConfigurationBuilder()
 				.SetBasePath(Directory.GetCurrentDirectory())
-				// .AddJsonFile("appsettings.json")
+				.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
+				.AddJsonFile($"appsettings.{Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")}.json", optional: true, reloadOnChange: true)
 				.AddUserSecrets(UserSecret.Id)
 				.AddEnvironmentVariables();
 
 			Configuration = builder.Build();
 
+			Log.Logger = new LoggerConfiguration()
+				.ReadFrom.Configuration(Configuration)
+				.CreateLogger();
+
 			var state = RunMainThread();
 
-			var color = Console.ForegroundColor;
-
-			Console.ForegroundColor = ConsoleColor.DarkGreen;
-			Console.WriteLine("Press any key to stop program execution...");
-			Console.ForegroundColor = color;
+			Log.Logger.Information("Press any key to stop program execution...");
 
 			// Console.Read();
 
@@ -50,6 +52,8 @@ namespace CMon
 			// http://stackoverflow.com/questions/40506122/control-lifetime-of-net-core-console-application-hosted-in-docker?rq=1
 			// https://github.com/aspnet/Hosting/blob/dev/src/Microsoft.AspNetCore.Hosting/WebHostExtensions.cs
 			new ManualResetEventSlim(false).Wait();
+
+			Log.CloseAndFlush();
 
 			/*var done = new ManualResetEventSlim(false);
 			using (var cts = new CancellationTokenSource())
@@ -93,9 +97,9 @@ namespace CMon
 					{
 						PollAsync(deviceId).Wait();
 					}
-					catch (Exception e)
+					catch (Exception ex)
 					{
-						Console.WriteLine($"Error sending request for device id {deviceId}\n" + e);
+						Log.Logger.Error(ex, "Error sending request for device id {deviceId}", deviceId);
 					}
 				}, deviceId, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15));
 			}
@@ -122,8 +126,7 @@ namespace CMon
 				// if (jo.SelectToken("Events")?.HasValues == true)
 				if (/*device.Id == 1 &&*/ json.Length >= 609)
 				{
-					Console.WriteLine(url + "\n" + json);
-					Console.WriteLine();
+					Log.Logger.Information(url + "\n" + json);
 
 					// File.WriteAllText("c:\\temp\\ccu\\" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "-GetStateAndEvents.json", json);
 				}
@@ -131,7 +134,7 @@ namespace CMon
 				var t = GetBoardTemperature(jo);
 				repository.SaveToDb(device.Id, BoardTemp, t);
 
-				var message = $"[{device.Id}] {DateTime.Now:s} - {BoardTemp}:{t:N4}";
+				var message = $"[{device.Id}] - {BoardTemp}:{t:N4}";
 
 				foreach (var input in inputs)
 				{
@@ -141,7 +144,7 @@ namespace CMon
 					message += $" - {input.InputNo}:{t:N4}";
 				}
 
-				Console.WriteLine(message);
+				Log.Logger.Information(message);
 			}
 		}
 
@@ -162,7 +165,7 @@ namespace CMon
 
 					if (response.StatusCode != HttpStatusCode.OK)
 					{
-						Console.WriteLine($"[{device.Id}] {DateTime.Now:s} - {(int)response.StatusCode} {response.StatusCode}");
+						Log.Logger.Error("[{device.Id}] - {response.StatusCode} {response.StatusCode}", device.Id, (int)response.StatusCode, response.StatusCode);
 						return null;
 					}
 
@@ -170,7 +173,7 @@ namespace CMon
 				}
 				catch (HttpRequestException ex)
 				{
-					Console.WriteLine("Get(url) exception.\n" + ex);
+					Log.Logger.Error(ex, "Get(url) exception");
 				}
 			}
 
