@@ -19,6 +19,14 @@
     padding-right: 15px;
 }
 
+footer {
+	color: #999;
+}
+
+footer select {
+	text-transform: capitalize;
+}
+
 /* Set widths on the form inputs since otherwise they're 100% wide */
 input,
 select,

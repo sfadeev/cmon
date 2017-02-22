@@ -1,4 +1,5 @@
-﻿using AspNetCoreIdentity.Services;
+﻿using System.Globalization;
+using AspNetCoreIdentity.Services;
 using CMon.Services;
 using CMon.Web.Entities;
 using LinqToDB.Data;
@@ -6,9 +7,12 @@ using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace CMon.Web
 {
@@ -63,6 +67,8 @@ namespace CMon.Web
 				.AddLinqToDBStores(new DefaultConnectionFactory<IdentityDataContext, IdentityDbConnection>(), typeof(long))
 				.AddDefaultTokenProviders();
 
+			services.AddLocalization(options => options.ResourcesPath = "Resources");
+
 			// Add framework services.
 			services.AddRouting(options =>
 			{
@@ -70,7 +76,9 @@ namespace CMon.Web
 				options.LowercaseUrls = true;
 			});
 
-			services.AddMvc();
+			services.AddMvc()
+				.AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
+				.AddDataAnnotationsLocalization();
 
 			// Add application services.
 
@@ -78,6 +86,16 @@ namespace CMon.Web
 			services.AddTransient<ISmsSender, AuthMessageSender>();
 
 			services.AddTransient<IInputValueProvider, DefaultInputValueProvider>();
+
+			services.Configure<RequestLocalizationOptions>(options =>
+			{
+				options.DefaultRequestCulture = new RequestCulture("ru");
+				options.SupportedCultures = options.SupportedUICultures = new[] { new CultureInfo("ru"), new CultureInfo("en") };
+				options.RequestCultureProviders = new IRequestCultureProvider[]
+				{
+					new CookieRequestCultureProvider(), new AcceptLanguageHeaderRequestCultureProvider()
+				};
+			});
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -96,6 +114,9 @@ namespace CMon.Web
 			{
 				app.UseExceptionHandler("/Home/Error");
 			}
+
+			app.UseRequestLocalization(app.ApplicationServices
+				.GetService<IOptions<RequestLocalizationOptions>>().Value);
 
 			app.UseStaticFiles();
 
