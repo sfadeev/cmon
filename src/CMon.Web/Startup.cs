@@ -3,11 +3,14 @@ using System.IO;
 using AspNetCoreIdentity.Services;
 using CMon.Services;
 using CMon.Web.Entities;
+using CMon.Web.Services;
+using LinqToDB;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.Identity;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.Razor;
@@ -61,7 +64,10 @@ namespace CMon.Web
 
 			DataConnection.DefaultConfiguration = "Default";
 
-			services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo("/tmp"));
+			// https://docs.microsoft.com/en-us/aspnet/core/security/data-protection/configuration/overview
+			// https://docs.microsoft.com/en-us/aspnet/core/security/data-protection/implementation/key-management
+			// https://docs.microsoft.com/en-us/aspnet/core/security/data-protection/implementation/key-storage-providers
+			// services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo("/tmp"));
 
 			services.Configure<ConnectionStringOptions>(connectionStringsSection);
 
@@ -91,6 +97,9 @@ namespace CMon.Web
 				.AddDataAnnotationsLocalization();
 
 			// Add application services.
+			services.AddTransient<IDbConnectionFactory, DefaultDbConnectionFactory<IdentityDataContext>>();
+
+			services.AddTransient<IXmlRepository, Linq2DbDataProtectionXmlRepository>();
 
 			services.AddTransient<IEmailSender, AuthMessageSender>();
 			services.AddTransient<ISmsSender, AuthMessageSender>();
