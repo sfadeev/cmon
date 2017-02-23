@@ -12,6 +12,6 @@ pipelines:
           - dotnet restore
           - dotnet build src/CMon
           - dotnet build src/CMon.Web
-          - dotnet build src/LinqToDB.Identity
+#          - dotnet build src/LinqToDB.Identity
           - dotnet build test/CMon.Tests
 #          - dotnet test TestName
