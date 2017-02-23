@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using AspNetCoreIdentity.Services;
 using CMon.Extensions;
 using CMon.Services;
@@ -7,11 +8,14 @@ using CMon.Web.Services;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.Identity;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.Razor;
+using Microsoft.AspNetCore.Mvc.ViewFeatures.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -80,13 +84,19 @@ namespace CMon.Web
 			services.AddLocalization(options => options.ResourcesPath = "Resources");
 
 			// Add framework services.
+			services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
+
 			services.AddRouting(options =>
 			{
 				options.AppendTrailingSlash = true;
 				options.LowercaseUrls = true;
 			});
 
-			services.AddMvc()
+			services
+				.AddMvc(options =>
+				{
+					options.Filters.Add(typeof(AutoValidateAntiforgeryTokenAuthorizationFilter));
+				})
 				.AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
 				.AddDataAnnotationsLocalization();
 
@@ -113,7 +123,9 @@ namespace CMon.Web
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app,
-			IHostingEnvironment env, ILoggerFactory loggerFactory, IApplicationLifetime appLifetime)
+			IHostingEnvironment env, ILoggerFactory loggerFactory, IApplicationLifetime appLifetime,
+			IAntiforgery antiforgery, IOptions<AntiforgeryOptions> antiforgeryOptions,
+			IOptions<RequestLocalizationOptions> requestLocalizationOptions)
 		{
 			loggerFactory
 				// .AddConsole(Configuration.GetSection("Logging"))
@@ -134,8 +146,25 @@ namespace CMon.Web
 				app.UseExceptionHandler("/Home/Error");
 			}
 
-			app.UseRequestLocalization(app.ApplicationServices
-				.GetService<IOptions<RequestLocalizationOptions>>().Value);
+			// app.UseValidateAntiForgeryToken();
+
+			app.UseCors(builder => { });
+
+			/*app.Use(next => context =>
+				{
+					if (
+						string.Equals(context.Request.Path.Value, "/", StringComparison.OrdinalIgnoreCase) ||
+						string.Equals(context.Request.Path.Value, "/index.html", StringComparison.OrdinalIgnoreCase))
+					{
+						// We can send the request token as a JavaScript-readable cookie, and Angular will use it by default.
+						var tokens = antiforgery.GetAndStoreTokens(context);
+						context.Response.Cookies.Append("XSRF-TOKEN", tokens.RequestToken, new CookieOptions() { HttpOnly = false });
+					}
+
+					return next(context);
+				});*/
+
+			app.UseRequestLocalization(requestLocalizationOptions.Value);
 
 			app.UseStaticFiles();
 

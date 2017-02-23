@@ -3,9 +3,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using AspNetCoreIdentity.Services;
 using CMon.Web.Entities;
-using CMon.Web.Models;
 using CMon.Web.Models.AccountViewModels;
-using LinqToDB.Identity;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -127,10 +125,10 @@ namespace CMon.Web.Controllers
         }
 
         //
-        // POST: /Account/LogOff
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> LogOff()
+        // POST: /Account/Logout
+        // [HttpPost]
+        // [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
             _logger.LogInformation(4, "User logged out.");
