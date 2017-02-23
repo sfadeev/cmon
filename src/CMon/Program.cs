@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CMon.Entities;
+using CMon.Extensions;
 using CMon.Services;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
@@ -29,6 +30,8 @@ namespace CMon
 
 		public static void Main(string[] args)
 		{
+			Log.Logger = LoggerBuilder.Build("cmon");
+
 			var builder = new ConfigurationBuilder()
 				.SetBasePath(Directory.GetCurrentDirectory())
 				.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -37,10 +40,6 @@ namespace CMon
 				.AddEnvironmentVariables();
 
 			Configuration = builder.Build();
-
-			Log.Logger = new LoggerConfiguration()
-				.ReadFrom.Configuration(Configuration)
-				.CreateLogger();
 
 			var state = RunMainThread();
 

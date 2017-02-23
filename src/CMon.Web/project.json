@@ -20,20 +20,15 @@
 		},
 		"CMon": "1.0.0-*",
 		"Microsoft.AspNetCore.Mvc": "1.1.1",
-    "Microsoft.AspNetCore.Razor.Tools": {
-      "version": "1.1.0-preview4-final",
-      "type": "build"
-    },
-    "Microsoft.AspNetCore.Identity": "1.1.0",
-    "linq2db.Core": "1.7.5",
-    "LinqToDB.Identity": "1.1.0-*",
-    "Microsoft.AspNetCore.Authentication.Google": "1.1.0",
-    "Serilog.Extensions.Logging": "1.4.1-dev-10147",
-    "Serilog.Sinks.Async": "1.0.2-dev-00008",
-    "Serilog.Sinks.RollingFile": "3.3.1-dev-00767",
-    "Serilog.Settings.Configuration": "2.3.0-dev-00042",
-    "Serilog.Enrichers.Thread": "3.0.0",
-    "Serilog.Sinks.Literate": "2.1.0"
+		"Microsoft.AspNetCore.Razor.Tools": {
+			"version": "1.1.0-preview4-final",
+			"type": "build"
+		},
+		"Microsoft.AspNetCore.Identity": "1.1.0",
+		"linq2db.Core": "1.7.5",
+		"LinqToDB.Identity": "1.1.0-*",
+		"Microsoft.AspNetCore.Authentication.Google": "1.1.0",
+		"Serilog.Extensions.Logging": "1.4.1-dev-10147"
 	},
 
 	"tools": {

@@ -1,15 +1,13 @@
 ﻿using System.Globalization;
-using System.IO;
 using AspNetCoreIdentity.Services;
+using CMon.Extensions;
 using CMon.Services;
 using CMon.Web.Entities;
 using CMon.Web.Services;
-using LinqToDB;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.Identity;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Localization;
@@ -26,6 +24,8 @@ namespace CMon.Web
 	{
 		public Startup(IHostingEnvironment env)
 		{
+			Log.Logger = LoggerBuilder.Build("cmon.web");
+
 			var builder = new ConfigurationBuilder()
 				.SetBasePath(env.ContentRootPath)
 				.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
@@ -39,12 +39,6 @@ namespace CMon.Web
 			builder.AddEnvironmentVariables();
 
 			Configuration = builder.Build();
-
-			// Serilog.Debugging.SelfLog.Enable(Console.Error);
-
-			Log.Logger = new LoggerConfiguration()
-			   .ReadFrom.Configuration(Configuration)
-			   .CreateLogger();
 		}
 
 		public IConfigurationRoot Configuration { get; }
