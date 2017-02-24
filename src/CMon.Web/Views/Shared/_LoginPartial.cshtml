@@ -1,7 +1,11 @@
 ﻿@using CMon.Web.Entities
 @using Microsoft.AspNetCore.Identity
+@using Microsoft.AspNetCore.Mvc.Localization
+
 @inject SignInManager<DbUser> SignInManager
 @inject UserManager<DbUser> UserManager
+@inject IViewLocalizer Localizer
+
 
 @if (SignInManager.IsSignedIn(User))
 {
@@ -11,8 +15,8 @@
 				@UserManager.GetUserName(User) <span class="caret"></span>
 			</a>
 			<ul class="dropdown-menu">
-				<li><a href="@Url.Action("Index", "Manage")">Manage</a></li>
-				<li><a href="@Url.Action("Logout", "Account")">Log out</a></li>
+				<li><a href="@Url.Action("Index", "Manage")">@Localizer["Manage"]</a></li>
+				<li><a href="@Url.Action("Logout", "Account")">@Localizer["Log out"]</a></li>
 			</ul>
 		</li>
 	</ul>
@@ -20,7 +24,7 @@
 else
 {
     <ul class="nav navbar-nav navbar-right">
-        <li><a asp-area="" asp-controller="Account" asp-action="Register">Register</a></li>
-        <li><a asp-area="" asp-controller="Account" asp-action="Login">Log in</a></li>
+        <li><a asp-area="" asp-controller="Account" asp-action="Register">@Localizer["Register"]</a></li>
+        <li><a asp-area="" asp-controller="Account" asp-action="Login">@Localizer["Log in"]</a></li>
     </ul>
 }

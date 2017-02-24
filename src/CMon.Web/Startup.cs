@@ -69,15 +69,17 @@ namespace CMon.Web
 
 			services.Configure<ConnectionStringOptions>(connectionStringsSection);
 
-			services.AddIdentity<DbUser, DbRole>(/*options =>
+			services.AddIdentity<DbUser, DbRole>(options =>
 				{
-					options.Cookies.ApplicationCookie.AuthenticationScheme = "ApplicationCookie";
-					options.Cookies.ApplicationCookie.CookieName = "Interop";
-					options.Cookies.ApplicationCookie.AutomaticAuthenticate = true;
-					options.Cookies.ApplicationCookie.AutomaticChallenge = true;
-					options.Cookies.ApplicationCookie.DataProtectionProvider =
-						DataProtectionProvider.Create(new DirectoryInfo("C:\\Github\\Identity\\artifacts"));
-				}*/)
+					options.User.RequireUniqueEmail = true;
+					options.SignIn.RequireConfirmedEmail = true;
+
+					// options.Cookies.ApplicationCookie.AuthenticationScheme = "ApplicationCookie";
+					// options.Cookies.ApplicationCookie.CookieName = "Interop";
+					// options.Cookies.ApplicationCookie.AutomaticAuthenticate = true;
+					// options.Cookies.ApplicationCookie.AutomaticChallenge = true;
+					// options.Cookies.ApplicationCookie.DataProtectionProvider = DataProtectionProvider.Create(new DirectoryInfo("C:\\Github\\Identity\\artifacts"));
+				})
 				.AddLinqToDBStores(new DefaultConnectionFactory<IdentityDataContext, IdentityDbConnection>(), typeof(long))
 				.AddDefaultTokenProviders();
 
@@ -175,7 +177,6 @@ namespace CMon.Web
 			{
 				ClientId = Configuration["Authentication:Google:ClientId"],
 				ClientSecret = Configuration["Authentication:Google:ClientSecret"]
-				
 			});
 
 			app.UseCookieAuthentication();

@@ -4,9 +4,11 @@ using AspNetCoreIdentity.Services;
 using CMon.Web.Entities;
 using CMon.Web.Models.ManageViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace CMon.Web.Controllers
 {
@@ -17,20 +19,23 @@ namespace CMon.Web.Controllers
         private readonly SignInManager<DbUser> _signInManager;
         private readonly IEmailSender _emailSender;
         private readonly ISmsSender _smsSender;
-        private readonly ILogger _logger;
+	    private readonly IOptions<IdentityOptions> _identityOptions;
+	    private readonly ILogger _logger;
 
         public ManageController(
         UserManager<DbUser> userManager,
         SignInManager<DbUser> signInManager,
         IEmailSender emailSender,
         ISmsSender smsSender,
-        ILoggerFactory loggerFactory)
+		IOptions<IdentityOptions> identityOptions,
+		ILogger<ManageController> logger)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _emailSender = emailSender;
             _smsSender = smsSender;
-            _logger = loggerFactory.CreateLogger<ManageController>();
+	        _identityOptions = identityOptions;
+	        _logger = logger;
         }
 
         //
@@ -274,7 +279,11 @@ namespace CMon.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ManageLogins(ManageMessageId? message = null)
         {
-            ViewData["StatusMessage"] =
+			// https://bitbucket.org/sfadeev/cmon/issues/1/app-redirects-to-account-accessdenied-on
+			var externalCookieName = _identityOptions.Value.Cookies.ExternalCookie.CookieName;
+	        if (Request.Cookies[externalCookieName] != null) Response.Cookies.Delete(externalCookieName);
+
+	        ViewData["StatusMessage"] =
                 message == ManageMessageId.RemoveLoginSuccess ? "The external login was removed."
                 : message == ManageMessageId.AddLoginSuccess ? "The external login was added."
                 : message == ManageMessageId.Error ? "An error has occurred."
@@ -300,8 +309,8 @@ namespace CMon.Web.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult LinkLogin(string provider)
         {
-            // Request a redirect to the external login provider to link a login for the current user
-            var redirectUrl = Url.Action("LinkLoginCallback", "Manage");
+			// Request a redirect to the external login provider to link a login for the current user
+			var redirectUrl = Url.Action("LinkLoginCallback", "Manage");
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl, _userManager.GetUserId(User));
             return Challenge(properties, provider);
         }

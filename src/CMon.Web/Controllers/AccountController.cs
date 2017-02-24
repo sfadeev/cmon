@@ -35,9 +35,17 @@ namespace CMon.Web.Controllers
             _logger = loggerFactory.CreateLogger<AccountController>();
         }
 
-        //
-        // GET: /Account/Login
-        [HttpGet]
+		// GET: /Account/AccessDenied
+		[HttpGet]
+		[AllowAnonymous]
+		public IActionResult AccessDenied(string returnUrl = null)
+		{
+			return View();
+		}
+
+		//
+		// GET: /Account/Login
+		[HttpGet]
         [AllowAnonymous]
         public IActionResult Login(string returnUrl = null)
         {
@@ -72,6 +80,15 @@ namespace CMon.Web.Controllers
                     _logger.LogWarning(2, "User account locked out.");
                     return View("Lockout");
                 }
+                if (result.IsNotAllowed)
+                {
+					// requires confirm email or phone
+					// todo: show more specific error message
+					// todo: check the same in external login
+					ModelState.AddModelError(string.Empty, "User login is not allowed.");
+					_logger.LogWarning(3, "User login is not allowed.");
+					return View(model);
+				}
                 else
                 {
                     ModelState.AddModelError(string.Empty, "Invalid login attempt.");
@@ -169,6 +186,9 @@ namespace CMon.Web.Controllers
             var result = await _signInManager.ExternalLoginSignInAsync(info.LoginProvider, info.ProviderKey, isPersistent: false);
             if (result.Succeeded)
             {
+                // Update any authentication tokens if login succeeded
+                await _signInManager.UpdateExternalAuthenticationTokensAsync(info);
+
                 _logger.LogInformation(5, "User logged in with {Name} provider.", info.LoginProvider);
                 return RedirectToLocal(returnUrl);
             }
@@ -214,6 +234,10 @@ namespace CMon.Web.Controllers
                     {
                         await _signInManager.SignInAsync(user, isPersistent: false);
                         _logger.LogInformation(6, "User created an account using {Name} provider.", info.LoginProvider);
+
+                        // Update any authentication tokens as well
+                        await _signInManager.UpdateExternalAuthenticationTokensAsync(info);
+
                         return RedirectToLocal(returnUrl);
                     }
                 }
@@ -260,7 +284,7 @@ namespace CMon.Web.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await _userManager.FindByNameAsync(model.Email);
+                var user = await _userManager.FindByEmailAsync(model.Email);
                 if (user == null || !(await _userManager.IsEmailConfirmedAsync(user)))
                 {
                     // Don't reveal that the user does not exist or is not confirmed
@@ -309,7 +333,7 @@ namespace CMon.Web.Controllers
             {
                 return View(model);
             }
-            var user = await _userManager.FindByNameAsync(model.Email);
+            var user = await _userManager.FindByEmailAsync(model.Email);
             if (user == null)
             {
                 // Don't reveal that the user does not exist
