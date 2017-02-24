@@ -13,6 +13,6 @@
 
 <div title="@requestCulture?.Provider?.GetType().Name">
 	<form id="selectLanguage" asp-controller="Home" asp-action="SetLanguage" asp-route-returnUrl="@Context.Request.Path" method="post" class="form-horizontal-" role="form">
-		<select name="culture" asp-for="@requestCulture.RequestCulture.UICulture.Name" asp-items="cultureItems"></select>
+		<select name="culture" class="text-capitalize" asp-for="@requestCulture.RequestCulture.UICulture.Name" asp-items="cultureItems"></select>
 	</form>
 </div>

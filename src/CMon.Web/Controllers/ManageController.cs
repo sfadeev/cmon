@@ -22,25 +22,25 @@ namespace CMon.Web.Controllers
 	    private readonly IOptions<IdentityOptions> _identityOptions;
 	    private readonly ILogger _logger;
 
-        public ManageController(
-        UserManager<DbUser> userManager,
-        SignInManager<DbUser> signInManager,
-        IEmailSender emailSender,
-        ISmsSender smsSender,
-		IOptions<IdentityOptions> identityOptions,
-		ILogger<ManageController> logger)
-        {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _emailSender = emailSender;
-            _smsSender = smsSender;
-	        _identityOptions = identityOptions;
-	        _logger = logger;
-        }
+	    public ManageController(
+		    UserManager<DbUser> userManager,
+		    SignInManager<DbUser> signInManager,
+		    IEmailSender emailSender,
+		    ISmsSender smsSender,
+		    IOptions<IdentityOptions> identityOptions,
+		    ILogger<ManageController> logger)
+	    {
+		    _userManager = userManager;
+		    _signInManager = signInManager;
+		    _emailSender = emailSender;
+		    _smsSender = smsSender;
+		    _identityOptions = identityOptions;
+		    _logger = logger;
+	    }
 
-        //
-        // GET: /Manage/Index
-        [HttpGet]
+	    //
+		// GET: /Manage/Index
+		[HttpGet]
         public async Task<IActionResult> Index(ManageMessageId? message = null)
         {
             ViewData["StatusMessage"] =
@@ -279,9 +279,7 @@ namespace CMon.Web.Controllers
         [HttpGet]
         public async Task<IActionResult> ManageLogins(ManageMessageId? message = null)
         {
-			// https://bitbucket.org/sfadeev/cmon/issues/1/app-redirects-to-account-accessdenied-on
-			var externalCookieName = _identityOptions.Value.Cookies.ExternalCookie.CookieName;
-	        if (Request.Cookies[externalCookieName] != null) Response.Cookies.Delete(externalCookieName);
+	        this.DeleteExternalLoginCookie(_identityOptions);
 
 	        ViewData["StatusMessage"] =
                 message == ManageMessageId.RemoveLoginSuccess ? "The external login was removed."

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Globalization;
+﻿using System.Globalization;
 using AspNetCoreIdentity.Services;
 using CMon.Extensions;
 using CMon.Services;
@@ -12,14 +11,15 @@ using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Internal;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Montr.Localization;
 using Serilog;
 
 namespace CMon.Web
@@ -98,6 +98,7 @@ namespace CMon.Web
 				.AddMvc(options =>
 				{
 					options.Filters.Add(typeof(AutoValidateAntiforgeryTokenAuthorizationFilter));
+					// options.ModelMetadataDetailsProviders.Add(new CustomMetadataProvider());
 				})
 				.AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
 				.AddDataAnnotationsLocalization();
@@ -111,6 +112,8 @@ namespace CMon.Web
 			services.AddTransient<ISmsSender, AuthMessageSender>();
 
 			services.AddTransient<IInputValueProvider, DefaultInputValueProvider>();
+
+			services.AddSingleton<IValidationAttributeAdapterProvider, LocalizedValidationAttributeAdapterProvider>();
 
 			services.Configure<RequestLocalizationOptions>(options =>
 			{
@@ -183,6 +186,11 @@ namespace CMon.Web
 
 			app.UseMvc(routes =>
 			{
+				routes.MapRoute(
+					name: "page.index",
+					template: "page/{id}",
+					defaults: new { controller = "Page", action = "Index" });
+
 				routes.MapRoute(
 					name: "device.index",
 					template: "d/{deviceId:long}",

@@ -57,5 +57,17 @@ namespace CMon.Web.Entities
 
 		[Column("concurrency_stamp"), NotNull]
 		public override string ConcurrencyStamp { get; set; } = Guid.NewGuid().ToString();
+
+		[Column("created_at"), NotNull]
+		public DateTime? CreatedAt { get; set; }
+
+		[Column("created_by")]
+		public string CreatedBy { get; set; }
+
+		[Column("modified_at")]
+		public DateTime? ModifiedAt { get; set; }
+
+		[Column("modified_by")]
+		public string ModifiedBy { get; set; }
 	}
 }

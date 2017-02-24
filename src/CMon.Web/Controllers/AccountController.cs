@@ -1,14 +1,17 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using AspNetCoreIdentity.Services;
 using CMon.Web.Entities;
 using CMon.Web.Models.AccountViewModels;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace CMon.Web.Controllers
 {
@@ -19,23 +22,26 @@ namespace CMon.Web.Controllers
         private readonly SignInManager<DbUser> _signInManager;
         private readonly IEmailSender _emailSender;
         private readonly ISmsSender _smsSender;
-        private readonly ILogger _logger;
+	    private readonly IOptions<IdentityOptions> _identityOptions;
+	    private readonly ILogger _logger;
 
-        public AccountController(
-            UserManager<DbUser> userManager,
-            SignInManager<DbUser> signInManager,
-            IEmailSender emailSender,
-            ISmsSender smsSender,
-            ILoggerFactory loggerFactory)
-        {
-            _userManager = userManager;
-            _signInManager = signInManager;
-            _emailSender = emailSender;
-            _smsSender = smsSender;
-            _logger = loggerFactory.CreateLogger<AccountController>();
-        }
+	    public AccountController(
+		    UserManager<DbUser> userManager,
+		    SignInManager<DbUser> signInManager,
+		    IEmailSender emailSender,
+		    ISmsSender smsSender,
+		    IOptions<IdentityOptions> identityOptions,
+		    ILogger<AccountController> logger)
+	    {
+		    _userManager = userManager;
+		    _signInManager = signInManager;
+		    _emailSender = emailSender;
+		    _smsSender = smsSender;
+		    _identityOptions = identityOptions;
+		    _logger = logger;
+	    }
 
-		// GET: /Account/AccessDenied
+	    // GET: /Account/AccessDenied
 		[HttpGet]
 		[AllowAnonymous]
 		public IActionResult AccessDenied(string returnUrl = null)
@@ -49,7 +55,9 @@ namespace CMon.Web.Controllers
         [AllowAnonymous]
         public IActionResult Login(string returnUrl = null)
         {
-            ViewData["ReturnUrl"] = returnUrl;
+			this.DeleteExternalLoginCookie(_identityOptions);
+
+			ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
 
@@ -106,7 +114,9 @@ namespace CMon.Web.Controllers
         [AllowAnonymous]
         public IActionResult Register(string returnUrl = null)
         {
-            ViewData["ReturnUrl"] = returnUrl;
+			this.DeleteExternalLoginCookie(_identityOptions);
+
+			ViewData["ReturnUrl"] = returnUrl;
             return View();
         }
 
@@ -120,7 +130,13 @@ namespace CMon.Web.Controllers
             ViewData["ReturnUrl"] = returnUrl;
             if (ModelState.IsValid)
             {
-                var user = new DbUser { UserName = model.Email, Email = model.Email };
+	            var user = new DbUser
+	            {
+		            UserName = model.Email,
+		            Email = model.Email,
+					CreatedAt = DateTime.UtcNow
+	            };
+
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
@@ -225,7 +241,13 @@ namespace CMon.Web.Controllers
                 {
                     return View("ExternalLoginFailure");
                 }
-                var user = new DbUser { UserName = model.Email, Email = model.Email };
+                var user = new DbUser
+                {
+	                UserName = model.Email,
+					Email = model.Email,
+					CreatedAt = DateTime.UtcNow
+                };
+
                 var result = await _userManager.CreateAsync(user);
                 if (result.Succeeded)
                 {

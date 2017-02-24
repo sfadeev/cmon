@@ -28,7 +28,8 @@
 		"linq2db.Core": "1.7.5",
 		"LinqToDB.Identity": "1.1.0-*",
 		"Microsoft.AspNetCore.Authentication.Google": "1.1.0",
-		"Serilog.Extensions.Logging": "1.4.1-dev-10147"
+    "Serilog.Extensions.Logging": "1.4.1-dev-10147",
+    "Montr.Localization": "1.0.0-*"
 	},
 
 	"tools": {

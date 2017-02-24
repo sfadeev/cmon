@@ -30,11 +30,15 @@ CREATE TABLE public.users
   security_stamp character varying(36),
   two_factor_enabled boolean NOT NULL DEFAULT false,
   lockout_enabled boolean NOT NULL DEFAULT false,
-  lockout_end timestamp with time zone,
+  lockout_end timestamp without time zone,
   access_failed_count integer NOT NULL DEFAULT 0,
   normalized_user_name character varying(128),
   normalized_email character varying(128),
   concurrency_stamp character varying(36) NOT NULL,
+  created_at timestamp without time zone NOT NULL,
+  created_by character varying(128),
+  modified_at timestamp without time zone,
+  modified_by character varying(128),
   CONSTRAINT pk_user_id PRIMARY KEY (id)
 )
 WITH (
@@ -44,6 +48,24 @@ ALTER TABLE public.users
   OWNER TO postgres;
 GRANT ALL ON TABLE public.users TO postgres;
 GRANT SELECT, UPDATE, INSERT, DELETE ON TABLE public.users TO cmon;
+
+-- Index: public.ix_users_email
+
+-- DROP INDEX public.ix_users_email;
+
+CREATE INDEX ix_users_email
+  ON public.users
+  USING btree
+  (normalized_email COLLATE pg_catalog."default");
+
+-- Index: public.ix_users_user_name
+
+-- DROP INDEX public.ix_users_user_name;
+
+CREATE INDEX ix_users_user_name
+  ON public.users
+  USING btree
+  (normalized_user_name COLLATE pg_catalog."default");
 
 -- Index: public.ix_users_email
 

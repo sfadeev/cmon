@@ -30,14 +30,14 @@ namespace CMon.Web.Services
 				.Select(key => XElement.Parse(key.Data))
 				.ToList();
 
-			_logger.LogDebug("[{hashCode}] GetAllElements({count})", GetHashCode(), elements.Count);
+			_logger.LogDebug("GetAllElements({count})", elements.Count);
 
 			return new ReadOnlyCollection<XElement>(elements);
 		}
 
 		public void StoreElement(XElement element, string friendlyName)
 		{
-			_logger.LogDebug("[{hashCode}] StoreElement({friendlyName})", GetHashCode(), friendlyName);
+			_logger.LogDebug("StoreElement({friendlyName})", friendlyName);
 
 			_connectionFactory.GetContext().Insert(new DbDataProtectionKey
 			{
