@@ -62,11 +62,6 @@ namespace CMon.Web
 
 			DataConnection.DefaultConfiguration = "Default";
 
-			// https://docs.microsoft.com/en-us/aspnet/core/security/data-protection/configuration/overview
-			// https://docs.microsoft.com/en-us/aspnet/core/security/data-protection/implementation/key-management
-			// https://docs.microsoft.com/en-us/aspnet/core/security/data-protection/implementation/key-storage-providers
-			// services.AddDataProtection().PersistKeysToFileSystem(new DirectoryInfo("/tmp"));
-
 			services.Configure<ConnectionStringOptions>(connectionStringsSection);
 
 			services.AddIdentity<DbUser, DbRole>(options =>
