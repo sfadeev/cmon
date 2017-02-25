@@ -1,12 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-namespace AspNetCoreIdentity.Services
+namespace CMon.Web.Services
 {
     public interface ISmsSender
     {
         Task SendSmsAsync(string number, string message);
     }
+
+	public class DefaultSmsSender : ISmsSender
+	{
+		public Task SendSmsAsync(string number, string message)
+		{
+			return Task.FromResult(0);
+		}
+	}
 }

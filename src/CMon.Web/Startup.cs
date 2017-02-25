@@ -1,5 +1,4 @@
 ﻿using System.Globalization;
-using AspNetCoreIdentity.Services;
 using CMon.Extensions;
 using CMon.Services;
 using CMon.Web.Entities;
@@ -8,6 +7,7 @@ using LinqToDB.Data;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.Identity;
 using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.Hosting;
@@ -47,7 +47,6 @@ namespace CMon.Web
 
 		public IConfigurationRoot Configuration { get; }
 
-		// This method gets called by the runtime. Use this method to add services to the container.
 		public void ConfigureServices(IServiceCollection services)
 		{
 			// Set connection configuration
@@ -63,6 +62,8 @@ namespace CMon.Web
 			DataConnection.DefaultConfiguration = "Default";
 
 			services.Configure<ConnectionStringOptions>(connectionStringsSection);
+			services.Configure<GoogleOptions>(Configuration.GetSection("Authentication").GetSection(GoogleDefaults.AuthenticationScheme));
+			services.Configure<EmailSenderOptions>(Configuration.GetSection("EmailSender"));
 
 			services.AddIdentity<DbUser, DbRole>(options =>
 				{
@@ -103,8 +104,8 @@ namespace CMon.Web
 
 			services.AddTransient<IXmlRepository, Linq2DbDataProtectionXmlRepository>();
 
-			services.AddTransient<IEmailSender, AuthMessageSender>();
-			services.AddTransient<ISmsSender, AuthMessageSender>();
+			services.AddTransient<IEmailSender, MailKitEmailSender>();
+			services.AddTransient<ISmsSender, DefaultSmsSender>();
 
 			services.AddTransient<IInputValueProvider, DefaultInputValueProvider>();
 
@@ -121,7 +122,6 @@ namespace CMon.Web
 			});
 		}
 
-		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app,
 			IHostingEnvironment env, ILoggerFactory loggerFactory, IApplicationLifetime appLifetime,
 			IAntiforgery antiforgery, IOptions<AntiforgeryOptions> antiforgeryOptions,
@@ -133,7 +133,10 @@ namespace CMon.Web
 				.AddSerilog();
 
 			// Ensure any buffered events are sent at shutdown
-			appLifetime.ApplicationStopped.Register(Log.CloseAndFlush);
+			appLifetime.ApplicationStopped.Register(() =>
+			{
+				Log.CloseAndFlush();
+			});
 
 			/*if (env.IsDevelopment())
 			{
@@ -170,13 +173,7 @@ namespace CMon.Web
 
 			app.UseIdentity();
 
-			// Add external authentication middleware below. To configure them please see http://go.microsoft.com/fwlink/?LinkID=532715
-			app.UseGoogleAuthentication(new GoogleOptions
-			{
-				ClientId = Configuration["Authentication:Google:ClientId"],
-				ClientSecret = Configuration["Authentication:Google:ClientSecret"]
-			});
-
+			app.UseGoogleAuthentication();
 			app.UseCookieAuthentication();
 
 			app.UseMvc(routes =>

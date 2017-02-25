@@ -25,7 +25,8 @@
 		"LinqToDB.Identity": "1.1.0-*",
 		"Microsoft.AspNetCore.Authentication.Google": "1.1.0",
     "Serilog.Extensions.Logging": "1.4.1-dev-10147",
-    "Montr.Localization": "1.0.0-*"
+    "Montr.Localization": "1.0.0-*",
+    "MailKit": "1.10.2"
 	},
 
 	"tools": {
