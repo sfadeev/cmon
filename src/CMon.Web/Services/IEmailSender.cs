@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Threading.Tasks;
 using MailKit.Net.Smtp;
+using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using MimeKit.Text;
@@ -50,7 +51,8 @@ namespace CMon.Web.Services
 
 			using (var client = new SmtpClient())
 			{
-				await client.ConnectAsync(options.Host, options.Port, options.UseSsl /*SecureSocketOptions.StartTls*/).ConfigureAwait(false);
+				await client.ConnectAsync(options.Host, options.Port,
+					options.UseSsl ? SecureSocketOptions.StartTls : SecureSocketOptions.Auto).ConfigureAwait(false);
 				await client.AuthenticateAsync(options.UserName, options.Password);
 				await client.SendAsync(emailMessage).ConfigureAwait(false);
 				await client.DisconnectAsync(true).ConfigureAwait(false);

@@ -1,4 +1,4 @@
-﻿using CMon.Web.ViewModels;
+﻿using CMon.Web.ViewModels.Device;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CMon.Web.Controllers

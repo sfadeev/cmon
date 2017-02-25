@@ -151,14 +151,12 @@ namespace CMon.Web.Controllers
                 var result = await _userManager.CreateAsync(user, model.Password);
                 if (result.Succeeded)
                 {
-                    // Send an email with this link
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-                    var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                    await _emailSender.SendEmailAsync(model.Email, "Confirm your account",
-                        $"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
+	                await SendEmailConfirmationTokenAsync(user);
+
                     // await _signInManager.SignInAsync(user, isPersistent: false);
                     _logger.LogInformation(3, "User created a new account with password.");
-                    return RedirectToLocal(returnUrl);
+
+                    return RedirectToAction(nameof(RegisterConfirmation));
                 }
                 AddErrors(result);
             }
@@ -167,11 +165,26 @@ namespace CMon.Web.Controllers
             return View(model);
         }
 
-        //
-        // POST: /Account/Logout
-        // [HttpPost]
-        // [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Logout()
+	    private async Task SendEmailConfirmationTokenAsync(DbUser user)
+	    {
+			var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+			var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
+
+			await _emailSender.SendEmailAsync(user.Email, "Confirm your account",
+				$"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
+		}
+
+		[AllowAnonymous]
+		public IActionResult RegisterConfirmation()
+	    {
+			return View();
+		}
+
+		//
+		// POST: /Account/Logout
+		// [HttpPost]
+		// [ValidateAntiForgeryToken]
+		public async Task<IActionResult> Logout()
         {
             await _signInManager.SignOutAsync();
             _logger.LogInformation(4, "User logged out.");
@@ -264,14 +277,16 @@ namespace CMon.Web.Controllers
                     result = await _userManager.AddLoginAsync(user, info);
                     if (result.Succeeded)
                     {
-                        await _signInManager.SignInAsync(user, isPersistent: false);
+						await SendEmailConfirmationTokenAsync(user);
+
+						// await _signInManager.SignInAsync(user, isPersistent: false);
                         _logger.LogInformation(6, "User created an account using {Name} provider.", info.LoginProvider);
 
                         // Update any authentication tokens as well
-                        await _signInManager.UpdateExternalAuthenticationTokensAsync(info);
+                        // await _signInManager.UpdateExternalAuthenticationTokensAsync(info);
 
-                        return RedirectToLocal(returnUrl);
-                    }
+						return RedirectToAction(nameof(RegisterConfirmation));
+					}
                 }
                 AddErrors(result);
             }

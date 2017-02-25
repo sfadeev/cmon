@@ -1,4 +1,4 @@
-namespace CMon.Web.ViewModels
+namespace CMon.Web.ViewModels.Device
 {
 	public class DeviceViewModel
 	{

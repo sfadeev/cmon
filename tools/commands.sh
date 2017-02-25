@@ -34,7 +34,7 @@ sudo letsencrypt certonly -a webroot --webroot-path=/var/www/ccu.montr.net -d cc
 # https://www.ssllabs.com/ssltest/analyze.html?d=ccu.montr.net
 
 # list all processes
- ps aufx
+ps aufx
 
 # grant wrile to logs
 chown blackish /var/log/cmon
