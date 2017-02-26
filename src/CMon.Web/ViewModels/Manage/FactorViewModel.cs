@@ -1,4 +1,4 @@
-﻿namespace CMon.Web.Models.ManageViewModels
+﻿namespace CMon.Web.ViewModels.Manage
 {
     public class FactorViewModel
     {

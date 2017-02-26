@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CMon.Web.Models.AccountViewModels
+namespace CMon.Web.ViewModels.Account
 {
     public class VerifyCodeViewModel
     {

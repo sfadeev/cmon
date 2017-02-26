@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CMon.Web.Entities;
 using CMon.Web.Models.AccountViewModels;
 using CMon.Web.Services;
+using CMon.Web.ViewModels.Account;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;

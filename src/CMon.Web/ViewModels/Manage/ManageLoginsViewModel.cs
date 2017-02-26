@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Http.Authentication;
 using Microsoft.AspNetCore.Identity;
 
-namespace CMon.Web.Models.ManageViewModels
+namespace CMon.Web.ViewModels.Manage
 {
     public class ManageLoginsViewModel
     {
