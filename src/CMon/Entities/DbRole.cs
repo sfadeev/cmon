@@ -2,7 +2,7 @@ using System;
 using LinqToDB.Identity;
 using LinqToDB.Mapping;
 
-namespace CMon.Web.Entities
+namespace CMon.Entities
 {
 	[Table(Schema = "public", Name = "roles")]
 	public class DbRole : IdentityRole<long>

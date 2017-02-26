@@ -1,8 +1,7 @@
 ﻿using System.Globalization;
+using CMon.Entities;
 using CMon.Extensions;
 using CMon.Services;
-using CMon.Web.Entities;
-using CMon.Web.Services;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.Identity;
@@ -22,10 +21,12 @@ using Microsoft.Extensions.Options;
 using Montr.Localization;
 using Serilog;
 
-namespace CMon.Web
+namespace CMon
 {
 	public class Startup
 	{
+		public const string UserSecretId = "cmon";
+
 		public Startup(IHostingEnvironment env)
 		{
 			Log.Logger = LoggerBuilder.Build("cmon");
@@ -37,7 +38,7 @@ namespace CMon.Web
 
 			// if (env.IsDevelopment())
 			{
-				builder.AddUserSecrets(UserSecret.Id);
+				builder.AddUserSecrets(UserSecretId);
 			}
 
 			builder.AddEnvironmentVariables();

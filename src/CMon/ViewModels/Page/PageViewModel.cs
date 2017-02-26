@@ -1,4 +1,4 @@
-﻿namespace CMon.Web.ViewModels.Page
+﻿namespace CMon.ViewModels.Page
 {
     public class PageViewModel
     {

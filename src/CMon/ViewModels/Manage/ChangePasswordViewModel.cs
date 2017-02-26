@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CMon.Web.ViewModels.Manage
+namespace CMon.ViewModels.Manage
 {
     public class ChangePasswordViewModel
     {

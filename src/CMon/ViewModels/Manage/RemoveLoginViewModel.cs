@@ -1,4 +1,4 @@
-﻿namespace CMon.Web.ViewModels.Manage
+﻿namespace CMon.ViewModels.Manage
 {
     public class RemoveLoginViewModel
     {

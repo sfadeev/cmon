@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace CMon.Web.Services
+namespace CMon.Services
 {
     public interface ISmsSender
     {

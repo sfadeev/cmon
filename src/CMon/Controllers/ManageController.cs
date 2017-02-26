@@ -1,8 +1,8 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
-using CMon.Web.Entities;
-using CMon.Web.Services;
-using CMon.Web.ViewModels.Manage;
+using CMon.Entities;
+using CMon.Services;
+using CMon.ViewModels.Manage;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace CMon.Web.Controllers
+namespace CMon.Controllers
 {
     [Authorize]
     public class ManageController : Controller

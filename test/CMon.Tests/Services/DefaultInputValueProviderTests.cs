@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using CMon.Services;
+using CMon.Web;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Xunit;
@@ -14,7 +15,7 @@ namespace CMon.Tests.Services
 		{
 			var builder = new ConfigurationBuilder()
 				.SetBasePath(Directory.GetCurrentDirectory())
-				.AddUserSecrets(UserSecret.Id)
+				.AddUserSecrets(Startup.UserSecretId)
 				.AddEnvironmentVariables();
 
 			Configuration = builder.Build();

@@ -1,7 +1,7 @@
 using LinqToDB;
 using LinqToDB.Identity;
 
-namespace CMon.Web.Entities
+namespace CMon.Entities
 {
 	public class IdentityDbConnection : IdentityDataConnection<DbUser, DbRole, long>
 	{

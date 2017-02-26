@@ -1,6 +1,6 @@
 using LinqToDB.Mapping;
 
-namespace CMon.Web.Entities
+namespace CMon.Entities
 {
 	[Table(Schema = "public", Name = "claim_type")]
 	public class DbClaimType

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.Rendering;
 
-namespace CMon.Web.ViewModels.Manage
+namespace CMon.ViewModels.Manage
 {
     public class ConfigureTwoFactorViewModel
     {

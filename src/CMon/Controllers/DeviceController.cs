@@ -1,7 +1,7 @@
-﻿using CMon.Web.ViewModels.Device;
+﻿using CMon.ViewModels.Device;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CMon.Web.Controllers
+namespace CMon.Controllers
 {
     public class DeviceController : Controller
     {

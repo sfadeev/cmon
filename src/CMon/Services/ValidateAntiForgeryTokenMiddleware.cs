@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 
-namespace CMon.Web.Services
+namespace CMon.Services
 {
     public class ValidateAntiForgeryTokenMiddleware
     {

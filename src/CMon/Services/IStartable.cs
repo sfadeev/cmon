@@ -1,4 +1,4 @@
-﻿namespace CMon.Web.Services
+﻿namespace CMon.Services
 {
 	// todo: StartAsync/StopAsync and wait all
     public interface  IStartable

@@ -1,7 +1,8 @@
 ﻿using System.IO;
+using CMon.Web;
 using Microsoft.AspNetCore.Hosting;
 
-namespace CMon.Web
+namespace CMon
 {
     public class Program
     {

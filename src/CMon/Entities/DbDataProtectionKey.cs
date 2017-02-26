@@ -1,7 +1,7 @@
 using System;
 using LinqToDB.Mapping;
 
-namespace CMon.Web.Entities
+namespace CMon.Entities
 {
 	[Table(Schema = "public", Name = "data_protection_key")]
 	public class DbDataProtectionKey 

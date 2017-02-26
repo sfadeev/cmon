@@ -2,10 +2,9 @@
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using CMon.Web.Entities;
-using CMon.Web.Models.AccountViewModels;
-using CMon.Web.Services;
-using CMon.Web.ViewModels.Account;
+using CMon.Entities;
+using CMon.Services;
+using CMon.ViewModels.Account;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -14,7 +13,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace CMon.Web.Controllers
+namespace CMon.Controllers
 {
     [Authorize]
     public class AccountController : Controller

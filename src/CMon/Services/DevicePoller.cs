@@ -6,12 +6,11 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CMon.Entities;
-using CMon.Services;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
-namespace CMon.Web.Services
+namespace CMon.Services
 {
 	public class DevicePoller : IStartable
 	{

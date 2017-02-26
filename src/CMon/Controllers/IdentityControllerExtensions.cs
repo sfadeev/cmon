@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 
-namespace CMon.Web.Controllers
+namespace CMon.Controllers
 {
     public static class IdentityControllerExtensions
     {

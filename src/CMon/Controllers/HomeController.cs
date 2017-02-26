@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 
-namespace CMon.Web.Controllers
+namespace CMon.Controllers
 {
 	public class HomeController : Controller
     {

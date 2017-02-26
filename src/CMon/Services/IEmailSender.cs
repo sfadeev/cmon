@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 using MimeKit;
 using MimeKit.Text;
 
-namespace CMon.Web.Services
+namespace CMon.Services
 {
     public interface IEmailSender
     {

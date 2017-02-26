@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace CMon.Web.ViewModels.Account
+namespace CMon.ViewModels.Account
 {
     public class ExternalLoginConfirmationViewModel
     {

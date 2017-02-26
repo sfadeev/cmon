@@ -1,7 +1,7 @@
-﻿using CMon.Web.ViewModels.Page;
+﻿using CMon.ViewModels.Page;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CMon.Web.Controllers
+namespace CMon.Controllers
 {
     public class PageController : Controller
     {

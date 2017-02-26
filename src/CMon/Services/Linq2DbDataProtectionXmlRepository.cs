@@ -3,13 +3,12 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Xml.Linq;
-using CMon.Services;
-using CMon.Web.Entities;
+using CMon.Entities;
 using LinqToDB;
 using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.Extensions.Logging;
 
-namespace CMon.Web.Services
+namespace CMon.Services
 {
     public class Linq2DbDataProtectionXmlRepository : IXmlRepository
 	{
