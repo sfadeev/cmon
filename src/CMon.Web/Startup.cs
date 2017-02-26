@@ -28,7 +28,7 @@ namespace CMon.Web
 	{
 		public Startup(IHostingEnvironment env)
 		{
-			Log.Logger = LoggerBuilder.Build("cmon.web");
+			Log.Logger = LoggerBuilder.Build("cmon");
 
 			var builder = new ConfigurationBuilder()
 				.SetBasePath(env.ContentRootPath)
@@ -99,18 +99,6 @@ namespace CMon.Web
 				.AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
 				.AddDataAnnotationsLocalization();
 
-			// Add application services.
-			services.AddTransient<IDbConnectionFactory, DefaultDbConnectionFactory<IdentityDataContext>>();
-
-			services.AddTransient<IXmlRepository, Linq2DbDataProtectionXmlRepository>();
-
-			services.AddTransient<IEmailSender, MailKitEmailSender>();
-			services.AddTransient<ISmsSender, DefaultSmsSender>();
-
-			services.AddTransient<IInputValueProvider, DefaultInputValueProvider>();
-
-			services.AddSingleton<IValidationAttributeAdapterProvider, LocalizedValidationAttributeAdapterProvider>();
-
 			services.Configure<RequestLocalizationOptions>(options =>
 			{
 				options.DefaultRequestCulture = new RequestCulture("ru");
@@ -120,6 +108,20 @@ namespace CMon.Web
 					new CookieRequestCultureProvider(), new AcceptLanguageHeaderRequestCultureProvider()
 				};
 			});
+
+			// Infrastructure services
+			services.AddSingleton<IValidationAttributeAdapterProvider, LocalizedValidationAttributeAdapterProvider>();
+
+			services.AddTransient<IDbConnectionFactory, DefaultDbConnectionFactory<IdentityDataContext>>();
+			services.AddTransient<IXmlRepository, Linq2DbDataProtectionXmlRepository>();
+			services.AddTransient<IEmailSender, MailKitEmailSender>();
+			services.AddTransient<ISmsSender, DefaultSmsSender>();
+
+			// Application services
+			services.AddSingleton<IStartable, DevicePoller>();
+
+			services.AddTransient<IDeviceRepository, DefaultDeviceRepository>();
+			services.AddTransient<IInputValueProvider, DefaultInputValueProvider>();
 		}
 
 		public void Configure(IApplicationBuilder app,
@@ -132,9 +134,21 @@ namespace CMon.Web
 				// .AddDebug()
 				.AddSerilog();
 
-			// Ensure any buffered events are sent at shutdown
+			appLifetime.ApplicationStarted.Register(() =>
+			{
+				foreach (var startable in app.ApplicationServices.GetServices<IStartable>())
+				{
+					startable.Start();
+				}
+			});
+
 			appLifetime.ApplicationStopped.Register(() =>
 			{
+				foreach (var startable in app.ApplicationServices.GetServices<IStartable>())
+				{
+					startable.Stop();
+				}
+
 				Log.CloseAndFlush();
 			});
 

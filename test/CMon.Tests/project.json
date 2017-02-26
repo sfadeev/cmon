@@ -3,14 +3,14 @@
 	"buildOptions": {
 		"debugType": "portable"
 	},
-	"dependencies": {
-		"System.Runtime.Serialization.Primitives": "4.3.0",
-		"dotnet-test-xunit": "2.2.0-preview2-build1029",
-		"CMon": "1.0.0-*",
-		"Microsoft.Extensions.Options.ConfigurationExtensions": "1.1.0",
-		"xunit": "2.2.0",
-		"MailKit": "1.10.2"
-	},
+  "dependencies": {
+    "System.Runtime.Serialization.Primitives": "4.3.0",
+    "dotnet-test-xunit": "2.2.0-preview2-build1029",
+    "Microsoft.Extensions.Options.ConfigurationExtensions": "1.1.0",
+    "xunit": "2.2.0",
+    "MailKit": "1.10.2",
+    "CMon.Web": "0.0.1-*"
+  },
 	"testRunner": "xunit",
 	"frameworks": {
 		"netcoreapp1.1": {

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using CMon.Entities;
 using LinqToDB;
+using Microsoft.Extensions.Options;
 
 namespace CMon.Services
 {
@@ -17,16 +18,16 @@ namespace CMon.Services
 
 	public class DefaultDeviceRepository : IDeviceRepository
 	{
-		private readonly string _connectionString;
+		private readonly IOptions<ConnectionStringOptions> _connectionStringOptions;
 
-		public DefaultDeviceRepository(string connectionString)
+		public DefaultDeviceRepository(IOptions<ConnectionStringOptions> connectionStringOptions)
 		{
-			_connectionString = connectionString;
+			_connectionStringOptions = connectionStringOptions;
 		}
 
 		public DbDevice GetDevice(long deviceId)
 		{
-			using (var db = new DbConnection(_connectionString))
+			using (var db = new DbConnection(_connectionStringOptions.Value.DefaultConnection))
 			{
 				return db.GetTable<DbDevice>().SingleOrDefault(x => x.Id == deviceId);
 			}
@@ -34,7 +35,7 @@ namespace CMon.Services
 
 		public IList<DbInput> GetInputs(long deviceId)
 		{
-			using (var db = new DbConnection(_connectionString))
+			using (var db = new DbConnection(_connectionStringOptions.Value.DefaultConnection))
 			{
 				return db.GetTable<DbInput>().Where(x => x.DeviceId == deviceId).ToList();
 			}
@@ -42,7 +43,7 @@ namespace CMon.Services
 
 		public void SaveToDb(long deviceId, short input, decimal value)
 		{
-			using (var db = new DbConnection(_connectionString))
+			using (var db = new DbConnection(_connectionStringOptions.Value.DefaultConnection))
 			{
 				db.Insert(new DbInputValue
 				{
