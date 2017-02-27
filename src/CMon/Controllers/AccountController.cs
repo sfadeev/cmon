@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using CMon.Entities;
 using CMon.Services;
 using CMon.ViewModels.Account;
-using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -21,7 +20,8 @@ namespace CMon.Controllers
     {
         private readonly UserManager<DbUser> _userManager;
         private readonly SignInManager<DbUser> _signInManager;
-        private readonly IEmailSender _emailSender;
+	    private readonly IBackgroundJob _backgroundJob;
+	    private readonly IEmailSender _emailSender;
         private readonly ISmsSender _smsSender;
 	    private readonly IOptions<IdentityOptions> _identityOptions;
 	    private readonly ILogger _logger;
@@ -29,13 +29,15 @@ namespace CMon.Controllers
 	    public AccountController(
 		    UserManager<DbUser> userManager,
 		    SignInManager<DbUser> signInManager,
-		    IEmailSender emailSender,
+			IBackgroundJob backgroundJob,
+			IEmailSender emailSender,
 		    ISmsSender smsSender,
 		    IOptions<IdentityOptions> identityOptions,
 		    ILogger<AccountController> logger)
 	    {
 		    _userManager = userManager;
 		    _signInManager = signInManager;
+		    _backgroundJob = backgroundJob;
 		    _emailSender = emailSender;
 		    _smsSender = smsSender;
 		    _identityOptions = identityOptions;
@@ -171,7 +173,7 @@ namespace CMon.Controllers
 			var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 			var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
 
-			BackgroundJob.Enqueue<IEmailSender>(x => x.SendEmailAsync(user.Email, "Confirm your account",
+			_backgroundJob.Enqueue<IEmailSender>(x => x.SendEmailAsync(user.Email, "Confirm your account",
 				$"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>"));
 		}
 
@@ -343,7 +345,7 @@ namespace CMon.Controllers
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
 
-				BackgroundJob.Enqueue<IEmailSender>(x => x.SendEmailAsync(model.Email, "Reset Password",
+				_backgroundJob.Enqueue<IEmailSender>(x => x.SendEmailAsync(model.Email, "Reset Password",
 					$"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>"));
 
                 return View("ForgotPasswordConfirmation");

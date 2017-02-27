@@ -120,6 +120,7 @@ namespace CMon
 			});
 
 			// Infrastructure services
+			services.AddSingleton<IBackgroundJob, HangfireBackgroundJob>();
 			services.AddSingleton<IValidationAttributeAdapterProvider, LocalizedValidationAttributeAdapterProvider>();
 
 			services.AddTransient<IDbConnectionFactory, DefaultDbConnectionFactory<DbContext, DbConnection>>();
@@ -231,7 +232,9 @@ namespace CMon
 		{
 			public bool Authorize(DashboardContext context)
 			{
-				return true;
+				var user = context.GetHttpContext().User;
+
+				return user.Identity.IsAuthenticated && user.Identity.Name == "fadeev@gmail.com";
 			}
 		}
 	}
