@@ -1,13 +1,8 @@
-﻿using LinqToDB.DataProvider.PostgreSQL;
-using Npgsql;
+using LinqToDB.Identity;
 
 namespace CMon.Entities
 {
-	public class DbConnection : LinqToDB.Data.DataConnection
+	public class DbConnection : IdentityDataConnection<DbUser, DbRole, long>
 	{
-		public DbConnection(string connectionString) : base(
-			new PostgreSQLDataProvider("Npgsql", PostgreSQLVersion.v93), new NpgsqlConnection(connectionString))
-		{
-		}
 	}
 }

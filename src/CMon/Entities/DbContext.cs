@@ -3,13 +3,9 @@ using LinqToDB.Identity;
 
 namespace CMon.Entities
 {
-	public class IdentityDbConnection : IdentityDataConnection<DbUser, DbRole, long>
+	public class DbContext : DataContext
 	{
-	}
-
-	public class IdentityDataContext : DataContext
-	{
-		public IdentityDataContext()
+		public DbContext()
 		{
 			// https://github.com/linq2db/linq2db/issues/286
 			// https://github.com/linq2db/t4models

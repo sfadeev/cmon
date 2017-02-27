@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Concurrent;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CMon.Entities;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
@@ -19,19 +19,19 @@ namespace CMon.Services
 		public const short BoardTemp = 0xFF;
 
 		private readonly ILogger<DevicePoller> _logger;
-		private readonly IServiceProvider _serviceProvider;
+		private readonly IDeviceRepository _deviceRepository;
 
 		private readonly ConcurrentDictionary<long, Timer> _timers = new ConcurrentDictionary<long, Timer>();
 
-		public DevicePoller(ILogger<DevicePoller> logger, IServiceProvider serviceProvider)
+		public DevicePoller(ILogger<DevicePoller> logger, IDeviceRepository deviceRepository)
 		{
 			_logger = logger;
-			_serviceProvider = serviceProvider;
+			_deviceRepository = deviceRepository;
 		}
 
 		public void Start()
 		{
-			foreach (var deviceId in Devices)
+			foreach (var deviceId in _deviceRepository.GetDevices().Select(x => x.Id))
 			{
 				_timers[deviceId] = new Timer(state =>
 				{
@@ -59,11 +59,9 @@ namespace CMon.Services
 
 		public async Task PollAsync(long deviceId)
 		{
-			var repository = _serviceProvider.GetService<IDeviceRepository>();
+			var device = _deviceRepository.GetDevice(deviceId);
 
-			var device = repository.GetDevice(deviceId);
-
-			var inputs = repository.GetInputs(deviceId);
+			var inputs = _deviceRepository.GetInputs(deviceId);
 
 			var url = "https://ccu.sh/data.cgx?cmd={\"Command\":\"GetStateAndEvents\"}";
 
@@ -82,14 +80,14 @@ namespace CMon.Services
 				}
 
 				var t = GetBoardTemperature(jo);
-				repository.SaveToDb(device.Id, BoardTemp, t);
+				_deviceRepository.SaveToDb(device.Id, BoardTemp, t);
 
 				var message = $"[{device.Id}] - {BoardTemp}:{t:N4}";
 
 				foreach (var input in inputs)
 				{
 					t = GetInputTemperature(jo, input.InputNo - 1);
-					repository.SaveToDb(device.Id, input.InputNo, t);
+					_deviceRepository.SaveToDb(device.Id, input.InputNo, t);
 
 					message += $" - {input.InputNo}:{t:N4}";
 				}

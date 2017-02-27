@@ -1,15 +1,14 @@
 ﻿using System.IO;
+using CMon.Entities;
 using CMon.Services;
-using CMon.Web;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 using Xunit;
 
 namespace CMon.Tests.Services
 {
 	public class DefaultInputValueProviderTests
 	{
-		public IConfigurationRoot Configuration { get; set; }
+		/*public IConfigurationRoot Configuration { get; set; }
 
 		public DefaultInputValueProviderTests()
 		{
@@ -19,17 +18,13 @@ namespace CMon.Tests.Services
 				.AddEnvironmentVariables();
 
 			Configuration = builder.Build();
-		}
+		}*/
 
 		[Fact]
 		public void Test1()
 		{
-			// arrange
-			var connectionString = new ConnectionStringOptions
-			{
-				DefaultConnection = Configuration.GetConnectionString("DefaultConnection")
-			};
-			var provider = new DefaultInputValueProvider(Options.Create(connectionString));
+			var connectionFactory = new DefaultDbConnectionFactory<DbContext, DbConnection>();
+			var provider = new DefaultInputValueProvider(connectionFactory);
 
 			// act
 			var stats = provider.GetValues(new InputValueRequest

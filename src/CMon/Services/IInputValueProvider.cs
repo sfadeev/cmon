@@ -4,7 +4,6 @@ using CMon.Entities;
 using CMon.Models;
 using DaleNewman;
 using LinqToDB;
-using Microsoft.Extensions.Options;
 
 namespace CMon.Services
 {
@@ -35,11 +34,11 @@ namespace CMon.Services
 
 	public class DefaultInputValueProvider : IInputValueProvider
 	{
-		private readonly ConnectionStringOptions _connectionStrings;
+		private readonly IDbConnectionFactory _connectionFactory;
 
-		public DefaultInputValueProvider(IOptions<ConnectionStringOptions> connectionStringOptions)
+		public DefaultInputValueProvider(IDbConnectionFactory connectionFactory)
 		{
-			_connectionStrings = connectionStringOptions.Value;
+			_connectionFactory = connectionFactory;
 		}
 
 		public DeviceStatistic GetValues(InputValueRequest request)
@@ -54,7 +53,7 @@ namespace CMon.Services
 			groupByMinutes = Math.Max(Math.Min(
 					groupByMinutes, options.MaxGroupByMinutes), options.MinGroupByMinutes);
 
-			using (var db = new DbConnection(_connectionStrings.DefaultConnection))
+			using (var db = _connectionFactory.GetConection())
 			{
 				var dbInput = db.GetTable<DbInput>().Where(x => x.DeviceId == request.DeviceId).ToList();
 

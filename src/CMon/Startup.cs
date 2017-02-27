@@ -50,20 +50,16 @@ namespace CMon
 
 		public void ConfigureServices(IServiceCollection services)
 		{
-			// Set connection configuration
-			var connectionStringsSection = Configuration.GetSection("ConnectionStrings");
-
-			DataConnection
-				.AddConfiguration(
-					"Default",
-					// Configuration["Data:DefaultConnection:ConnectionString"],
-					connectionStringsSection.Get<ConnectionStringOptions>().DefaultConnection,
-					new PostgreSQLDataProvider("Default", PostgreSQLVersion.v93));
-
 			DataConnection.DefaultConfiguration = "Default";
 
-			services.Configure<ConnectionStringOptions>(connectionStringsSection);
-			services.Configure<GoogleOptions>(Configuration.GetSection("Authentication").GetSection(GoogleDefaults.AuthenticationScheme));
+			DataConnection.AddConfiguration(
+				DataConnection.DefaultConfiguration,
+				Configuration["Data:DefaultConnection:ConnectionString"],
+				new PostgreSQLDataProvider("Default", PostgreSQLVersion.v93));
+
+			services.Configure<GoogleOptions>(Configuration.GetSection("Authentication")
+				.GetSection(GoogleDefaults.AuthenticationScheme));
+
 			services.Configure<EmailSenderOptions>(Configuration.GetSection("EmailSender"));
 
 			services.AddIdentity<DbUser, DbRole>(options =>
@@ -77,7 +73,7 @@ namespace CMon
 					// options.Cookies.ApplicationCookie.AutomaticChallenge = true;
 					// options.Cookies.ApplicationCookie.DataProtectionProvider = DataProtectionProvider.Create(new DirectoryInfo("C:\\Github\\Identity\\artifacts"));
 				})
-				.AddLinqToDBStores(new DefaultConnectionFactory<IdentityDataContext, IdentityDbConnection>(), typeof(long))
+				.AddLinqToDBStores(new DefaultConnectionFactory<DbContext, DbConnection>(), typeof(long))
 				.AddDefaultTokenProviders();
 
 			services.AddLocalization(options => options.ResourcesPath = "Resources");
@@ -113,7 +109,7 @@ namespace CMon
 			// Infrastructure services
 			services.AddSingleton<IValidationAttributeAdapterProvider, LocalizedValidationAttributeAdapterProvider>();
 
-			services.AddTransient<IDbConnectionFactory, DefaultDbConnectionFactory<IdentityDataContext>>();
+			services.AddTransient<IDbConnectionFactory, DefaultDbConnectionFactory<DbContext, DbConnection>>();
 			services.AddTransient<IXmlRepository, Linq2DbDataProtectionXmlRepository>();
 			services.AddTransient<IEmailSender, MailKitEmailSender>();
 			services.AddTransient<ISmsSender, DefaultSmsSender>();
