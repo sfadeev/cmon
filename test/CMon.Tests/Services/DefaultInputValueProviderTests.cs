@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using CMon.Entities;
 using CMon.Services;
+using LinqToDB.Data;
+using LinqToDB.DataProvider.PostgreSQL;
 using Microsoft.Extensions.Configuration;
 using Xunit;
 
@@ -8,7 +10,7 @@ namespace CMon.Tests.Services
 {
 	public class DefaultInputValueProviderTests
 	{
-		/*public IConfigurationRoot Configuration { get; set; }
+		public IConfigurationRoot Configuration { get; set; }
 
 		public DefaultInputValueProviderTests()
 		{
@@ -18,7 +20,14 @@ namespace CMon.Tests.Services
 				.AddEnvironmentVariables();
 
 			Configuration = builder.Build();
-		}*/
+
+			DataConnection.DefaultConfiguration = "Default";
+
+			DataConnection.AddConfiguration(
+				DataConnection.DefaultConfiguration,
+				Configuration["Data:DefaultConnection:ConnectionString"],
+				new PostgreSQLDataProvider("Default", PostgreSQLVersion.v93));
+		}
 
 		[Fact]
 		public void Test1()
