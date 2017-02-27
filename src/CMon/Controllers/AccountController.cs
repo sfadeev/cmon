@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CMon.Entities;
 using CMon.Services;
 using CMon.ViewModels.Account;
+using Hangfire;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
@@ -170,8 +171,8 @@ namespace CMon.Controllers
 			var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 			var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
 
-			await _emailSender.SendEmailAsync(user.Email, "Confirm your account",
-				$"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>");
+			BackgroundJob.Enqueue<IEmailSender>(x => x.SendEmailAsync(user.Email, "Confirm your account",
+				$"Please confirm your account by clicking this link: <a href='{callbackUrl}'>link</a>"));
 		}
 
 		[AllowAnonymous]
@@ -341,8 +342,10 @@ namespace CMon.Controllers
                 // Send an email with this link
                 var code = await _userManager.GeneratePasswordResetTokenAsync(user);
                 var callbackUrl = Url.Action("ResetPassword", "Account", new { userId = user.Id, code = code }, protocol: HttpContext.Request.Scheme);
-                await _emailSender.SendEmailAsync(model.Email, "Reset Password",
-                   $"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>");
+
+				BackgroundJob.Enqueue<IEmailSender>(x => x.SendEmailAsync(model.Email, "Reset Password",
+					$"Please reset your password by clicking here: <a href='{callbackUrl}'>link</a>"));
+
                 return View("ForgotPasswordConfirmation");
             }
 

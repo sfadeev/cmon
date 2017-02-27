@@ -2,6 +2,9 @@
 using CMon.Entities;
 using CMon.Extensions;
 using CMon.Services;
+using Hangfire;
+using Hangfire.Dashboard;
+using Hangfire.PostgreSql;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.Identity;
@@ -50,12 +53,12 @@ namespace CMon
 
 		public void ConfigureServices(IServiceCollection services)
 		{
+			var connectionString = Configuration["Data:DefaultConnection:ConnectionString"];
+
 			DataConnection.DefaultConfiguration = "Default";
 
 			DataConnection.AddConfiguration(
-				DataConnection.DefaultConfiguration,
-				Configuration["Data:DefaultConnection:ConnectionString"],
-				new PostgreSQLDataProvider("Default", PostgreSQLVersion.v93));
+				DataConnection.DefaultConfiguration, connectionString, new PostgreSQLDataProvider(PostgreSQLVersion.v93));
 
 			services.Configure<GoogleOptions>(Configuration.GetSection("Authentication")
 				.GetSection(GoogleDefaults.AuthenticationScheme));
@@ -104,6 +107,16 @@ namespace CMon
 				{
 					new CookieRequestCultureProvider(), new AcceptLanguageHeaderRequestCultureProvider()
 				};
+			});
+
+			// Hangfire
+			services.AddHangfire(configuration =>
+			{
+				configuration.UsePostgreSqlStorage(connectionString,
+					new PostgreSqlStorageOptions
+					{
+						PrepareSchemaIfNecessary = false
+					});
 			});
 
 			// Infrastructure services
@@ -203,6 +216,23 @@ namespace CMon
 					name: "default",
 					template: "{controller=Home}/{action=Index}/{id?}");
 			});
+
+			app.UseHangfireServer();
+			app.UseHangfireDashboard(options: new DashboardOptions
+			{
+				Authorization = new IDashboardAuthorizationFilter[]
+				{
+					new HangfireDashboardAuthorizationFilter()
+				}
+			});
+		}
+
+		public class HangfireDashboardAuthorizationFilter : IDashboardAuthorizationFilter
+		{
+			public bool Authorize(DashboardContext context)
+			{
+				return true;
+			}
 		}
 	}
 }
