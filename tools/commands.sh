@@ -32,3 +32,9 @@ sudo journalctl -fu dotnet-cmon-web.service --since "2016-10-18" --until "2016-1
 sudo letsencrypt certonly -a webroot --webroot-path=/var/www/ccu.montr.net -d ccu.montr.net
 
 # https://www.ssllabs.com/ssltest/analyze.html?d=ccu.montr.net
+
+# list all processes
+ps aufx
+
+# grant wrile to logs
+chown blackish /var/log/cmon

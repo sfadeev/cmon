@@ -1,0 +1,91 @@
+﻿@using CMon.Entities
+@using Microsoft.AspNetCore.Identity
+@model CMon.ViewModels.Account.LoginViewModel
+
+@inject SignInManager<DbUser> SignInManager
+
+@{
+    ViewData["Title"] = "Log in";
+}
+
+<div class="modal-content modal-lg center-block">
+	<div class="modal-header">
+		<h4 class="modal-title">@ViewData["Title"]</h4>
+	</div>
+
+	<div class="modal-body">
+		<div class="row">
+			<div class="col-md-7">
+				<p>Use a local account to log in</p>
+
+				<form asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
+
+					<div asp-validation-summary="All" class="text-danger"></div>
+					<div class="form-group">
+						<label asp-for="Email" class="col-md-3 control-label"></label>
+						<div class="col-md-9">
+							<input asp-for="Email" class="form-control" placeholder="name@@domain.net" />
+							<span asp-validation-for="Email" class="text-danger"></span>
+						</div>
+					</div>
+					<div class="form-group">
+						<label asp-for="Password" class="col-md-3 control-label"></label>
+						<div class="col-md-9">
+							<input asp-for="Password" class="form-control"/>
+							<span asp-validation-for="Password" class="text-danger"></span>
+							
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-md-offset-3 col-md-9">
+							<div class="checkbox">
+								<label asp-for="RememberMe">
+									<input asp-for="RememberMe"/>
+									@Html.DisplayNameFor(m => m.RememberMe)
+								</label>
+								<a asp-action="ForgotPassword" class="btn-link pull-right">Forgot your password?</a>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<div class="col-md-offset-3 col-md-9">
+							<button type="submit" class="btn btn-primary">Log in</button>
+							<a class="btn pull-right" asp-action="Register" asp-route-returnurl="@ViewData["ReturnUrl"]">Register as a new user?</a>
+						</div>
+					</div>
+
+				</form>
+			</div>
+			<div class="col-md-5">
+				<p>Use another service to log in</p>
+
+				@{
+					var loginProviders = SignInManager.GetExternalAuthenticationSchemes().ToList();
+
+					<form asp-controller="Account" asp-action="ExternalLogin" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
+						<div>
+							<p>
+								@foreach (var provider in loginProviders)
+								{
+									<button type="submit" class="btn btn-default" name="provider" value="@provider.AuthenticationScheme">@provider.DisplayName</button>
+								}
+							</p>
+						</div>
+					</form>
+				}
+			</div>
+		</div>
+
+	</div>
+</div>
+
+
+@section scripts {
+	<script>
+		$(function() {
+			$("#Email").focus();
+		});
+	</script>
+
+	@{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
+}

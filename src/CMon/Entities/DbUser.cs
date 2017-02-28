@@ -1,16 +1,20 @@
 using System;
+using LinqToDB.Identity;
 using LinqToDB.Mapping;
 
 namespace CMon.Entities
 {
 	[Table(Schema = "public", Name = "users")]
-	public class DbUser
+	public class DbUser : IdentityUser<long>
 	{
-		[Column("id"), PrimaryKey, Identity]
-		public long Id { get; set; }
+		[Column("id"), PrimaryKey, Identity, NotNull]
+		public override long Id { get; set; }
 
-		[Column("user_name"), NotNull]
-		public string UserName { get; set; }
+		[Column("user_name")]
+		public override string UserName { get; set; }
+
+		[Column("normalized_user_name")]
+		public override string NormalizedUserName { get; set; }
 
 		[Column("first_name")]
 		public string FirstName { get; set; }
@@ -19,33 +23,51 @@ namespace CMon.Entities
 		public string LastName { get; set; }
 
 		[Column("email")]
-		public string Email { get; set; }
+		public override string Email { get; set; }
+
+		[Column("normalized_email")]
+		public override string NormalizedEmail { get; set; }
 
 		[Column("email_confirmed"), NotNull]
-		public bool EmailConfirmed { get; set; }
+		public override bool EmailConfirmed { get; set; }
 
 		[Column("phone_number")]
-		public string PhoneNumber { get; set; }
+		public override string PhoneNumber { get; set; }
 
 		[Column("phone_number_confirmed"), NotNull]
-		public bool PhoneNumberConfirmed { get; set; }
+		public override bool PhoneNumberConfirmed { get; set; }
 
 		[Column("password_hash")]
-		public string PasswordHash { get; set; }
+		public override string PasswordHash { get; set; }
 
 		[Column("security_stamp")]
-		public string SecurityStamp { get; set; }
+		public override string SecurityStamp { get; set; }
 
 		[Column("two_factor_enabled"), NotNull]
-		public bool TwoFactorEnabled { get; set; }
+		public override bool TwoFactorEnabled { get; set; }
 
 		[Column("lockout_enabled"), NotNull]
-		public bool LockoutEnabled { get; set; }
+		public override bool LockoutEnabled { get; set; }
 
-		[Column("lockout_end_date_utc")]
-		public DateTime? LockoutEndDateUtc { get; set; }
+		[Column("lockout_end")]
+		public override DateTimeOffset? LockoutEnd { get; set; }
 
 		[Column("access_failed_count"), NotNull]
-		public long AccessFailedCount { get; set; }
+		public override int AccessFailedCount { get; set; }
+
+		[Column("concurrency_stamp"), NotNull]
+		public override string ConcurrencyStamp { get; set; } = Guid.NewGuid().ToString();
+
+		[Column("created_at"), NotNull]
+		public DateTime? CreatedAt { get; set; }
+
+		[Column("created_by")]
+		public string CreatedBy { get; set; }
+
+		[Column("modified_at")]
+		public DateTime? ModifiedAt { get; set; }
+
+		[Column("modified_by")]
+		public string ModifiedBy { get; set; }
 	}
 }

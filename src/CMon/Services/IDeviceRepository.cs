@@ -8,6 +8,8 @@ namespace CMon.Services
 {
 	public interface IDeviceRepository
 	{
+		IList<DbDevice> GetDevices();
+
 		DbDevice GetDevice(long deviceId);
 
 		IList<DbInput> GetInputs(long deviceId);
@@ -17,16 +19,24 @@ namespace CMon.Services
 
 	public class DefaultDeviceRepository : IDeviceRepository
 	{
-		private readonly string _connectionString;
+		private readonly IDbConnectionFactory _connectionFactory;
 
-		public DefaultDeviceRepository(string connectionString)
+		public DefaultDeviceRepository(IDbConnectionFactory connectionFactory)
 		{
-			_connectionString = connectionString;
+			_connectionFactory = connectionFactory;
+		}
+
+		public IList<DbDevice> GetDevices()
+		{
+			using (var db = _connectionFactory.GetConection())
+			{
+				return db.GetTable<DbDevice>().ToList();
+			}
 		}
 
 		public DbDevice GetDevice(long deviceId)
 		{
-			using (var db = new DbConnection(_connectionString))
+			using (var db = _connectionFactory.GetConection())
 			{
 				return db.GetTable<DbDevice>().SingleOrDefault(x => x.Id == deviceId);
 			}
@@ -34,7 +44,7 @@ namespace CMon.Services
 
 		public IList<DbInput> GetInputs(long deviceId)
 		{
-			using (var db = new DbConnection(_connectionString))
+			using (var db = _connectionFactory.GetConection())
 			{
 				return db.GetTable<DbInput>().Where(x => x.DeviceId == deviceId).ToList();
 			}
@@ -42,7 +52,7 @@ namespace CMon.Services
 
 		public void SaveToDb(long deviceId, short input, decimal value)
 		{
-			using (var db = new DbConnection(_connectionString))
+			using (var db = _connectionFactory.GetConection())
 			{
 				db.Insert(new DbInputValue
 				{

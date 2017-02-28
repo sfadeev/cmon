@@ -1,7 +1,12 @@
-﻿@{
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+
+@inject IViewLocalizer Localizer
+
+@{
 	var appName = "c°mon";
 	var version = Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application.ApplicationVersion;
 }
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -26,7 +31,7 @@
 </head>
 <body>
     <div class="navbar navbar-default navbar-static-top">
-        <div class="container-fluid">
+        <div class="container container-fluid-">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                     <span class="sr-only">Toggle navigation</span>
@@ -39,7 +44,9 @@
             <div class="navbar-collapse collapse">
 	            <ul class="nav navbar-nav">
 					<li class="dropdown">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Контроллеры <span class="caret"></span></a>
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+							@Localizer["Controllers"] <span class="caret"></span>
+						</a>
 						<ul class="dropdown-menu">
 							<li><a href="@Url.Action("Index", "Device", new { deviceId = 1 })">#1</a></li>
 							<li><a href="@Url.Action("Index", "Device", new { deviceId = 2 })">#2</a></li>
@@ -48,19 +55,27 @@
 		            @*<li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>*@
 		            @*<li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>*@
 	            </ul>
-                @*@await Html.PartialAsync("_LoginPartial")*@
+                @await Html.PartialAsync("_LoginPartial")
             </div>
         </div>
     </div>
-    <div class="container-fluid body-content">
+    <div class="container container-fluid- body-content">
         @RenderBody()
         <hr />
         <footer>
-	        <p>&copy; @DateTime.Today.Year - 
-		        <a class="version" href="@(Url.Action("Index", "ChangeLog"))#@version">
-			        @version
-		        </a>
-			</p>
+			<div class="row">
+				<div class="col-md-6">
+					<p>
+						&copy; @DateTime.Today.Year -
+						<a class="version" href="@(Url.Action("Index", "ChangeLog"))#@version">
+							@version
+						</a>
+					</p>
+				</div>
+				<div class="col-md-6 text-right">
+					@await Html.PartialAsync("_SelectLanguagePartial")
+				</div>
+			</div>
         </footer>
     </div>
 
@@ -78,7 +93,7 @@
                 asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
                 asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal">
         </script>
-        <script src="~/js/site.min.js" asp-append-version="true"></script>
+        <script src="~/js/site.js" asp-append-version="true"></script>
     </environment>
 
     @RenderSection("scripts", required: false)
