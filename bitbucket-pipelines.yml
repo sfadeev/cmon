@@ -10,8 +10,8 @@ pipelines:
     - step:
         script: # Modify the commands below to build your repository.
           - dotnet restore
+          - dotnet build src/Montr.Localization
+          - dotnet build src/LinqToDB.Identity
           - dotnet build src/CMon
-          - dotnet build src/CMon.Web
-#          - dotnet build src/LinqToDB.Identity
           - dotnet build test/CMon.Tests
 #          - dotnet test TestName
