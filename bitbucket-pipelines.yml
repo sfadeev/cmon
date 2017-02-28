@@ -13,5 +13,5 @@ pipelines:
           - dotnet build src/Montr.Localization
           - dotnet build src/LinqToDB.Identity
           - dotnet build src/CMon
-          - dotnet build test/CMon.Tests
+#          - dotnet build test/CMon.Tests
 #          - dotnet test TestName
