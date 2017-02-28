@@ -8,14 +8,14 @@
     ViewData["Title"] = "Log in";
 }
 
-<div class="modal-content modal-registration center-block">
+<div class="modal-content modal-lg center-block">
 	<div class="modal-header">
 		<h4 class="modal-title">@ViewData["Title"]</h4>
 	</div>
 
 	<div class="modal-body">
 		<div class="row">
-			<div class="col-md-8">
+			<div class="col-md-7">
 				<p>Use a local account to log in</p>
 
 				<form asp-controller="Account" asp-action="Login" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
@@ -56,7 +56,7 @@
 
 				</form>
 			</div>
-			<div class="col-md-4">
+			<div class="col-md-5">
 				<p>Use another service to log in</p>
 
 				@{
