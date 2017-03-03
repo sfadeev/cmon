@@ -64,19 +64,15 @@
         @RenderBody()
         <hr />
         <footer>
-			<div class="row">
-				<div class="col-md-6">
-					<p>
-						&copy; @DateTime.Today.Year -
-						<a class="version" href="@Url.Action("Index", "ChangeLog")#@version">
-							@version
-						</a>
-					</p>
-				</div>
-				<div class="col-md-6 text-right">
-					@await Html.PartialAsync("_SelectLanguagePartial")
-				</div>
+			<div class="pull-right">
+				@await Html.PartialAsync("_SelectLanguagePartial")
 			</div>
+			<p>
+				&copy; @DateTime.Today.Year -
+				<a class="version" href="@Url.Action("Index", "ChangeLog")#@version">
+					@version
+				</a>
+			</p>
         </footer>
     </div>
 
