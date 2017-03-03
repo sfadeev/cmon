@@ -6,6 +6,7 @@
 
 <div class="row">
 	<div class="col-md-12">
+		<i class="loading-indicator pull-right fa fa-circle-o-notch fa-spin fa-fw"></i>
 		<div class="btn-toolbar hours" role="toolbar">
 			<div class="btn-group btn-group-sm" role="group">
 				<button type="button" class="btn btn-default">1h</button>
@@ -336,13 +337,32 @@
 				return '/api/values?deviceId=@(Model.Id)&from=' + $("#from").val() + '&to=' + $("#to").val() + '&t=' + new Date().getTime();
 			}
 
-			var loadData = function(update) {
+			var toid;
+
+			var loadData = function (update) {
+
+				if (toid) {
+					clearTimeout(toid);
+					toid = null;
+				}
+
+				$(".loading-indicator").show();
+
 				d3.json(getDataUrl(),
-					function(error, data) {
+					function (error, data) {
+						
 						if (error) return; // throw error; // todo: log error
 
 						options.data = parse(data);
 						draw(data, update);
+
+						$(".loading-indicator").hide();
+
+						if ($("#to").val() === "now") {
+							toid = setTimeout(function () {
+								loadData(true);
+							}, 15000);
+						}
 					}
 				);
 			}
@@ -350,14 +370,14 @@
 			init();
 			loadData(false);
 
-			setInterval(function() {
-				if ($("#to").val() === "now") loadData(true);
-			}, 15000);
-
 			$(".btn-group .btn").click(function () {
 				$("#from").val("now-" + $(this).text());
 				$("#to").val("now");
 				loadData(true);
+			});
+
+			$(".input-group input").keypress(function (e) {
+				if(e.which === 13) loadData(true);
 			});
 
 			$(".input-group .btn").click(function () {

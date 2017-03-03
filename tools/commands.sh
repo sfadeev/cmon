@@ -36,5 +36,8 @@ sudo letsencrypt certonly -a webroot --webroot-path=/var/www/ccu.montr.net -d cc
 # list all processes
 ps aufx
 
+# disk usage
+df -h
+
 # grant wrile to logs
 chown blackish /var/log/cmon
