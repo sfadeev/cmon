@@ -127,6 +127,76 @@ namespace CMon.Tests.Services
 		}
 
 		[Fact]
+		public async void GetInputsInitial_AsUser()
+		{
+			// arrange
+			var gateway = new CcuGateway(Logger);
+
+			// act
+			var result = await gateway.GetInputsInitial(UsrAuth);
+
+			// assert
+			Assert.Equal(HttpStatusCode.OK, result.HttpStatusCode);
+			Assert.Null(result.Status);
+		}
+
+		[Fact]
+		public async void GetInputsPoll_AsUser()
+		{
+			// arrange
+			var gateway = new CcuGateway(Logger);
+
+			// act
+			var result = await gateway.GetInputsPoll(UsrAuth, 0);
+
+			// assert
+			Assert.Equal(HttpStatusCode.OK, result.HttpStatusCode);
+			Assert.Null(result.Status);
+		}
+
+		[Fact]
+		public async void GetInputsInputNum_AsUser()
+		{
+			// arrange
+			var gateway = new CcuGateway(Logger);
+
+			// act
+			var result = await gateway.GetInputsInputNum(UsrAuth, 0);
+
+			// assert
+			Assert.Equal(HttpStatusCode.OK, result.HttpStatusCode);
+			Assert.Null(result.Status);
+		}
+
+		[Fact]
+		public async void GetProfilesInitial_AsUser()
+		{
+			// arrange
+			var gateway = new CcuGateway(Logger);
+
+			// act
+			var result = await gateway.GetProfilesInitial(UsrAuth);
+
+			// assert
+			Assert.Equal(HttpStatusCode.OK, result.HttpStatusCode);
+			Assert.Null(result.Status);
+		}
+
+		[Fact]
+		public async void GetProfilesProfNum_AsUser()
+		{
+			// arrange
+			var gateway = new CcuGateway(Logger);
+
+			// act
+			var result = await gateway.GetProfilesProfNum(UsrAuth, 0);
+
+			// assert
+			Assert.Equal(HttpStatusCode.OK, result.HttpStatusCode);
+			Assert.Null(result.Status);
+		}
+
+		[Fact]
 		public async void GetDeviceInfo()
 		{
 			// arrange
