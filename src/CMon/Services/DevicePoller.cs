@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CMon.Entities;
+using CMon.Models.Ccu;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
@@ -14,24 +15,24 @@ namespace CMon.Services
 {
 	public class DevicePoller : IStartable
 	{
-		public static long[] Devices = { 1, 2 };
-
 		public const short BoardTemp = 0xFF;
 
 		private readonly ILogger<DevicePoller> _logger;
-		private readonly IDeviceRepository _deviceRepository;
+		private readonly ICcuGateway _gateway;
+		private readonly IDeviceRepository _repository;
 
 		private readonly ConcurrentDictionary<long, Timer> _timers = new ConcurrentDictionary<long, Timer>();
 
-		public DevicePoller(ILogger<DevicePoller> logger, IDeviceRepository deviceRepository)
+		public DevicePoller(ILogger<DevicePoller> logger, ICcuGateway gateway, IDeviceRepository repository)
 		{
 			_logger = logger;
-			_deviceRepository = deviceRepository;
+			_gateway = gateway;
+			_repository = repository;
 		}
 
 		public void Start()
 		{
-			foreach (var deviceId in _deviceRepository.GetDevices().Select(x => x.Id))
+			foreach (var deviceId in _repository.GetDevices().Select(x => x.Id))
 			{
 				_timers[deviceId] = new Timer(state =>
 				{
@@ -59,9 +60,13 @@ namespace CMon.Services
 
 		public async Task PollAsync(long deviceId)
 		{
-			var device = _deviceRepository.GetDevice(deviceId);
+			var device = _repository.GetDevice(deviceId);
 
-			var inputs = _deviceRepository.GetInputs(deviceId);
+			var auth = new Auth { Imei = device.Imei, Username = device.Username, Password = device.Password };
+
+			var stateAndEvents = _gateway.GetStateAndEvents(auth);
+
+			var inputs = _repository.GetInputs(deviceId);
 
 			var url = "https://ccu.sh/data.cgx?cmd={\"Command\":\"GetStateAndEvents\"}";
 
@@ -80,14 +85,14 @@ namespace CMon.Services
 				}
 
 				var t = GetBoardTemperature(jo);
-				_deviceRepository.SaveToDb(device.Id, BoardTemp, t);
+				_repository.SaveToDb(device.Id, BoardTemp, t);
 
 				var message = $"[{device.Id}] - {BoardTemp}:{t:N4}";
 
 				foreach (var input in inputs)
 				{
 					t = GetInputTemperature(jo, input.InputNo - 1);
-					_deviceRepository.SaveToDb(device.Id, input.InputNo, t);
+					_repository.SaveToDb(device.Id, input.InputNo, t);
 
 					message += $" - {input.InputNo}:{t:N4}";
 				}

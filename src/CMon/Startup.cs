@@ -21,6 +21,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Montr.Core;
 using Montr.Localization;
 using Serilog;
 
@@ -60,11 +61,22 @@ namespace CMon
 			DataConnection.AddConfiguration(
 				DataConnection.DefaultConfiguration, connectionString, new PostgreSQLDataProvider(PostgreSQLVersion.v93));
 
-			services.Configure<GoogleOptions>(Configuration.GetSection("Authentication")
-				.GetSection(GoogleDefaults.AuthenticationScheme));
+			// configure options
+			services.Configure<GoogleOptions>(Configuration.GetSection("Authentication").GetSection(GoogleDefaults.AuthenticationScheme));
 
 			services.Configure<EmailSenderOptions>(Configuration.GetSection("EmailSender"));
 
+			services.Configure<RequestLocalizationOptions>(options =>
+			{
+				options.DefaultRequestCulture = new RequestCulture("ru");
+				options.SupportedCultures = options.SupportedUICultures = new[] { new CultureInfo("ru"), new CultureInfo("en") };
+				options.RequestCultureProviders = new IRequestCultureProvider[]
+				{
+					new CookieRequestCultureProvider(), new AcceptLanguageHeaderRequestCultureProvider()
+				};
+			});
+
+			// Add framework services.
 			services.AddIdentity<DbUser, DbRole>(options =>
 				{
 					options.User.RequireUniqueEmail = true;
@@ -81,7 +93,6 @@ namespace CMon
 
 			services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-			// Add framework services.
 			services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
 
 			services.AddRouting(options =>
@@ -90,8 +101,7 @@ namespace CMon
 				options.LowercaseUrls = true;
 			});
 
-			services
-				.AddMvc(options =>
+			services.AddMvc(options =>
 				{
 					options.Filters.Add(typeof(AutoValidateAntiforgeryTokenAuthorizationFilter));
 					// options.ModelMetadataDetailsProviders.Add(new CustomMetadataProvider());
@@ -99,15 +109,6 @@ namespace CMon
 				.AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
 				.AddDataAnnotationsLocalization();
 
-			services.Configure<RequestLocalizationOptions>(options =>
-			{
-				options.DefaultRequestCulture = new RequestCulture("ru");
-				options.SupportedCultures = options.SupportedUICultures = new[] { new CultureInfo("ru"), new CultureInfo("en") };
-				options.RequestCultureProviders = new IRequestCultureProvider[]
-				{
-					new CookieRequestCultureProvider(), new AcceptLanguageHeaderRequestCultureProvider()
-				};
-			});
 
 			// Hangfire
 			services.AddHangfire(configuration =>
@@ -118,6 +119,9 @@ namespace CMon
 						PrepareSchemaIfNecessary = false
 					});
 			});
+
+			services.AddScoped<IQueryDispatcher, DefaultQueryDispatcher>();
+			services.AddScoped<ICommandDispatcher, DefaultCommandDispatcher>();
 
 			// Infrastructure services
 			services.AddSingleton<IBackgroundJob, HangfireBackgroundJob>();
