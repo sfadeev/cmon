@@ -15,7 +15,7 @@
 				<i class="fa fa-user-o fa-fw" aria-hidden="true"></i>&nbsp; @UserManager.GetUserName(User) <span class="caret"></span>
 			</a>
 			<ul class="dropdown-menu">
-				<li><a href="@Url.Action("Index", "Manage")"><i class="fa fa-user fa-fw" aria-hidden="true"></i>&nbsp; @Localizer["Manage"]</a></li>
+				<li><a href="@Url.Action("Index", "Manage")"><i class="fa fa-id-card-o fa-fw" aria-hidden="true"></i>&nbsp; @Localizer["Manage"]</a></li>
 				<li><a href="~/hangfire"><i class="fa fa-fire fa-fw" aria-hidden="true"></i>&nbsp; Hangfire Dashboard</a></li>
 				<li><a href="@Url.Action("Logout", "Account")"><i class="fa fa-sign-out fa-fw" aria-hidden="true"></i>&nbsp; @Localizer["Log out"]</a></li>
 			</ul>
@@ -29,5 +29,8 @@ else
 	</ul>
 	<p class="navbar-form navbar-right">
 		<button class="btn btn-primary" onclick="location.href = '@Url.Action("Register", "Account")'; return false;">@Localizer["Register"]</button>
+	</p>
+	<p class="navbar-form navbar-left">
+		<button class="btn btn-success" onclick="location.href = '@Url.Action("Add", "Device")'; return false;">@Localizer["Add Device"]</button>
 	</p>
 }

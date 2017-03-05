@@ -1,7 +1,9 @@
 ﻿using System.Globalization;
+using CMon.Commands;
 using CMon.Entities;
 using CMon.Extensions;
 using CMon.Services;
+using CMon.Services.CommandHandlers;
 using Hangfire;
 using Hangfire.Dashboard;
 using Hangfire.PostgreSql;
@@ -33,7 +35,7 @@ namespace CMon
 
 		public Startup(IHostingEnvironment env)
 		{
-			Log.Logger = LoggerBuilder.Build("cmon");
+			Log.Logger = LoggerBuilder.Build(env, "cmon");
 
 			var builder = new ConfigurationBuilder()
 				.SetBasePath(env.ContentRootPath)
@@ -120,9 +122,6 @@ namespace CMon
 					});
 			});
 
-			services.AddScoped<IQueryDispatcher, DefaultQueryDispatcher>();
-			services.AddScoped<ICommandDispatcher, DefaultCommandDispatcher>();
-
 			// Infrastructure services
 			services.AddSingleton<IBackgroundJob, HangfireBackgroundJob>();
 			services.AddSingleton<IValidationAttributeAdapterProvider, LocalizedValidationAttributeAdapterProvider>();
@@ -137,12 +136,18 @@ namespace CMon
 
 			services.AddTransient<IDeviceRepository, DefaultDeviceRepository>();
 			services.AddTransient<IInputValueProvider, DefaultInputValueProvider>();
+
+			// Command and Queries
+			services.AddScoped<IQueryDispatcher, DefaultQueryDispatcher>();
+			services.AddScoped<ICommandDispatcher, DefaultCommandDispatcher>();
+
+			// todo: auto discover
+			services.AddTransient<ICommandHandler<AddDevice, long>, AddDeviceCommandHandler>();
 		}
 
 		public void Configure(IApplicationBuilder app,
 			IHostingEnvironment env, ILoggerFactory loggerFactory, IApplicationLifetime appLifetime,
-			IAntiforgery antiforgery, IOptions<AntiforgeryOptions> antiforgeryOptions,
-			IOptions<RequestLocalizationOptions> requestLocalizationOptions)
+			IAntiforgery antiforgery, IOptions<AntiforgeryOptions> antiforgeryOptions, IOptions<RequestLocalizationOptions> requestLocalizationOptions)
 		{
 			loggerFactory
 				// .AddConsole(Configuration.GetSection("Logging"))

@@ -1,17 +1,16 @@
 ﻿namespace Montr.Core
 {
-	public interface ICommand
+	public interface ICommand<out TResult>
 	{
 	}
 
-	public interface ICommandHandler<in TCommand> where TCommand : ICommand
+	public interface ICommandHandler<in TCommand, out TResult> where TCommand : ICommand<TResult>
 	{
-		void Execute(TCommand command);
+		TResult Execute(TCommand command);
 	}
 
 	public interface ICommandDispatcher
 	{
-		void Dispatch<TParameter>(TParameter command) where TParameter : ICommand;
+		TResult Dispatch<TCommand, TResult>(TCommand command) where TCommand : ICommand<TResult>;
 	}
-
 }

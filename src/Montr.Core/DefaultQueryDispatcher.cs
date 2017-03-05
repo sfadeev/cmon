@@ -12,9 +12,11 @@ namespace Montr.Core
 			_serviceProvider = serviceProvider;
 		}
 
-		public TQueryResult Dispatch<TQuery, TQueryResult>(TQuery query) where TQuery : IQuery<TQueryResult>
+		public TResult Dispatch<TQuery, TResult>(TQuery query) where TQuery : IQuery<TResult>
 		{
-			return _serviceProvider.GetRequiredService<IQueryHandler<TQuery, TQueryResult>>().Retrieve(query);
+			var queryHandler = _serviceProvider.GetRequiredService<IQueryHandler<TQuery, TResult>>();
+
+			return queryHandler.Retrieve(query);
 		}
 	}
 }

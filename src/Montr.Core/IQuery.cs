@@ -1,16 +1,16 @@
 ﻿namespace Montr.Core
 {
-	public interface IQuery<out TQueryResult>
+	public interface IQuery<out TResult>
 	{
 	}
 
-	public interface IQueryHandler<in TQuery, out TQueryResult> where TQuery : IQuery<TQueryResult>
+	public interface IQueryHandler<in TQuery, out TResult> where TQuery : IQuery<TResult>
 	{
-		TQueryResult Retrieve(TQuery query);
+		TResult Retrieve(TQuery query);
 	}
 
 	public interface IQueryDispatcher
 	{
-		TQueryResult Dispatch<TQuery, TQueryResult>(TQuery query) where TQuery : IQuery<TQueryResult>;
+		TResult Dispatch<TQuery, TResult>(TQuery query) where TQuery : IQuery<TResult>;
 	}
 }

@@ -5,7 +5,7 @@ namespace CMon.ViewModels.Device
 	public class AddDeviceViewModel
 	{
 		[Required]
-		[StringLength(15)]
+		[StringLength(15, MinimumLength = 15)]
 		[Display(Name = "IMEI")]
 		public string Imei { get; set; }
 

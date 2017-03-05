@@ -12,9 +12,11 @@ namespace Montr.Core
 			_serviceProvider = serviceProvider;
 		}
 
-		public void Dispatch<TParameter>(TParameter command) where TParameter : ICommand
+		public TResult Dispatch<TParameter, TResult>(TParameter command) where TParameter : ICommand<TResult>
 		{
-			_serviceProvider.GetRequiredService<ICommandHandler<TParameter>>().Execute(command);
+			var commandHandler = _serviceProvider.GetRequiredService<ICommandHandler<TParameter, TResult>>();
+
+			return commandHandler.Execute(command);
 		}
 	}
 }
