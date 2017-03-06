@@ -6,7 +6,6 @@
 @inject UserManager<DbUser> UserManager
 @inject IViewLocalizer Localizer
 
-
 @if (SignInManager.IsSignedIn(User))
 {
 	<ul class="nav navbar-nav navbar-right">
@@ -21,6 +20,9 @@
 			</ul>
 		</li>
 	</ul>
+	<p class="navbar-form navbar-left">
+		<button class="btn btn-success" onclick="location.href = '@Url.Action("Add", "Device")'; return false;">@Localizer["Add Device"]</button>
+	</p>
 }
 else
 {
@@ -29,8 +31,5 @@ else
 	</ul>
 	<p class="navbar-form navbar-right">
 		<button class="btn btn-primary" onclick="location.href = '@Url.Action("Register", "Account")'; return false;">@Localizer["Register"]</button>
-	</p>
-	<p class="navbar-form navbar-left">
-		<button class="btn btn-success" onclick="location.href = '@Url.Action("Add", "Device")'; return false;">@Localizer["Add Device"]</button>
 	</p>
 }

@@ -133,6 +133,7 @@ namespace CMon
 
 			// Application services
 			services.AddSingleton<IStartable, DevicePoller>();
+			services.AddSingleton<IIdentityProvider, ClaimsIdentityProvider>();
 
 			services.AddTransient<IDeviceRepository, DefaultDeviceRepository>();
 			services.AddTransient<IInputValueProvider, DefaultInputValueProvider>();
