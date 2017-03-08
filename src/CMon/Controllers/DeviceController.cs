@@ -1,4 +1,5 @@
-﻿using CMon.Commands;
+﻿using System.Threading.Tasks;
+using CMon.Commands;
 using CMon.ViewModels.Device;
 using Microsoft.AspNetCore.Mvc;
 using Montr.Core;
@@ -28,17 +29,20 @@ namespace CMon.Controllers
 			return View(model);
 		}
 
+		// todo: move to api
 		[HttpPost]
-		public IActionResult Add(AddDeviceViewModel model)
+		public async Task<IActionResult> Add(AddDeviceViewModel model)
 		{
 			if (ModelState.IsValid)
 			{
-				var deviceId = _commandDispatcher.Dispatch<AddDevice, long>(new AddDevice
+				var command = new AddDevice
 				{
 					Imei = model.Imei,
 					Username = model.Username,
 					Password = model.Password
-				});
+				};
+
+				var deviceId = await _commandDispatcher.Dispatch<AddDevice, long>(command);
 
 				return Redirect(Url.Action("Index", "Device", new { deviceId }));
 			}

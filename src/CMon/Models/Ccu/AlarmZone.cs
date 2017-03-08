@@ -10,9 +10,9 @@ namespace CMon.Models.Ccu
 
 		public int RangeMax { get; set; }
 
-		public float UserMinVal { get; set; }
+		public decimal UserMinVal { get; set; }
 
-		public float UserMaxVal { get; set; }
+		public decimal UserMaxVal { get; set; }
 
 		public int SensPwrSrc { get; set; }
 	}

@@ -1,5 +1,7 @@
-﻿@using Microsoft.AspNetCore.Mvc.Localization
+﻿@using CMon.Services
+@using Microsoft.AspNetCore.Mvc.Localization
 
+@inject IDeviceRepository DeviceRepository
 @inject IViewLocalizer Localizer
 
 @{
@@ -49,8 +51,12 @@
 							@Localizer["Controllers"] <span class="caret"></span>
 						</a>
 						<ul class="dropdown-menu">
-							<li><a href="@Url.Action("Index", "Device", new { deviceId = 1 })">#1</a></li>
-							<li><a href="@Url.Action("Index", "Device", new { deviceId = 2 })">#2</a></li>
+							@{
+								foreach (var device in DeviceRepository.GetDevices())
+								{
+									<li><a href="@Url.Action("Index", "Device", new { deviceId = device.Id })">#@device.Id</a></li>
+								}
+							}
 						</ul>
 					</li>
 		            @*<li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>*@

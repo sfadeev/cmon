@@ -4,7 +4,7 @@ namespace CMon.Models.Ccu
 	{
 		public int L { get; set; }
 
-		public int InputNum { get; set; }
+		public short InputNum { get; set; }
 
 		public bool Enable { get; set; }
 

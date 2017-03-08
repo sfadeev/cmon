@@ -161,7 +161,7 @@ namespace CMon
 			{
 			    try
 			    {
-                    logger.LogDebug("ApplicationStarted handler started.");
+                    logger.LogDebug("ApplicationStarted...");
 
                     foreach (var startable in app.ApplicationServices.GetServices<IStartable>())
                     {
@@ -172,7 +172,7 @@ namespace CMon
                 }
 			    catch (Exception ex)
 			    {
-                    logger.LogError(0, ex, "Error occured in ApplicationStarted handler.");
+                    logger.LogError(0, ex, "Error occured in ApplicationStarted.");
 
                     throw;
 			    }
@@ -182,7 +182,7 @@ namespace CMon
 		    {
 		        try
 		        {
-		            logger.LogDebug("ApplicationStopping handler started.");
+		            logger.LogDebug("ApplicationStopping...");
 
 		            foreach (var startable in app.ApplicationServices.GetServices<IStartable>())
 		            {
@@ -193,7 +193,7 @@ namespace CMon
 		        }
 		        catch (Exception ex)
 		        {
-		            logger.LogError(0, ex, "Error occured in ApplicationStopping handler.");
+		            logger.LogError(0, ex, "Error occured in ApplicationStopping.");
 
 		            throw;
 		        }
@@ -203,13 +203,13 @@ namespace CMon
 		    {
 		        try
 		        {
-		            logger.LogDebug("ApplicationStopped handler started.");
+		            logger.LogDebug("ApplicationStopped...");
 
 		            Log.CloseAndFlush();
 		        }
 		        catch (Exception ex)
 		        {
-		            logger.LogError(0, ex, "Error occured in ApplicationStopped handler.");
+		            logger.LogError(0, ex, "Error occured in ApplicationStopped.");
 
 		            throw;
 		        }

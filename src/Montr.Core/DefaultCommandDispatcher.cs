@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Montr.Core
@@ -12,7 +13,7 @@ namespace Montr.Core
 			_serviceProvider = serviceProvider;
 		}
 
-		public TResult Dispatch<TParameter, TResult>(TParameter command) where TParameter : ICommand<TResult>
+		public Task<TResult> Dispatch<TParameter, TResult>(TParameter command) where TParameter : ICommand<TResult>
 		{
 			var commandHandler = _serviceProvider.GetRequiredService<ICommandHandler<TParameter, TResult>>();
 

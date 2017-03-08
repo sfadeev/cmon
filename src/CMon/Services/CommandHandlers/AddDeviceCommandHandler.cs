@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using CMon.Commands;
 using CMon.Entities;
 using CMon.Models;
+using CMon.Models.Ccu;
 using LinqToDB;
 using Montr.Core;
 
@@ -12,21 +15,25 @@ namespace CMon.Services.CommandHandlers
 	{
 		private readonly IIdentityProvider _identityProvider;
 		private readonly IDbConnectionFactory _connectionFactory;
+		private readonly ICcuGateway _gateway;
 
 		public AddDeviceCommandHandler(IIdentityProvider identityProvider,
-			IDbConnectionFactory connectionFactory)
+			IDbConnectionFactory connectionFactory, ICcuGateway gateway)
 		{
 			_identityProvider = identityProvider;
 			_connectionFactory = connectionFactory;
+			_gateway = gateway;
 		}
 
-		public long Execute(AddDevice command)
+		public async Task<long> Execute(AddDevice command)
 		{
 			if (_identityProvider.IsAuthenticated == false)
 				throw new InvalidOperationException("User should be authenticated to add devices.");
 
+			var inputs = await GetInputs(command);
+
 			var now = DateTime.UtcNow;
-			
+
 			var userName = _identityProvider.GetUserName();
 
 			var tarifLimit = new { MaxDeviceCount = 2 };
@@ -59,7 +66,7 @@ namespace CMon.Services.CommandHandlers
 
 						db.Insert(contractUser);
 					}
-					else 
+					else
 					{
 						// todo: check role privileges
 						if (contractUser.Role != ContractUserRole.Admin && contractUser.Role != ContractUserRole.Manager)
@@ -96,13 +103,54 @@ namespace CMon.Services.CommandHandlers
 					});
 
 					// todo: add operations log
-					// todo: read device info
+
+					// todo: read other device info
+					foreach (var input in inputs.Where(x => x.Enable))
+					{
+						var dbInput = new DbInput
+						{
+							DeviceId = deviceId,
+							InputNo = (short)(input.InputNum + 1),
+							Name = input.InputName,
+							Type = (InputType)input.InputType,
+							ActiveName = input.InputActiveName,
+							PassiveName = input.InputPassiveName,
+							AlarmZoneMinValue = input.AlarmZone.UserMinVal,
+							AlarmZoneMaxValue = input.AlarmZone.UserMaxVal,
+							AlarmZoneRangeType = (RangeType)input.AlarmZone.RangeType
+						};
+
+						db.Insert(dbInput);
+					}
 
 					transaction.Commit();
 
 					return deviceId;
 				}
 			}
+		}
+
+		private async Task<List<InputsInputNum>> GetInputs(AddDevice command)
+		{
+			var auth = new Auth
+			{
+				Imei = command.Imei,
+				Username = command.Username,
+				Password = command.Password
+			};
+
+			var inputsInitialResult = await _gateway.GetInputsInitial(auth);
+
+			var result = new List<InputsInputNum>();
+
+			for (var inputNum = 0; inputNum < inputsInitialResult.InputsInitial.InCount; inputNum++)
+			{
+				var inputNumResult = await _gateway.GetInputsInputNum(auth, inputNum);
+
+				result.Add(inputNumResult.InputsInputNum);
+			}
+
+			return result;
 		}
 	}
 }
