@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <VersionPrefix>0.0.2</VersionPrefix>
@@ -8,6 +8,8 @@
     <OutputType>Exe</OutputType>
     <PackageId>CMon</PackageId>
     <RuntimeFrameworkVersion>1.1.1</RuntimeFrameworkVersion>
+    <UserSecretsId>cmon</UserSecretsId>
+    <Description />
   </PropertyGroup>
 
   <ItemGroup>

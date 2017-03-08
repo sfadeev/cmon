@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using CMon.Commands;
 using CMon.Entities;
 using CMon.Extensions;
@@ -135,7 +136,8 @@ namespace CMon
 			services.AddSingleton<IStartable, DevicePoller>();
 			services.AddSingleton<IIdentityProvider, ClaimsIdentityProvider>();
 
-			services.AddTransient<IDeviceRepository, DefaultDeviceRepository>();
+            services.AddSingleton<ICcuGateway, CcuGateway>();
+            services.AddTransient<IDeviceRepository, DefaultDeviceRepository>();
 			services.AddTransient<IInputValueProvider, DefaultInputValueProvider>();
 
 			// Command and Queries
@@ -147,7 +149,7 @@ namespace CMon
 		}
 
 		public void Configure(IApplicationBuilder app,
-			IHostingEnvironment env, ILoggerFactory loggerFactory, IApplicationLifetime appLifetime,
+            IHostingEnvironment env, ILoggerFactory loggerFactory, ILogger<Startup> logger, IApplicationLifetime appLifetime,
 			IAntiforgery antiforgery, IOptions<AntiforgeryOptions> antiforgeryOptions, IOptions<RequestLocalizationOptions> requestLocalizationOptions)
 		{
 			loggerFactory
@@ -157,21 +159,61 @@ namespace CMon
 
 			appLifetime.ApplicationStarted.Register(() =>
 			{
-				foreach (var startable in app.ApplicationServices.GetServices<IStartable>())
-				{
-					startable.Start();
-				}
+			    try
+			    {
+                    logger.LogDebug("ApplicationStarted handler started.");
+
+                    foreach (var startable in app.ApplicationServices.GetServices<IStartable>())
+                    {
+                        logger.LogDebug("Starting service {0}", startable);
+
+                        startable.Start();
+                    }
+                }
+			    catch (Exception ex)
+			    {
+                    logger.LogError(0, ex, "Error occured in ApplicationStarted handler.");
+
+                    throw;
+			    }
 			});
 
-			appLifetime.ApplicationStopped.Register(() =>
-			{
-				foreach (var startable in app.ApplicationServices.GetServices<IStartable>())
-				{
-					startable.Stop();
-				}
+		    appLifetime.ApplicationStopping.Register(() =>
+		    {
+		        try
+		        {
+		            logger.LogDebug("ApplicationStopping handler started.");
 
-				Log.CloseAndFlush();
-			});
+		            foreach (var startable in app.ApplicationServices.GetServices<IStartable>())
+		            {
+		                logger.LogDebug("Stopping service {0}", startable);
+
+		                startable.Stop();
+		            }
+		        }
+		        catch (Exception ex)
+		        {
+		            logger.LogError(0, ex, "Error occured in ApplicationStopping handler.");
+
+		            throw;
+		        }
+		    });
+
+		    appLifetime.ApplicationStopped.Register(() =>
+		    {
+		        try
+		        {
+		            logger.LogDebug("ApplicationStopped handler started.");
+
+		            Log.CloseAndFlush();
+		        }
+		        catch (Exception ex)
+		        {
+		            logger.LogError(0, ex, "Error occured in ApplicationStopped handler.");
+
+		            throw;
+		        }
+		    });
 
 			/*if (env.IsDevelopment())
 			{
@@ -181,7 +223,7 @@ namespace CMon
 			}
 			else*/
 			{
-				app.UseExceptionHandler("/Home/Error");
+				app.UseExceptionHandler("/home/error");
 			}
 
 			// app.UseValidateAntiForgeryToken();

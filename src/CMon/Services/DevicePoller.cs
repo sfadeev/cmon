@@ -62,9 +62,9 @@ namespace CMon.Services
 		{
 			var device = _repository.GetDevice(deviceId);
 
-			var auth = new Auth { Imei = device.Imei, Username = device.Username, Password = device.Password };
+			/*var auth = new Auth { Imei = device.Imei, Username = device.Username, Password = device.Password };
 
-			var stateAndEvents = _gateway.GetStateAndEvents(auth);
+			var stateAndEvents = _gateway.GetStateAndEvents(auth);*/
 
 			var inputs = _repository.GetInputs(deviceId);
 
@@ -118,7 +118,7 @@ namespace CMon.Services
 
 					if (response.StatusCode != HttpStatusCode.OK)
 					{
-						_logger.LogError("[{device.Id}] - {response.StatusCode} {response.StatusCode}", device.Id, (int)response.StatusCode, response.StatusCode);
+						_logger.LogError("[{0}] - {1} {2} - {3}", device.Id, (int)response.StatusCode, response.StatusCode, response.ReasonPhrase);
 						return null;
 					}
 

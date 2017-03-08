@@ -99,7 +99,7 @@ namespace CMon.Tests.Services
 		}
 
 		[Fact]
-		public async void GetControlPoll()
+		public async void GetControlPoll_AsAdmin()
 		{
 			// arrange
 			var gateway = new CcuGateway(Logger);
@@ -127,13 +127,13 @@ namespace CMon.Tests.Services
 		}
 
 		[Fact]
-		public async void GetInputsInitial_AsUser()
+		public async void GetInputsInitial_AsAdmin()
 		{
 			// arrange
 			var gateway = new CcuGateway(Logger);
 
 			// act
-			var result = await gateway.GetInputsInitial(UsrAuth);
+			var result = await gateway.GetInputsInitial(AdmAuth);
 
 			// assert
 			Assert.Equal(HttpStatusCode.OK, result.HttpStatusCode);
@@ -141,13 +141,13 @@ namespace CMon.Tests.Services
 		}
 
 		[Fact]
-		public async void GetInputsPoll_AsUser()
+		public async void GetInputsPoll_AsAdmin()
 		{
 			// arrange
 			var gateway = new CcuGateway(Logger);
 
 			// act
-			var result = await gateway.GetInputsPoll(UsrAuth, 0);
+			var result = await gateway.GetInputsPoll(AdmAuth, 0);
 
 			// assert
 			Assert.Equal(HttpStatusCode.OK, result.HttpStatusCode);
@@ -155,13 +155,13 @@ namespace CMon.Tests.Services
 		}
 
 		[Fact]
-		public async void GetInputsInputNum_AsUser()
+		public async void GetInputsInputNum_AsAdmin()
 		{
 			// arrange
 			var gateway = new CcuGateway(Logger);
 
 			// act
-			var result = await gateway.GetInputsInputNum(UsrAuth, 0);
+			var result = await gateway.GetInputsInputNum(AdmAuth, 0);
 
 			// assert
 			Assert.Equal(HttpStatusCode.OK, result.HttpStatusCode);
@@ -169,13 +169,13 @@ namespace CMon.Tests.Services
 		}
 
 		[Fact]
-		public async void GetProfilesInitial_AsUser()
+		public async void GetProfilesInitial_AsAdmin()
 		{
 			// arrange
 			var gateway = new CcuGateway(Logger);
 
 			// act
-			var result = await gateway.GetProfilesInitial(UsrAuth);
+			var result = await gateway.GetProfilesInitial(AdmAuth);
 
 			// assert
 			Assert.Equal(HttpStatusCode.OK, result.HttpStatusCode);
@@ -183,13 +183,13 @@ namespace CMon.Tests.Services
 		}
 
 		[Fact]
-		public async void GetProfilesProfNum_AsUser()
+		public async void GetProfilesProfNum_AsAdmin()
 		{
 			// arrange
 			var gateway = new CcuGateway(Logger);
 
 			// act
-			var result = await gateway.GetProfilesProfNum(UsrAuth, 0);
+			var result = await gateway.GetProfilesProfNum(AdmAuth, 0);
 
 			// assert
 			Assert.Equal(HttpStatusCode.OK, result.HttpStatusCode);
