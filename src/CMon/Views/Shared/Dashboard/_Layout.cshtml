@@ -19,8 +19,9 @@
     <title>@ViewData["Title"] | @appName</title>
 
     <environment names="Development">
-        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
-        <link rel="stylesheet" href="~/css/site.css" />
+        @*<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />*@
+        <link rel="stylesheet" href="~/build/styles.css" />
+        @*<link rel="stylesheet" href="~/css/site.css" />*@
         <link rel="stylesheet" href="~/css/chart.css" />
     </environment>
     <environment names="Staging,Production">
@@ -32,9 +33,9 @@
     </environment>
 	<link rel="stylesheet" href="~/lib/font-awesome-4.7.0/css/font-awesome.min.css ">
 </head>
-<body>
-    <div class="navbar navbar-default navbar-static-top">
-        <div class="container">
+<body class="private">
+    <div class="navbar navbar-inverse navbar-static-top">
+        <div class="container-fluid">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
                     <span class="sr-only">Toggle navigation</span>
@@ -59,33 +60,48 @@
 							}
 						</ul>
 					</li>
-		            @*<li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>*@
-		            @*<li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>*@
 	            </ul>
                 @await Html.PartialAsync("_LoginPartial")
             </div>
         </div>
     </div>
-    <div class="container body-content">
-        @RenderBody()
-        <hr />
-        <footer>
-			<div class="pull-right">
-				@await Html.PartialAsync("_SelectLanguagePartial")
+	<div class="container-fluid content">
+		<div class="sidebar">
+			<div class="sidebar-body">
+				<div class="nav-section">
+					<div class="nav-heading">Catalog</div><ul class="nav nav-stacked"><li><a class="" href="#/products"><i class="fa fa-fw fa-list-alt"></i><span>Products</span></a></li><li><a class="" href="#/classifiers"><i class="fa fa-fw fa-list"></i><span>Classifiers</span></a></li><li><a class="" href="#/posts"><i class="fa fa-fw fa-commenting-o"></i><span>Posts</span></a></li><li><a class="" href="#/companies"><i class="fa fa-fw fa-lock"></i><span>Companies</span></a></li><li><a class="" href="#/import"><i class="fa fa-fw fa-upload"></i><span>Import</span></a></li></ul>
+				</div>
+				<div class="nav-section">
+					<div class="nav-heading">Administration</div><ul class="nav nav-stacked"><li><a class="" href="#/fieldsets"><i class="fa fa-fw fa-tasks"></i><span>Fieldsets</span></a></li><li><a class="active" href="#/settings"><i class="fa fa-fw fa-cogs"></i><span>Settings</span></a></li></ul>
+				</div>
 			</div>
-			<p>
-				&copy; @DateTime.Today.Year -
-				<a class="version" href="@Url.Action("Index", "ChangeLog")#@version">
-					@version
-				</a>
-			</p>
-        </footer>
-    </div>
+			<div class="sidebar-footer"><a class="sidebar-toggle"><i class="icon fa"></i></a>
+			</div>
+		</div>
+
+
+	@RenderBody()
+	<hr/>
+	<footer>
+		<div class="pull-right">
+			@await Html.PartialAsync("_SelectLanguagePartial")
+		</div>
+		<p>
+			&copy; @DateTime.Today.Year -
+			<a class="version" href="@Url.Action("Index", "ChangeLog")#@version">
+				@version
+			</a>
+		</p>
+	</footer>
+</div>
 
     <environment names="Development">
-        <script src="~/lib/jquery/dist/jquery.js"></script>
+        @*<script src="~/lib/jquery/dist/jquery.js"></script>
         <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
         <script src="~/js/site.js" asp-append-version="true"></script>
+		<script src="~/js/sidebar.js" asp-append-version="true"></script>*@
+
+	    <script src="~/build/dashboard.js" asp-append-version="true"></script>
     </environment>
     <environment names="Staging,Production">
         <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
@@ -97,6 +113,7 @@
                 asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal">
         </script>
         <script src="~/js/site.js" asp-append-version="true"></script>
+        <script src="~/js/sidebar.js" asp-append-version="true"></script>
     </environment>
 
     @RenderSection("scripts", required: false)
