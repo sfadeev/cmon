@@ -41,3 +41,6 @@ df -h
 
 # grant wrile to logs
 chown blackish /var/log/cmon
+
+# htop - an interactive process viewer for Unix
+htop

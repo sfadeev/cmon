@@ -1,17 +1,17 @@
 var path = require('path'),
     webpack = require("webpack"),
-    ExtractTextPlugin = require("extract-text-webpack-plugin"),
-    UglifyJSPlugin = require('uglifyjs-webpack-plugin');
+    extractText = require("extract-text-webpack-plugin"),
+    uglifyjs = require('uglifyjs-webpack-plugin');
 
-const extractLess = new ExtractTextPlugin({
+const extractLess = new extractText({
     filename: "[name].css",
     disable: process.env.NODE_ENV === "development"
 });
 
 module.exports = {
     entry: { 
-        styles : "./wwwroot/styles.less",
-        dashboard: "./wwwroot/dashboard.js"
+        scripts: "./assets/index.js",
+        styles: "./assets/index.less"
     },
     output: {
         path: path.join(__dirname, "wwwroot/build"),
@@ -35,7 +35,7 @@ module.exports = {
         ]
     },
     plugins: [
-        new UglifyJSPlugin(),
+        new uglifyjs(),
         new webpack.ProvidePlugin({
           $: "jquery",
           jQuery: "jquery",

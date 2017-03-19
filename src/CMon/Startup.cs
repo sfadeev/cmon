@@ -133,7 +133,7 @@ namespace CMon
 			services.AddTransient<ISmsSender, DefaultSmsSender>();
 
 			// Application services
-			services.AddSingleton<IStartable, DevicePoller>();
+			// services.AddSingleton<IStartable, DevicePoller>();
 			services.AddSingleton<IIdentityProvider, ClaimsIdentityProvider>();
 
             services.AddSingleton<ICcuGateway, CcuGateway>();
