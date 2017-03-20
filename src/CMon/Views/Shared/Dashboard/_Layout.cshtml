@@ -20,7 +20,7 @@
 	<link rel="stylesheet" href="~/build/styles.css" />
 </head>
 <body class="dashboard">
-    <div class="navbar navbar-inverse navbar-static-top">
+    <div class="navbar navbar-default navbar-static-top">
         <div class="container-fluid">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
@@ -52,20 +52,7 @@
         </div>
     </div>
 	<div class="container-fluid content">
-	
-		<div class="sidebar">
-			<div class="sidebar-body">
-				<div class="nav-section">
-					<div class="nav-heading">Catalog</div><ul class="nav nav-stacked"><li><a class="" href="#/products"><i class="fa fa-fw fa-list-alt"></i><span>Products</span></a></li><li><a class="" href="#/classifiers"><i class="fa fa-fw fa-list"></i><span>Classifiers</span></a></li><li><a class="" href="#/posts"><i class="fa fa-fw fa-commenting-o"></i><span>Posts</span></a></li><li><a class="" href="#/companies"><i class="fa fa-fw fa-lock"></i><span>Companies</span></a></li><li><a class="" href="#/import"><i class="fa fa-fw fa-upload"></i><span>Import</span></a></li></ul>
-				</div>
-				<div class="nav-section">
-					<div class="nav-heading">Administration</div><ul class="nav nav-stacked"><li><a class="" href="#/fieldsets"><i class="fa fa-fw fa-tasks"></i><span>Fieldsets</span></a></li><li><a class="active" href="#/settings"><i class="fa fa-fw fa-cogs"></i><span>Settings</span></a></li></ul>
-				</div>
-			</div>
-			<div class="sidebar-footer">
-				<a class="sidebar-toggle"><i class="icon fa"></i></a>
-			</div>
-		</div>
+		@await Html.PartialAsync("_SidebarPartial")
 		
 		@RenderBody()
 		<hr />
