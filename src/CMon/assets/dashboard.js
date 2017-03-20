@@ -1,2 +1,2 @@
-require('./sidebar');
+// require('./sidebar');
 require('./chart');
