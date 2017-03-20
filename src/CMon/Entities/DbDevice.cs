@@ -3,9 +3,9 @@
 namespace CMon.Entities
 {
 	[Table(Schema = "public", Name = "device")]
-	public class DbDevice
+	public class DbDevice : DbModificationData
 	{
-		[Column(Name = "id"), NotNull, PrimaryKey]
+		[Column("id"), PrimaryKey, Identity, NotNull]
 		public long Id { get; set; }
 
 		[Column(Name = "imei")]

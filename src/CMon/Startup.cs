@@ -1,7 +1,10 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
+using CMon.Commands;
 using CMon.Entities;
 using CMon.Extensions;
 using CMon.Services;
+using CMon.Services.CommandHandlers;
 using Hangfire;
 using Hangfire.Dashboard;
 using Hangfire.PostgreSql;
@@ -21,6 +24,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+using Montr.Core;
 using Montr.Localization;
 using Serilog;
 
@@ -32,7 +36,7 @@ namespace CMon
 
 		public Startup(IHostingEnvironment env)
 		{
-			Log.Logger = LoggerBuilder.Build("cmon");
+			Log.Logger = LoggerBuilder.Build(env, "cmon");
 
 			var builder = new ConfigurationBuilder()
 				.SetBasePath(env.ContentRootPath)
@@ -60,11 +64,22 @@ namespace CMon
 			DataConnection.AddConfiguration(
 				DataConnection.DefaultConfiguration, connectionString, new PostgreSQLDataProvider(PostgreSQLVersion.v93));
 
-			services.Configure<GoogleOptions>(Configuration.GetSection("Authentication")
-				.GetSection(GoogleDefaults.AuthenticationScheme));
+			// configure options
+			services.Configure<GoogleOptions>(Configuration.GetSection("Authentication").GetSection(GoogleDefaults.AuthenticationScheme));
 
 			services.Configure<EmailSenderOptions>(Configuration.GetSection("EmailSender"));
 
+			services.Configure<RequestLocalizationOptions>(options =>
+			{
+				options.DefaultRequestCulture = new RequestCulture("ru");
+				options.SupportedCultures = options.SupportedUICultures = new[] { new CultureInfo("ru"), new CultureInfo("en") };
+				options.RequestCultureProviders = new IRequestCultureProvider[]
+				{
+					new CookieRequestCultureProvider(), new AcceptLanguageHeaderRequestCultureProvider()
+				};
+			});
+
+			// Add framework services.
 			services.AddIdentity<DbUser, DbRole>(options =>
 				{
 					options.User.RequireUniqueEmail = true;
@@ -81,7 +96,6 @@ namespace CMon
 
 			services.AddLocalization(options => options.ResourcesPath = "Resources");
 
-			// Add framework services.
 			services.AddAntiforgery(options => options.HeaderName = "X-XSRF-TOKEN");
 
 			services.AddRouting(options =>
@@ -90,8 +104,7 @@ namespace CMon
 				options.LowercaseUrls = true;
 			});
 
-			services
-				.AddMvc(options =>
+			services.AddMvc(options =>
 				{
 					options.Filters.Add(typeof(AutoValidateAntiforgeryTokenAuthorizationFilter));
 					// options.ModelMetadataDetailsProviders.Add(new CustomMetadataProvider());
@@ -99,15 +112,6 @@ namespace CMon
 				.AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
 				.AddDataAnnotationsLocalization();
 
-			services.Configure<RequestLocalizationOptions>(options =>
-			{
-				options.DefaultRequestCulture = new RequestCulture("ru");
-				options.SupportedCultures = options.SupportedUICultures = new[] { new CultureInfo("ru"), new CultureInfo("en") };
-				options.RequestCultureProviders = new IRequestCultureProvider[]
-				{
-					new CookieRequestCultureProvider(), new AcceptLanguageHeaderRequestCultureProvider()
-				};
-			});
 
 			// Hangfire
 			services.AddHangfire(configuration =>
@@ -130,15 +134,23 @@ namespace CMon
 
 			// Application services
 			services.AddSingleton<IStartable, DevicePoller>();
+			services.AddSingleton<IIdentityProvider, ClaimsIdentityProvider>();
 
-			services.AddTransient<IDeviceRepository, DefaultDeviceRepository>();
+            services.AddSingleton<ICcuGateway, CcuGateway>();
+            services.AddTransient<IDeviceRepository, DefaultDeviceRepository>();
 			services.AddTransient<IInputValueProvider, DefaultInputValueProvider>();
+
+			// Command and Queries
+			services.AddScoped<IQueryDispatcher, DefaultQueryDispatcher>();
+			services.AddScoped<ICommandDispatcher, DefaultCommandDispatcher>();
+
+			// todo: auto discover
+			services.AddTransient<ICommandHandler<AddDevice, long>, AddDeviceCommandHandler>();
 		}
 
 		public void Configure(IApplicationBuilder app,
-			IHostingEnvironment env, ILoggerFactory loggerFactory, IApplicationLifetime appLifetime,
-			IAntiforgery antiforgery, IOptions<AntiforgeryOptions> antiforgeryOptions,
-			IOptions<RequestLocalizationOptions> requestLocalizationOptions)
+            IHostingEnvironment env, ILoggerFactory loggerFactory, ILogger<Startup> logger, IApplicationLifetime appLifetime,
+			IAntiforgery antiforgery, IOptions<AntiforgeryOptions> antiforgeryOptions, IOptions<RequestLocalizationOptions> requestLocalizationOptions)
 		{
 			loggerFactory
 				// .AddConsole(Configuration.GetSection("Logging"))
@@ -147,21 +159,61 @@ namespace CMon
 
 			appLifetime.ApplicationStarted.Register(() =>
 			{
-				foreach (var startable in app.ApplicationServices.GetServices<IStartable>())
-				{
-					startable.Start();
-				}
+			    try
+			    {
+                    logger.LogDebug("ApplicationStarted...");
+
+                    foreach (var startable in app.ApplicationServices.GetServices<IStartable>())
+                    {
+                        logger.LogDebug("Starting service {0}", startable);
+
+                        startable.Start();
+                    }
+                }
+			    catch (Exception ex)
+			    {
+                    logger.LogError(0, ex, "Error occured in ApplicationStarted.");
+
+                    throw;
+			    }
 			});
 
-			appLifetime.ApplicationStopped.Register(() =>
-			{
-				foreach (var startable in app.ApplicationServices.GetServices<IStartable>())
-				{
-					startable.Stop();
-				}
+		    appLifetime.ApplicationStopping.Register(() =>
+		    {
+		        try
+		        {
+		            logger.LogDebug("ApplicationStopping...");
 
-				Log.CloseAndFlush();
-			});
+		            foreach (var startable in app.ApplicationServices.GetServices<IStartable>())
+		            {
+		                logger.LogDebug("Stopping service {0}", startable);
+
+		                startable.Stop();
+		            }
+		        }
+		        catch (Exception ex)
+		        {
+		            logger.LogError(0, ex, "Error occured in ApplicationStopping.");
+
+		            throw;
+		        }
+		    });
+
+		    appLifetime.ApplicationStopped.Register(() =>
+		    {
+		        try
+		        {
+		            logger.LogDebug("ApplicationStopped...");
+
+		            Log.CloseAndFlush();
+		        }
+		        catch (Exception ex)
+		        {
+		            logger.LogError(0, ex, "Error occured in ApplicationStopped.");
+
+		            throw;
+		        }
+		    });
 
 			/*if (env.IsDevelopment())
 			{
@@ -171,7 +223,7 @@ namespace CMon
 			}
 			else*/
 			{
-				app.UseExceptionHandler("/Home/Error");
+				app.UseExceptionHandler("/home/error");
 			}
 
 			// app.UseValidateAntiForgeryToken();

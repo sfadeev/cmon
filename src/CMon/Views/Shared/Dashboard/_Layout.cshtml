@@ -1,0 +1,79 @@
+﻿@using CMon.Services
+@using Microsoft.AspNetCore.Mvc.Localization
+
+@inject IDeviceRepository DeviceRepository
+@inject IViewLocalizer Localizer
+
+@{
+	var appName = "c°mon";
+	var version = Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application.ApplicationVersion;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="google-site-verification" content="uTtk4l8cK8HfssECFR_daQ4TF_-PMiFVMCUPGlnelOE" />
+	<meta name="yandex-verification" content="12835df1d1494c86" />
+    <title>@ViewData["Title"] | @appName</title>
+	<link rel="stylesheet" href="~/build/styles.css" />
+</head>
+<body class="dashboard">
+    <div class="navbar navbar-default navbar-static-top">
+        <div class="container-fluid">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="sr-only">Toggle navigation</span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+	            <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">@appName</a>
+            </div>
+            <div class="navbar-collapse collapse">
+	            <ul class="nav navbar-nav">
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+							@Localizer["Controllers"] <span class="caret"></span>
+						</a>
+						<ul class="dropdown-menu">
+							@{
+								foreach (var device in DeviceRepository.GetDevices())
+								{
+									<li><a href="@Url.Action("Index", "Device", new { deviceId = device.Id })">#@device.Id</a></li>
+								}
+							}
+						</ul>
+					</li>
+	            </ul>
+                @await Html.PartialAsync("_LoginPartial")
+            </div>
+        </div>
+    </div>
+	<div class="container-fluid content">
+		@await Html.PartialAsync("_SidebarPartial")
+		
+		@RenderBody()
+		<hr />
+		<footer>
+			<div class="pull-right">
+				@await Html.PartialAsync("_SelectLanguagePartial")
+			</div>
+			<p>
+				&copy; @DateTime.Today.Year -
+				<a class="version" href="@Url.Action("Index", "ChangeLog")#@version">
+					@version
+				</a>
+			</p>
+		</footer>
+	</div>
+
+	<script type="text/javascript" src="~/build/scripts.js"></script>
+
+    @RenderSection("scripts", required: false)
+	
+	@await Html.PartialAsync("_GoogleAnalytics")
+	@await Html.PartialAsync("_YandexMetrika")
+</body>
+</html>
