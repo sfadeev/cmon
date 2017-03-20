@@ -11,15 +11,18 @@
 	<ul class="nav navbar-nav navbar-right">
 		<li class="dropdown">
 			<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-				<i class="fa fa-user-o fa-fw" aria-hidden="true"></i>&nbsp; @UserManager.GetUserName(User) <span class="caret"></span>
+				<i class="fa fa-user-o fa-fw" aria-hidden="true"></i>&nbsp;<span class="caret"></span>
 			</a>
 			<ul class="dropdown-menu">
+				<li class="dropdown-header">@UserManager.GetUserName(User)</li>
 				<li><a href="@Url.Action("Index", "Manage")"><i class="fa fa-id-card-o fa-fw" aria-hidden="true"></i>&nbsp; @Localizer["Manage"]</a></li>
 				<li><a href="~/hangfire"><i class="fa fa-fire fa-fw" aria-hidden="true"></i>&nbsp; Hangfire Dashboard</a></li>
+				<li role="separator" class="divider"></li>
 				<li><a href="@Url.Action("Logout", "Account")"><i class="fa fa-sign-out fa-fw" aria-hidden="true"></i>&nbsp; @Localizer["Log out"]</a></li>
 			</ul>
 		</li>
 	</ul>
+	<button type="button" class="btn btn-default navbar-btn">Test</button>
 	<p class="navbar-form navbar-left">
 		<button class="btn btn-success" onclick="location.href = '@Url.Action("Add", "Device")'; return false;">@Localizer["Add Device"]</button>
 	</p>
