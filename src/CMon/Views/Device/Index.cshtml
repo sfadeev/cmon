@@ -8,53 +8,55 @@
 	<ul class="nav navbar-nav navbar-right">
 		<li>
 			<a href="#" class="dropdown-toggle" data-toggle="collapse" data-target="#time-range" role="button" aria-haspopup="true" aria-expanded="false">
-				<i class="fa fa-clock-o" aria-hidden="true"></i>&nbsp;Today <span class="caret"></span>
+				<i class="fa fa-clock-o" aria-hidden="true"></i>&nbsp; <span id="selected-range-name">Last 1 hour</span> <span class="caret"></span>
 			</a>
 		</li>
 	</ul>
 }
 
 <div id="time-range" class="row collapse">
-	<div class="col-md-6">
-		
-	</div>
-	<div class="col-md-6">
-		Quick ranges
-		Last 2 days
-		Last 7 days
-		Last 30 days
-		Last 60 days
-		Last 6 months
-		Last 1 year
-		Last 2 years
-		Last 5 years
-		Yesterday
-		Day before yesterday
-		This day last week
-		Previous week
-		Previous month
-		Previous year
-		Today
-		Today so far
-		This week
-		This week so far
-		This month
-		This year
-		Last 5 minutes
-		Last 15 minutes
-		Last 30 minutes
-		Last 1 hour
-		Last 3 hours
-		Last 6 hours
-		Last 12 hours
-		Last 24 hours
+	<div class="col-md-12">
+		@foreach (var column in Model.QuickRanges)
+		{
+			<ul class="pull-right">
+				@foreach (var range in column)
+				{
+					<li><a href="#from=@range.From&to=@range.To" data-from="@range.From" data-to="@range.To">@range.Name</a></li>
+				}
+			</ul>
+		}
+		<form class="form-horizontal pull-right">
+			<div class="form-group">
+				<label for="from" class="col-sm-5 control-label">From</label>
+				<div class="col-sm-7">
+					<input type="text" class="form-control" id="from" value="now-1h" />
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="to" class="col-sm-5 control-label">To</label>
+				<div class="col-sm-7">
+					<input type="text" class="form-control" id="to" value="now" />
+				</div>
+			</div>
+			<div class="form-group">
+				<label for="refresh-interval" class="col-sm-5 control-label">Refresh every</label>
+				<div class="col-sm-7">
+					<select class="form-control" id="refresh-interval">
+						<option>Off</option>
+						<option>15 seconds</option>
+						<option>30 seconds</option>
+						<option>1 minute</option>
+					</select>
+				</div>
+			</div>
+		</form>
 	</div>
 </div>
 
 <div class="row">
 	<div class="col-md-12">
 		<i class="loading-indicator pull-right fa fa-circle-o-notch fa-spin fa-fw"></i>
-		<div class="btn-toolbar hours" role="toolbar">
+		@*<div class="btn-toolbar hours" role="toolbar">
 			<div class="btn-group btn-group-sm" role="group">
 				<button type="button" class="btn btn-default">1h</button>
 				<button type="button" class="btn btn-default">2h</button>
@@ -80,7 +82,7 @@
 					</button>
 				</div>
 			</div>
-		</div>
+		</div>*@
 		<div id="chart" data-device-id="@Model.Id"></div>
 	</div>
 </div>

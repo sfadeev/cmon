@@ -320,6 +320,16 @@ var loadData = function (update) {
 init();
 loadData(false);
 
+$("#time-range a").click(function () {
+	var a = $(this);
+	$("#from").val(a.data("from"));
+	$("#to").val(a.data("to"));
+	$("#selected-range-name").text(a.text());
+
+	$("#time-range").collapse("hide");
+
+	loadData(true);
+});
 $(".btn-group .btn").click(function () {
 	$("#from").val("now-" + $(this).text());
 	$("#to").val("now");
