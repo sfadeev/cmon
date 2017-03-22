@@ -283,34 +283,35 @@ var draw = function(data, update) {
 	}
 };
 
-function getDataUrl() {
-	return "/api/values?deviceId=" + chart.attr("data-device-id") + "&from=" + $("#from").val() + "&to=" + $("#to").val() + "&t=" + new Date().getTime();
+function getDataUrl(range) {
+	return "/api/values?deviceId=" + chart.attr("data-device-id") + "&from=" + range.from + "&to=" + range.to + "&t=" + new Date().getTime();
 }
 
-var toid;
+var timeoutId;
 
-var loadData = function (update) {
+var loadData = function (range) {
 
-	if (toid) {
-		clearTimeout(toid);
-		toid = null;
+	if (timeoutId) {
+		clearTimeout(timeoutId);
+		timeoutId = null;
 	}
 
 	$(".loading-indicator").show();
 
-	d3.json(getDataUrl(),
+	d3.json(getDataUrl(range),
 		function (error, data) {
 			
 			if (error) return; // throw error; // todo: log error
 
+			var update = !!options.data;
 			options.data = parse(data);
 			draw(data, update);
 
 			$(".loading-indicator").hide();
 
 			if ($("#to").val() === "now") {
-				toid = setTimeout(function () {
-					loadData(true);
+				timeoutId = setTimeout(function () {
+					loadData(range, true);
 				}, 15000);
 			}
 		}
@@ -318,30 +319,9 @@ var loadData = function (update) {
 }
 
 init();
-loadData(false);
 
-$("#time-range a").click(function () {
-	var a = $(this);
-	$("#from").val(a.data("from"));
-	$("#to").val(a.data("to"));
-	$("#selected-range-name").text(a.text());
-
-	$("#time-range").collapse("hide");
-
-	loadData(true);
-});
-$(".btn-group .btn").click(function () {
-	$("#from").val("now-" + $(this).text());
-	$("#to").val("now");
-	loadData(true);
-});
-
-$(".input-group input").keypress(function (e) {
-	if(e.which === 13) loadData(true);
-});
-
-$(".input-group .btn").click(function () {
-	loadData(true);
+$("#time-range").on("apply", function (e, range) {
+	loadData(range);
 });
 
 $(window).resize(function () {
@@ -349,7 +329,7 @@ $(window).resize(function () {
 	draw(options.data, false);
 });
 
-$(".sidebar").on("toggle", function () {
+/*$(".sidebar").on("toggle", function () {
 	init();
 	draw(options.data, false);
-});
+});*/

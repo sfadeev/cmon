@@ -20,7 +20,7 @@ namespace CMon.Controllers
 		[HttpGet]
 		public DeviceStatistic GetValues(long deviceId, string from, string to)
 		{
-			var request = new InputValueRequest { DeviceId = deviceId, BeginDate = @from, EndDate = to };
+			var request = new InputValueRequest { DeviceId = deviceId, BeginDate = from, EndDate = to };
 
 			return _valueProvider.GetValues(request);
 		}

@@ -8,7 +8,7 @@
 	<ul class="nav navbar-nav navbar-right">
 		<li>
 			<a href="#" class="dropdown-toggle" data-toggle="collapse" data-target="#time-range" role="button" aria-haspopup="true" aria-expanded="false">
-				<i class="fa fa-clock-o" aria-hidden="true"></i>&nbsp; <span id="selected-range-name">Last 1 hour</span> <span class="caret"></span>
+				<i class="fa fa-clock-o" aria-hidden="true"></i>&nbsp; <span id="selected-range-name"></span> <span class="caret"></span>
 			</a>
 		</li>
 	</ul>
@@ -21,11 +21,11 @@
 			<ul class="pull-right">
 				@foreach (var range in column)
 				{
-					<li><a href="#from=@range.From&to=@range.To" data-from="@range.From" data-to="@range.To">@range.Name</a></li>
+					<li><a href="#from=@range.From&to=@range.To" data-from="@range.From" data-to="@range.To" data-name="@range.Name">@range.Name</a></li>
 				}
 			</ul>
 		}
-		<form class="form-horizontal pull-right">
+		<form class="form-horizontal pull-right" action="#" method="get">
 			<div class="form-group">
 				<label for="from" class="col-sm-5 control-label">From</label>
 				<div class="col-sm-7">
@@ -39,7 +39,7 @@
 				</div>
 			</div>
 			<div class="form-group">
-				<label for="refresh-interval" class="col-sm-5 control-label">Refresh every</label>
+				<label for="refresh-interval" class="col-sm-5 control-label">Auto refresh</label>
 				<div class="col-sm-7">
 					<select class="form-control" id="refresh-interval">
 						<option>Off</option>
@@ -49,6 +49,11 @@
 					</select>
 				</div>
 			</div>
+			<div class="form-group">
+				<div class="col-sm-offset-5 col-sm-7">
+					<button type="submit" class="btn btn-default">Apply</button>
+				</div>
+			</div>
 		</form>
 	</div>
 </div>
@@ -56,33 +61,6 @@
 <div class="row">
 	<div class="col-md-12">
 		<i class="loading-indicator pull-right fa fa-circle-o-notch fa-spin fa-fw"></i>
-		@*<div class="btn-toolbar hours" role="toolbar">
-			<div class="btn-group btn-group-sm" role="group">
-				<button type="button" class="btn btn-default">1h</button>
-				<button type="button" class="btn btn-default">2h</button>
-				<button type="button" class="btn btn-default">4h</button>
-				<button type="button" class="btn btn-default">8h</button>
-				<button type="button" class="btn btn-default">12h</button>
-			</div>
-			<div class="btn-group btn-group-sm" role="group">
-				<button type="button" class="btn btn-default">1d</button>
-				<button type="button" class="btn btn-default">2d</button>
-				<button type="button" class="btn btn-default">3d</button>
-			</div>
-			<div class="btn-group btn-group-sm" role="group" style="margin-right: 5px;">
-				<button type="button" class="btn btn-default">1w</button>
-			</div>
-			<div class="input-group input-group-sm col-sm-2">
-				<input type="text" class="form-control" id="from" value="now-1h">
-				<div class="input-group-btn"></div>
-				<input type="text" class="form-control" id="to" value="now">
-				<div class="input-group-btn">
-					<button type="button" class="btn btn-default">
-						<span class="glyphicon glyphicon-refresh"></span>
-					</button>
-				</div>
-			</div>
-		</div>*@
 		<div id="chart" data-device-id="@Model.Id"></div>
 	</div>
 </div>

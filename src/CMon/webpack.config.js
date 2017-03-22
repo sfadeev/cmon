@@ -31,11 +31,17 @@ module.exports = {
                 })
             },
             { test: /bootstrap\/js\//, loader: 'imports?jQuery=jquery' },
-            { test: /\.(png|woff|woff2|eot|ttf|svg)$/, loader: 'url-loader?limit=100000' }
+			// Needed for the css-loader when [bootstrap-webpack](https://github.com/bline/bootstrap-webpack)
+			// loads bootstrap's css.
+			{ test: /\.(woff|woff2)(\?.*$|$)/, loader: "url-loader?limit=10000&mimetype=application/font-woff" },
+			{ test: /\.ttf(\?.*$|$)/, loader: "file-loader" },
+			{ test: /\.eot(\?.*$|$)/, loader: "file-loader" },
+			{ test: /\.svg(\?.*$|$)/, loader: "file-loader" },
+            // { test: /\.(png|woff|woff2|eot|ttf|svg)$/, loader: 'url-loader?limit=100000' }
         ]
     },
     plugins: [
-        new uglifyjs(),
+        // new uglifyjs(),
         new webpack.ProvidePlugin({
           $: "jquery",
           jQuery: "jquery",

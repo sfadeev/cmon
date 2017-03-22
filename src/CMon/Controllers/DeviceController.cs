@@ -24,23 +24,22 @@ namespace CMon.Controllers
 				{
 					new[]
 					{
-						new DateRange { Name = "Last 5 minutes", From = "now-5m", To = "now" },
-						new DateRange { Name = "Last 15 minutes", From = "now-15m", To = "now" },
 						new DateRange { Name = "Last 30 minutes", From = "now-30m", To = "now" },
 						new DateRange { Name = "Last 1 hour", From = "now-1h", To = "now" },
-						new DateRange { Name = "Last 3 hours", From = "now-3h", To = "now" },
-						new DateRange { Name = "Last 6 hours", From = "now-6h", To = "now" },
+						new DateRange { Name = "Last 2 hours", From = "now-2h", To = "now" },
+						new DateRange { Name = "Last 4 hours", From = "now-4h", To = "now" },
+						new DateRange { Name = "Last 8 hours", From = "now-8h", To = "now" },
 						new DateRange { Name = "Last 12 hours", From = "now-12h", To = "now" },
 						new DateRange { Name = "Last 24 hours", From = "now-24h", To = "now" },
 					},
 					new[]
 					{
-						new DateRange { Name = "Today", From = "now/d", To = "now/d" },
+						// new DateRange { Name = "Today", From = "now/d", To = "now/d" },
 						new DateRange { Name = "Today so far", From = "now/d", To = "now" },
-						new DateRange { Name = "This week", From = "now/w", To = "now/w" },
+						// new DateRange { Name = "This week", From = "now/w", To = "now/w" },
 						new DateRange { Name = "This week so far", From = "now/w", To = "now" },
-						new DateRange { Name = "This month", From = "now/M", To = "now/M" },
-						new DateRange { Name = "This year", From = "now/y", To = "now/y" },
+						// new DateRange { Name = "This month", From = "now/M", To = "now/M" },
+						// new DateRange { Name = "This year", From = "now/y", To = "now/y" },
 					}
 				}
 			};
