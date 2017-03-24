@@ -62,6 +62,7 @@ namespace CMon.Controllers
 			{
 				var command = new AddDevice
 				{
+					Name = model.Name,
 					Imei = model.Imei,
 					Username = model.Username,
 					Password = model.Password

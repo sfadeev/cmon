@@ -80,11 +80,14 @@ namespace CMon.Services.CommandHandlers
 					}
 
 					// todo: use tarif limits
-					var deviceCount = db.GetTable<DbContractDevice>().Count(x => x.ContractId == contractUser.ContractId);
+					var deviceCount = db.GetTable<DbDevice>().Count(x => x.ContractId == contractUser.ContractId);
 					if (deviceCount >= tarifLimit.MaxDeviceCount) throw new InvalidOperationException("Tarif limit of devices exceeded.");
 
 					var device = new DbDevice
 					{
+						ContractId = contractUser.ContractId,
+						Status = DeviceStatus.None,
+						Name = command.Name,
 						Imei = command.Imei,
 						Username = command.Username,
 						Password = command.Password,
@@ -94,17 +97,9 @@ namespace CMon.Services.CommandHandlers
 
 					var deviceId = (long)db.InsertWithIdentity(device);
 
-					db.Insert(new DbContractDevice
-					{
-						DeviceId = deviceId,
-						ContractId = contractUser.ContractId,
-						/*CreatedAt = now,
-						CreatedBy = userName*/
-					});
-
 					// todo: add operations log
 
-					// todo: read other device info
+					// todo: read other device info (model, serial no. etc)
 					foreach (var input in inputs.Where(x => x.Enable))
 					{
 						var dbInput = new DbInput

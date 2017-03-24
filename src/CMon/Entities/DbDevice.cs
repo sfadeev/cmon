@@ -8,6 +8,15 @@ namespace CMon.Entities
 		[Column("id"), PrimaryKey, Identity, NotNull]
 		public long Id { get; set; }
 
+		[Column("contract_id")]
+		public long? ContractId { get; set; }
+
+		[Column(Name = "status"), NotNull]
+		public DeviceStatus Status { get; set; }
+
+		[Column(Name = "name")]
+		public string Name { get; set; }
+
 		[Column(Name = "imei")]
 		public string Imei { get; set; }
 
@@ -16,5 +25,11 @@ namespace CMon.Entities
 
 		[Column(Name = "password")]
 		public string Password { get; set; }
+	}
+
+	public enum DeviceStatus
+	{
+		None = 0,
+		Active = 1
 	}
 }
