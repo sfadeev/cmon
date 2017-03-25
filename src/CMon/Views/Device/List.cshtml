@@ -1,0 +1,11 @@
+﻿@model CMon.ViewModels.Device.DeviceListViewModel
+
+<div class="list-group">
+	@foreach (var item in Model.Items)
+	{
+		<a href="@Url.Action("Index", "Device", new { id = item.Id })" class="list-group-item">
+			<h4 class="list-group-item-heading">@item.Name</h4>
+			<p class="list-group-item-text">@item.Imei</p>
+		</a>
+	}
+</div>

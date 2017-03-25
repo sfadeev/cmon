@@ -3,8 +3,11 @@ using System.Globalization;
 using CMon.Commands;
 using CMon.Entities;
 using CMon.Extensions;
+using CMon.Queries;
 using CMon.Services;
 using CMon.Services.CommandHandlers;
+using CMon.Services.QueryHandler;
+using CMon.ViewModels.Device;
 using Hangfire;
 using Hangfire.Dashboard;
 using Hangfire.PostgreSql;
@@ -146,6 +149,7 @@ namespace CMon
 
 			// todo: auto discover
 			services.AddTransient<ICommandHandler<AddDevice, long>, AddDeviceCommandHandler>();
+			services.AddTransient<IQueryHandler<GetContractDeviceList, DeviceListViewModel>, GetContractDeviceListQueryHandler>();
 		}
 
 		public void Configure(IApplicationBuilder app,

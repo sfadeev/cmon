@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using CMon.Commands;
+using CMon.Queries;
 using CMon.ViewModels.Device;
 using Microsoft.AspNetCore.Mvc;
 using Montr.Core;
@@ -8,10 +9,12 @@ namespace CMon.Controllers
 {
 	public class DeviceController : Controller
 	{
+		private readonly IQueryDispatcher _queryDispatcher;
 		private readonly ICommandDispatcher _commandDispatcher;
 
-		public DeviceController(ICommandDispatcher commandDispatcher)
+		public DeviceController(IQueryDispatcher queryDispatcher, ICommandDispatcher commandDispatcher)
 		{
+			_queryDispatcher = queryDispatcher;
 			_commandDispatcher = commandDispatcher;
 		}
 
@@ -43,6 +46,15 @@ namespace CMon.Controllers
 					}
 				}
 			};
+
+			return View(model);
+		}
+
+		public IActionResult List()
+		{
+			var query = new GetContractDeviceList();
+
+			var model = _queryDispatcher.Dispatch<GetContractDeviceList, DeviceListViewModel>(query);
 
 			return View(model);
 		}
