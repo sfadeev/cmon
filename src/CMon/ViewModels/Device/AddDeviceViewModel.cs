@@ -4,7 +4,6 @@ namespace CMon.ViewModels.Device
 {
 	public class AddDeviceViewModel
 	{
-		[Required]
 		[StringLength(64)]
 		[Display(Name = "Name")]
 		public string Name { get; set; }
@@ -16,13 +15,13 @@ namespace CMon.ViewModels.Device
 
 		[Required]
 		[StringLength(100)]
-		[Display(Name = "Device username")]
+		[Display(Name = "Username")]
 		public string Username { get; set; }
 
 		[Required]
 		[StringLength(100)]
 		[DataType(DataType.Password)]
-		[Display(Name = "Device password")]
+		[Display(Name = "Password")]
 		public string Password { get; set; }
 	}
 }

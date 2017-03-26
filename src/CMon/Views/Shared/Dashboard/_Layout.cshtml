@@ -1,7 +1,5 @@
-﻿@using CMon.Services
-@using Microsoft.AspNetCore.Mvc.Localization
+﻿@using Microsoft.AspNetCore.Mvc.Localization
 
-@inject IDeviceRepository DeviceRepository
 @inject IViewLocalizer Localizer
 
 @{
@@ -32,23 +30,12 @@
 	            <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">@appName</a>
             </div>
             <div class="navbar-collapse collapse">
-				<ul class="nav navbar-nav">
-					<li class="dropdown">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-							@Localizer["Controllers"] <span class="caret"></span>
-						</a>
-						<ul class="dropdown-menu">
-							@{
-								foreach (var device in DeviceRepository.GetDevices())
-								{
-									<li><a href="@Url.Action("Index", "Device", new { deviceId = device.Id })">#@device.Id</a></li>
-								}
-							}
-							<li role="separator" class="divider"></li>
-							<li><a href="@Url.Action("List", "Device")">List</a></li>
-						</ul>
-					</li>
-				</ul>
+				@await Html.PartialAsync("_DeviceNavPartial")
+
+	            <button type="button" class="btn btn-default navbar-btn">Test</button>
+				<p class="navbar-form navbar-left">
+					<button class="btn btn-success" onclick="location.href = '@Url.Action("Add", "Device")'; return false;">@Localizer["Add Device"]</button>
+				</p>
 
                 @await Html.PartialAsync("_LoginPartial")
 				@RenderSection("navbar", required: false)
@@ -59,6 +46,7 @@
 		@*@await Html.PartialAsync("_SidebarPartial")*@
 		
 		@RenderBody()
+		
 		<hr />
 		<footer>
 			<div class="pull-right">
@@ -72,6 +60,10 @@
 			</p>
 		</footer>
 	</div>
+	
+	<form id="rft">
+		@Html.AntiForgeryToken()	
+	</form>
 
 	<script type="text/javascript" src="~/build/scripts.js"></script>
 

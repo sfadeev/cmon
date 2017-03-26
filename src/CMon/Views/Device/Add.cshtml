@@ -5,7 +5,7 @@
 }
 
 
-<div class="modal-content modal-md center-block">
+<div class="modal-content modal-lg center-block">
 	<div class="modal-header">
 		<h4 class="modal-title">@ViewData["Title"]</h4>
 	</div>
@@ -16,39 +16,43 @@
 			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
 			<div class="form-group">
-				<label asp-for="Name" class="col-md-4 control-label"></label>
-				<div class="col-md-8">
-					<input asp-for="Name" class="form-control" />
+				<label asp-for="Name" class="col-md-2 control-label"></label>
+				<div class="col-md-10">
+					<input asp-for="Name" class="form-control" aria-describedby="Name-helpBlock" autofocus />
 					<span asp-validation-for="Name" class="text-danger"></span>
+					<span id="Name-helpBlock" class="help-block">Наименование контроллера для отображения в панели управления, например &laquo;Дача&raquo;.</span>
 				</div>
 			</div>
 
 			<div class="form-group">
-				<label asp-for="Imei" class="col-md-4 control-label"></label>
-				<div class="col-md-8">
-					<input asp-for="Imei" class="form-control" />
+				<label asp-for="Imei" class="col-md-2 control-label"></label>
+				<div class="col-md-6">
+					<input asp-for="Imei" class="form-control" aria-describedby="Imei-helpBlock" />
 					<span asp-validation-for="Imei" class="text-danger"></span>
+					<span id="Imei-helpBlock" class="help-block">15-тизначное число, которое можно взять со страницы контроллера <a href="https://ccu.sh/index.cgi" target="_blank">https://ccu.sh/index.cgi</a>.</span>
 				</div>
 			</div>
 
 			<div class="form-group">
-				<label asp-for="Username" class="col-md-4 control-label"></label>
-				<div class="col-md-8">
-					<input asp-for="Username" class="form-control" />
+				<label asp-for="Username" class="col-md-2 control-label"></label>
+				<div class="col-md-4">
+					<input asp-for="Username" class="form-control" aria-describedby="Username-helpBlock" />
 					<span asp-validation-for="Username" class="text-danger"></span>
+					<span id="Username-helpBlock" class="help-block">Имя пользователя контроллера.</span>
 				</div>
-			</div>
 
-			<div class="form-group">
-				<label asp-for="Password" class="col-md-4 control-label"></label>
-				<div class="col-md-8">
-					<input asp-for="Password" class="form-control" />
+				<label asp-for="Password" class="col-md-2 control-label"></label>
+				<div class="col-md-4">
+					<input asp-for="Password" class="form-control" aria-describedby="Password-helpBlock" />
 					<span asp-validation-for="Password" class="text-danger"></span>
+					<span id="Password-helpBlock" class="help-block">Пароль пользователя контроллера.</span>
 				</div>
 			</div>
 			
 			<div class="form-group">
-				<div class="col-md-offset-4 col-md-8">
+				<div class="col-md-offset-2 col-md-10">
+					<p class="text-danger"><strong>Внимание:</strong> Для начального считывания параметров контроллера (входов, выходов и т.д.) пользователь контроллера должен быть администратором.
+						Ручной ввод параметров контроллера (пока?) не предусмотрен.</p>
 					<button type="submit" class="btn btn-primary">Add</button>
 				</div>
 			</div>
@@ -59,11 +63,5 @@
 </div>
 
 @section scripts {
-	<script>
-			$(function() {
-				$("#Imei").focus();
-			});
-	</script>
-
 	@{ await Html.RenderPartialAsync("_ValidationScriptsPartial"); }
 }

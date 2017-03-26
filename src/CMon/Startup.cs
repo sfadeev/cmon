@@ -136,7 +136,7 @@ namespace CMon
 			services.AddTransient<ISmsSender, DefaultSmsSender>();
 
 			// Application services
-			services.AddSingleton<IStartable, DevicePoller>();
+			// services.AddSingleton<IStartable, DevicePoller>();
 			services.AddSingleton<IIdentityProvider, ClaimsIdentityProvider>();
 
             services.AddSingleton<ICcuGateway, CcuGateway>();
@@ -149,6 +149,7 @@ namespace CMon
 
 			// todo: auto discover
 			services.AddTransient<ICommandHandler<AddDevice, long>, AddDeviceCommandHandler>();
+			services.AddTransient<ICommandHandler<RefreshDevice, bool>, RefreshDeviceCommandHandler>();
 			services.AddTransient<IQueryHandler<GetContractDeviceList, DeviceListViewModel>, GetContractDeviceListQueryHandler>();
 		}
 
@@ -264,10 +265,10 @@ namespace CMon
 					template: "page/{id}",
 					defaults: new { controller = "Page", action = "Index" });
 
-				routes.MapRoute(
+				/*routes.MapRoute(
 					name: "device.index",
 					template: "d/{deviceId:long}",
-					defaults: new { controller = "Device", action = "Index" });
+					defaults: new { controller = "Device", action = "Index" });*/
 
 				routes.MapRoute(
 					name: "default",

@@ -2,11 +2,13 @@
 using CMon.Commands;
 using CMon.Queries;
 using CMon.ViewModels.Device;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Montr.Core;
 
 namespace CMon.Controllers
 {
+	[Authorize]
 	public class DeviceController : Controller
 	{
 		private readonly IQueryDispatcher _queryDispatcher;
@@ -18,11 +20,11 @@ namespace CMon.Controllers
 			_commandDispatcher = commandDispatcher;
 		}
 
-		public IActionResult Index(long deviceId)
+		public IActionResult Index(long id)
 		{
 			var model = new DeviceViewModel
 			{
-				Id = deviceId,
+				Id = id,
 				QuickRanges = new[]
 				{
 					new[]

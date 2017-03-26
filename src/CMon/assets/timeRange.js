@@ -7,8 +7,6 @@ var apply = function(range) {
 
 	localStorage.setItem("time-range", JSON.stringify(range));
 
-	console.log(JSON.parse(localStorage.getItem("time-range")));
-
 	$("#selected-range-name")
 		.text(range.name || (range.from + " — " + range.to));
 
@@ -50,6 +48,7 @@ $(function () {
 	try {
 		range = JSON.parse(localStorage.getItem("time-range"));
 	} catch (e) {
+		// no-op
 	}
 
 	apply(range || defaultRange);

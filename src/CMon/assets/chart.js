@@ -35,6 +35,8 @@ var options = {
 
 var init = function() {
 
+	if (chart.empty()) return;
+
 	options.container.width = parseInt(chart.style('width'), 10);
 	options.container.height =
 		Math.min(
@@ -64,22 +66,9 @@ var init = function() {
 
 }
 
-var parse = function (data) {
-
-	data.beginDate = d3.isoParse(data.beginDate);
-	data.endDate = d3.isoParse(data.endDate);
-
-	for (var i = 0; i < data.inputs.length; i++) {
-		for (var j = 0; j < data.inputs[i].values.length; j++) {
-			var value = data.inputs[i].values[j];
-			value.period = d3.isoParse(value.period);
-		}
-	}
-
-	return data;
-}
-
 var draw = function(data, update) {
+
+	if (!data) return;
 
 	var x_domain = [data.beginDate, data.endDate];
 	// var x_domain = d3.extent(data.inputs[0].values, function (d) { return d.period; });
@@ -283,10 +272,6 @@ var draw = function(data, update) {
 	}
 };
 
-function getDataUrl(range) {
-	return "/api/values?deviceId=" + chart.attr("data-device-id") + "&from=" + range.from + "&to=" + range.to + "&t=" + new Date().getTime();
-}
-
 var timeoutId;
 
 var loadData = function (range) {
@@ -298,27 +283,38 @@ var loadData = function (range) {
 
 	$(".loading-indicator").show();
 
-	d3.json(getDataUrl(range),
-		function (error, data) {
-			
-			if (error) return; // throw error; // todo: log error
+	var apiUrl = "/api/device/values?deviceId=" + chart.attr("data-device-id") + "&from=" + range.from + "&to=" + range.to + "&t=" + new Date().getTime();
 
-			var update = !!options.data;
-			options.data = parse(data);
-			draw(data, update);
+	d3.json(apiUrl, function(error, data) {
 
-			$(".loading-indicator").hide();
+		if (error) return; // throw error; // todo: log error
 
-			if ($("#to").val() === "now") {
-				timeoutId = setTimeout(function () {
-					loadData(range, true);
-				}, 15000);
-			}
+		var update = !!options.data;
+		options.data = parse(data);
+		draw(data, update);
+
+		$(".loading-indicator").hide();
+
+		if (range.to === "now") {
+			timeoutId = setTimeout(function() { loadData(range, true); }, 15000);
 		}
-	);
+	});
 }
 
-init();
+var parse = function (data) {
+
+	data.beginDate = d3.isoParse(data.beginDate);
+	data.endDate = d3.isoParse(data.endDate);
+
+	for (var i = 0; i < data.inputs.length; i++) {
+		for (var j = 0; j < data.inputs[i].values.length; j++) {
+			var value = data.inputs[i].values[j];
+			value.period = d3.isoParse(value.period);
+		}
+	}
+
+	return data;
+}
 
 $("#time-range").on("apply", function (e, range) {
 	loadData(range);
@@ -333,3 +329,5 @@ $(window).resize(function () {
 	init();
 	draw(options.data, false);
 });*/
+
+init();

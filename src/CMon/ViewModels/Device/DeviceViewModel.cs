@@ -15,6 +15,7 @@ namespace CMon.ViewModels.Device
 
 		public string Imei { get; set; }
 
+		// todo: remove
 		public DateRange[][] QuickRanges { get; set; }
 	}
 	
