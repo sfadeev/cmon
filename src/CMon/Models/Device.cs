@@ -10,6 +10,8 @@ namespace CMon.Models
 
 		public string Imei { get; set; }
 
+		public string Hash { get; set; }
+
 		public Auth Auth { get; set; }
 	}
 }

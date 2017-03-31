@@ -15,15 +15,17 @@ namespace CMon.Services.CommandHandlers
 		private readonly IQueryDispatcher _queryDispatcher;
 		private readonly IDbConnectionFactory _connectionFactory;
 		private readonly ICcuGateway _gateway;
+		private readonly Sha1Hasher _hasher;
 
 		public RefreshDeviceCommandHandler(IIdentityProvider identityProvider,
 			IQueryDispatcher queryDispatcher,
-			IDbConnectionFactory connectionFactory, ICcuGateway gateway)
+			IDbConnectionFactory connectionFactory, ICcuGateway gateway, Sha1Hasher hasher)
 		{
 			_identityProvider = identityProvider;
 			_queryDispatcher = queryDispatcher;
 			_connectionFactory = connectionFactory;
 			_gateway = gateway;
+			_hasher = hasher;
 		}
 
 		public async Task<bool> Execute(RefreshDevice command)
@@ -38,17 +40,32 @@ namespace CMon.Services.CommandHandlers
 			{
 				var inputs = await GetInputs(device.Auth);
 
-				using (var db = _connectionFactory.GetConection())
-				{
-				}
+				var hash = _hasher.ComputeHash(inputs);
 
-				return true;
+				if (hash != device.Hash)
+				{
+					using (var db = _connectionFactory.GetConection())
+					{
+						using (var transaction = db.BeginTransaction())
+						{
+							// remove current inputs
+
+							// insert new inputs
+
+							// update hash
+
+							transaction.Commit();
+
+							return true;
+						}
+					}
+				}
 			}
 
 			return false;
 		}
 
-		private async Task<List<InputsInputNum>> GetInputs(Auth auth)
+		private async Task<IList<InputsInputNum>> GetInputs(Auth auth)
 		{
 			var inputsInitialResult = await _gateway.GetInputsInitial(auth);
 
