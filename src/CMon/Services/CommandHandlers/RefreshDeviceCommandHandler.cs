@@ -1,10 +1,13 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using CMon.Commands;
+using CMon.Entities;
 using CMon.Models;
 using CMon.Models.Ccu;
 using CMon.Queries;
+using LinqToDB;
 using Montr.Core;
 
 namespace CMon.Services.CommandHandlers
@@ -42,17 +45,50 @@ namespace CMon.Services.CommandHandlers
 
 				var hash = _hasher.ComputeHash(inputs);
 
-				if (hash != device.Hash)
+				if (device.Hash == null || device.Hash.SequenceEqual(hash) == false)
 				{
+					var userName = _identityProvider.GetUserName();
+
+					var now = DateTime.UtcNow;
+
 					using (var db = _connectionFactory.GetConection())
 					{
 						using (var transaction = db.BeginTransaction())
 						{
 							// remove current inputs
+							db.GetTable<DbInput>()
+								.Where(x => x.DeviceId == device.Id)
+								.Delete();
 
 							// insert new inputs
+							// todo: read other device info (model, serial no. etc)
+							foreach (var input in inputs.Where(x => x.Enable))
+							{
+								var dbInput = new DbInput
+								{
+									DeviceId = device.Id,
+									InputNo = (short)(input.InputNum + 1),
+									Name = input.InputName,
+									Type = (InputType)input.InputType,
+									ActiveName = input.InputActiveName,
+									PassiveName = input.InputPassiveName,
+									AlarmZoneMinValue = input.AlarmZone.UserMinVal,
+									AlarmZoneMaxValue = input.AlarmZone.UserMaxVal,
+									AlarmZoneRangeType = (RangeType)input.AlarmZone.RangeType
+								};
+
+								db.Insert(dbInput);
+							}
 
 							// update hash
+							db.GetTable<DbDevice>()
+								.Where(x => x.Id == device.Id)
+								.Set(x => x.Hash, hash)
+								.Set(x => x.ModifiedAt, now)
+								.Set(x => x.ModifiedBy, userName)
+								.Update();
+
+							// todo: add operations log
 
 							transaction.Commit();
 

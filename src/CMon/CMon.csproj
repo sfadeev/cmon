@@ -49,9 +49,9 @@
     <PackageReference Include="Serilog.Sinks.RollingFile" Version="3.3.1-dev-00767" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="3.0.0" />
     <PackageReference Include="linq2db.Core" Version="1.7.6" />
-    <PackageReference Include="Npgsql" Version="3.2.1" />
-    <PackageReference Include="Hangfire.AspNetCore" Version="1.6.8" />
-    <PackageReference Include="Hangfire.PostgreSql" Version="1.4.6" />
+    <PackageReference Include="Npgsql" Version="3.2.2" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.6.12" />
+    <PackageReference Include="Hangfire.PostgreSql" Version="1.4.7.1" />
   </ItemGroup>
 
   <ItemGroup>

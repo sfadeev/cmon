@@ -43,6 +43,7 @@ namespace CMon.Controllers.Apis
 			var command = new RefreshDevice { DeviceId = deviceId };
 
 			_backgroundJob.Enqueue<ICommandDispatcher>(x => x.Dispatch<RefreshDevice, bool>(command));
+			// return await _commandDispatcher.Dispatch<RefreshDevice, bool>(command);
 		}
 
 		[HttpPost("status")]

@@ -25,6 +25,9 @@ namespace CMon.Entities
 
 		[Column(Name = "password")]
 		public string Password { get; set; }
+
+		[Column(Name = "hash")]
+		public byte[] Hash { get; set; }
 	}
 
 	public enum DeviceStatus

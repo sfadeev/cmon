@@ -13,7 +13,7 @@ namespace CMon.Tests.Services
 			// arrange
 			var hasher = new Sha1Hasher();
 
-			var inputs = Enumerable.Range(0, 3)
+			var inputs = Enumerable.Range(0, 16)
 				.Select(
 					x => new InputsInputNum
 					{

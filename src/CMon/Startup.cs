@@ -3,6 +3,7 @@ using System.Globalization;
 using CMon.Commands;
 using CMon.Entities;
 using CMon.Extensions;
+using CMon.Models;
 using CMon.Queries;
 using CMon.Services;
 using CMon.Services.CommandHandlers;
@@ -139,6 +140,7 @@ namespace CMon
 			// services.AddSingleton<IStartable, DevicePoller>();
 			services.AddSingleton<IIdentityProvider, ClaimsIdentityProvider>();
 
+            services.AddSingleton<Sha1Hasher, Sha1Hasher>();
             services.AddSingleton<ICcuGateway, CcuGateway>();
             services.AddTransient<IDeviceRepository, DefaultDeviceRepository>();
 			services.AddTransient<IInputValueProvider, DefaultInputValueProvider>();
@@ -150,6 +152,7 @@ namespace CMon
 			// todo: auto discover
 			services.AddTransient<ICommandHandler<AddDevice, long>, AddDeviceCommandHandler>();
 			services.AddTransient<ICommandHandler<RefreshDevice, bool>, RefreshDeviceCommandHandler>();
+			services.AddTransient<IQueryHandler<GetContractDevice, Device>, GetContractDeviceQueryHandler>();
 			services.AddTransient<IQueryHandler<GetContractDeviceList, DeviceListViewModel>, GetContractDeviceListQueryHandler>();
 		}
 

@@ -104,9 +104,13 @@ namespace CMon.Services
 
 					client.DefaultRequestHeaders.Add("Authorization", "Basic " + authBase64);
 
+					_logger.LogDebug("Requesting url {0}", url);
+
 					var response = await client.GetAsync(url);
 
 					TResult result;
+
+					_logger.LogDebug("Request to url {0} completed with code {1}", url, response.StatusCode);
 
 					if (response.StatusCode == HttpStatusCode.OK)
 					{

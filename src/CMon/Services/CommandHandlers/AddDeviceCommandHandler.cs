@@ -30,13 +30,13 @@ namespace CMon.Services.CommandHandlers
 			if (_identityProvider.IsAuthenticated == false)
 				throw new InvalidOperationException("User should be authenticated to add devices.");
 
-			var inputs = await GetInputs(command);
+			// var inputs = await GetInputs(command);
 
 			var now = DateTime.UtcNow;
 
 			var userName = _identityProvider.GetUserName();
 
-			var tarifLimit = new { MaxDeviceCount = 2 };
+			var tarifLimit = new { MaxDeviceCount = 20 };
 
 			using (var db = _connectionFactory.GetConection())
 			{
@@ -100,7 +100,7 @@ namespace CMon.Services.CommandHandlers
 					// todo: add operations log
 
 					// todo: read other device info (model, serial no. etc)
-					foreach (var input in inputs.Where(x => x.Enable))
+					/*foreach (var input in inputs.Where(x => x.Enable))
 					{
 						var dbInput = new DbInput
 						{
@@ -116,7 +116,7 @@ namespace CMon.Services.CommandHandlers
 						};
 
 						db.Insert(dbInput);
-					}
+					}*/
 
 					transaction.Commit();
 
@@ -125,7 +125,7 @@ namespace CMon.Services.CommandHandlers
 			}
 		}
 
-		private async Task<List<InputsInputNum>> GetInputs(AddDevice command)
+		/*private async Task<List<InputsInputNum>> GetInputs(AddDevice command)
 		{
 			var auth = new Auth
 			{
@@ -146,6 +146,6 @@ namespace CMon.Services.CommandHandlers
 			}
 
 			return result;
-		}
+		}*/
 	}
 }

@@ -5,19 +5,15 @@ namespace CMon.Services
 {
 	public class Sha1Hasher
 	{
-		public string ComputeHash(object inputs)
+		public byte[] ComputeHash(object inputs)
 		{
 			var serialized = JsonConvert.SerializeObject(inputs);
 
-			var encoding = Encoding.UTF8;
-
-			var bytes = encoding.GetBytes(serialized);
+			var bytes = Encoding.UTF8.GetBytes(serialized);
 
 			var sha1 = System.Security.Cryptography.SHA1.Create();
 
-			var hash = sha1.ComputeHash(bytes);
-
-			return encoding.GetString(hash);
+			return sha1.ComputeHash(bytes);
 		}
 	}
 }
