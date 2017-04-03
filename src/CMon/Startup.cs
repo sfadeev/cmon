@@ -1,20 +1,17 @@
 ﻿using System;
 using System.Globalization;
-using CMon.Commands;
+using System.Reflection;
 using CMon.Entities;
 using CMon.Extensions;
-using CMon.Models;
-using CMon.Queries;
 using CMon.Services;
-using CMon.Services.CommandHandlers;
-using CMon.Services.QueryHandler;
-using CMon.ViewModels.Device;
 using Hangfire;
+using Hangfire.Common;
 using Hangfire.Dashboard;
 using Hangfire.PostgreSql;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.Identity;
+using MediatR;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Builder;
@@ -28,8 +25,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Montr.Core;
 using Montr.Localization;
+using Newtonsoft.Json;
 using Serilog;
 
 namespace CMon
@@ -126,6 +123,8 @@ namespace CMon
 						PrepareSchemaIfNecessary = false
 					});
 			});
+			JobHelper.SetSerializerSettings(
+				new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Objects });
 
 			// Infrastructure services
 			services.AddSingleton<IBackgroundJob, HangfireBackgroundJob>();
@@ -145,15 +144,7 @@ namespace CMon
             services.AddTransient<IDeviceRepository, DefaultDeviceRepository>();
 			services.AddTransient<IInputValueProvider, DefaultInputValueProvider>();
 
-			// Command and Queries
-			services.AddScoped<IQueryDispatcher, DefaultQueryDispatcher>();
-			services.AddScoped<ICommandDispatcher, DefaultCommandDispatcher>();
-
-			// todo: auto discover
-			services.AddTransient<ICommandHandler<AddDevice, long>, AddDeviceCommandHandler>();
-			services.AddTransient<ICommandHandler<RefreshDevice, bool>, RefreshDeviceCommandHandler>();
-			services.AddTransient<IQueryHandler<GetContractDevice, Device>, GetContractDeviceQueryHandler>();
-			services.AddTransient<IQueryHandler<GetContractDeviceList, DeviceListViewModel>, GetContractDeviceListQueryHandler>();
+			services.AddMediatR(typeof(Startup).GetTypeInfo().Assembly);
 		}
 
 		public void Configure(IApplicationBuilder app,

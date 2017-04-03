@@ -1,10 +1,11 @@
-﻿using System.Threading.Tasks;
-using CMon.Commands;
+﻿using System.Threading;
+using System.Threading.Tasks;
+using CMon.Requests;
 using CMon.Models;
 using CMon.Services;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Montr.Core;
 
 // For more information on enabling Web API for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -15,17 +16,16 @@ namespace CMon.Controllers.Apis
 	public class DeviceController : Controller
 	{
 		private readonly IInputValueProvider _valueProvider;
-		private readonly IBackgroundJob _backgroundJob;
-		private readonly IQueryDispatcher _queryDispatcher;
-		private readonly ICommandDispatcher _commandDispatcher;
+		private readonly IIdentityProvider _identityProvider;
+		private readonly IBackgroundJob _job;
+		private readonly IMediator _mediator;
 
-		public DeviceController(IInputValueProvider valueProvider, IBackgroundJob backgroundJob,
-			IQueryDispatcher queryDispatcher, ICommandDispatcher commandDispatcher)
+		public DeviceController(IInputValueProvider valueProvider, IIdentityProvider identityProvider, IBackgroundJob job, IMediator mediator)
 		{
 			_valueProvider = valueProvider;
-			_backgroundJob = backgroundJob;
-			_queryDispatcher = queryDispatcher;
-			_commandDispatcher = commandDispatcher;
+			_identityProvider = identityProvider;
+			_job = job;
+			_mediator = mediator;
 		}
 
 		// GET: api/device/values
@@ -40,10 +40,9 @@ namespace CMon.Controllers.Apis
 		[HttpPost("refresh")]
 		public void Refresh(long deviceId)
 		{
-			var command = new RefreshDevice { DeviceId = deviceId };
-
-			_backgroundJob.Enqueue<ICommandDispatcher>(x => x.Dispatch<RefreshDevice, bool>(command));
-			// return await _commandDispatcher.Dispatch<RefreshDevice, bool>(command);
+			_job.Enqueue<IMediator>(x => x.Send(
+				new RefreshDevice { DeviceId = deviceId, UserName = _identityProvider.GetUserName() },
+				CancellationToken.None));
 		}
 
 		[HttpPost("status")]
@@ -51,7 +50,7 @@ namespace CMon.Controllers.Apis
 		{
 			var command = new GetDeviceStatus { DeviceId = deviceId };
 
-			return await _commandDispatcher.Dispatch<GetDeviceStatus, string>(command);
+			return await _mediator.Send(command);
 		}
 
 		// GET api/values/5

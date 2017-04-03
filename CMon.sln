@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
-VisualStudioVersion = 15.0.26228.4
+VisualStudioVersion = 15.0.26228.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{C99EEF81-353B-41F1-BD1A-AC262CDC3AF4}"
 EndProject
@@ -16,8 +16,6 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LinqToDB.Identity", "src\LinqToDB.Identity\LinqToDB.Identity.csproj", "{4490894C-3572-4E63-86F1-EE5105CE8A06}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Montr.Localization", "src\Montr.Localization\Montr.Localization.csproj", "{0FD19C04-CD83-41A8-AB27-4CD6C63679E0}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Montr.Core", "src\Montr.Core\Montr.Core.csproj", "{DBD2B65C-0B88-4ECC-9E8D-AE7EB48E1F50}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +39,6 @@ Global
 		{0FD19C04-CD83-41A8-AB27-4CD6C63679E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0FD19C04-CD83-41A8-AB27-4CD6C63679E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0FD19C04-CD83-41A8-AB27-4CD6C63679E0}.Release|Any CPU.Build.0 = Release|Any CPU
-		{DBD2B65C-0B88-4ECC-9E8D-AE7EB48E1F50}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DBD2B65C-0B88-4ECC-9E8D-AE7EB48E1F50}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{DBD2B65C-0B88-4ECC-9E8D-AE7EB48E1F50}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DBD2B65C-0B88-4ECC-9E8D-AE7EB48E1F50}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -54,6 +48,5 @@ Global
 		{A8D002C0-4F29-4E5C-BFE4-4AF8E995FBE4} = {825AEACF-5B05-4BEC-96C3-7F742E32676F}
 		{4490894C-3572-4E63-86F1-EE5105CE8A06} = {C99EEF81-353B-41F1-BD1A-AC262CDC3AF4}
 		{0FD19C04-CD83-41A8-AB27-4CD6C63679E0} = {C99EEF81-353B-41F1-BD1A-AC262CDC3AF4}
-		{DBD2B65C-0B88-4ECC-9E8D-AE7EB48E1F50} = {C99EEF81-353B-41F1-BD1A-AC262CDC3AF4}
 	EndGlobalSection
 EndGlobal

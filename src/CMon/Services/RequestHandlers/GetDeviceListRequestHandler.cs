@@ -1,24 +1,24 @@
 using System.Linq;
 using CMon.Entities;
-using CMon.Queries;
+using CMon.Requests;
 using CMon.ViewModels.Device;
-using Montr.Core;
+using MediatR;
 
-namespace CMon.Services.QueryHandler
+namespace CMon.Services.RequestHandlers
 {
-	public class GetContractDeviceListQueryHandler : IQueryHandler<GetContractDeviceList, DeviceListViewModel>
+	public class GetDeviceListRequestHandler : IRequestHandler<GetDeviceList, DeviceListViewModel>
 	{
 		private readonly IIdentityProvider _identityProvider;
 		private readonly IDbConnectionFactory _connectionFactory;
 
-		public GetContractDeviceListQueryHandler(IIdentityProvider identityProvider,
+		public GetDeviceListRequestHandler(IIdentityProvider identityProvider,
 			IDbConnectionFactory connectionFactory)
 		{
 			_identityProvider = identityProvider;
 			_connectionFactory = connectionFactory;
 		}
 
-		public DeviceListViewModel Retrieve(GetContractDeviceList query)
+		public DeviceListViewModel Handle(GetDeviceList query)
 		{
 			var userName = _identityProvider.GetUserName();
 

@@ -1,23 +1,20 @@
 ﻿using System.Threading.Tasks;
-using CMon.Commands;
-using CMon.Queries;
+using CMon.Requests;
 using CMon.ViewModels.Device;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Montr.Core;
 
 namespace CMon.Controllers
 {
 	[Authorize]
 	public class DeviceController : Controller
 	{
-		private readonly IQueryDispatcher _queryDispatcher;
-		private readonly ICommandDispatcher _commandDispatcher;
+		private readonly IMediator _mediator;
 
-		public DeviceController(IQueryDispatcher queryDispatcher, ICommandDispatcher commandDispatcher)
+		public DeviceController(IMediator mediator)
 		{
-			_queryDispatcher = queryDispatcher;
-			_commandDispatcher = commandDispatcher;
+			_mediator = mediator;
 		}
 
 		public IActionResult Index(long id)
@@ -52,11 +49,11 @@ namespace CMon.Controllers
 			return View(model);
 		}
 
-		public IActionResult List()
+		public async Task<IActionResult> List()
 		{
-			var query = new GetContractDeviceList();
+			var query = new GetDeviceList();
 
-			var model = _queryDispatcher.Dispatch<GetContractDeviceList, DeviceListViewModel>(query);
+			var model = await _mediator.Send(query);
 
 			return View(model);
 		}
@@ -82,7 +79,7 @@ namespace CMon.Controllers
 					Password = model.Password
 				};
 
-				var deviceId = await _commandDispatcher.Dispatch<AddDevice, long>(command);
+				var deviceId = await _mediator.Send(command);
 
 				return Redirect(Url.Action("Index", "Device", new { deviceId }));
 			}

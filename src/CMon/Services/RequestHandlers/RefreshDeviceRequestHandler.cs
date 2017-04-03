@@ -2,42 +2,34 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using CMon.Commands;
+using CMon.Requests;
 using CMon.Entities;
-using CMon.Models;
 using CMon.Models.Ccu;
-using CMon.Queries;
 using LinqToDB;
-using Montr.Core;
+using MediatR;
 
-namespace CMon.Services.CommandHandlers
+namespace CMon.Services.RequestHandlers
 {
-	public class RefreshDeviceCommandHandler : ICommandHandler<RefreshDevice, bool>
+	public class RefreshDeviceRequestHandler : IAsyncRequestHandler<RefreshDevice, bool>
 	{
-		private readonly IIdentityProvider _identityProvider;
-		private readonly IQueryDispatcher _queryDispatcher;
+		private readonly IMediator _mediator;
 		private readonly IDbConnectionFactory _connectionFactory;
 		private readonly ICcuGateway _gateway;
 		private readonly Sha1Hasher _hasher;
 
-		public RefreshDeviceCommandHandler(IIdentityProvider identityProvider,
-			IQueryDispatcher queryDispatcher,
+		public RefreshDeviceRequestHandler(IMediator mediator,
 			IDbConnectionFactory connectionFactory, ICcuGateway gateway, Sha1Hasher hasher)
 		{
-			_identityProvider = identityProvider;
-			_queryDispatcher = queryDispatcher;
+			_mediator = mediator;
 			_connectionFactory = connectionFactory;
 			_gateway = gateway;
 			_hasher = hasher;
 		}
 
-		public async Task<bool> Execute(RefreshDevice command)
+		public async Task<bool> Handle(RefreshDevice command)
 		{
-			if (_identityProvider.IsAuthenticated == false)
-				throw new InvalidOperationException("User should be authenticated to add devices.");
-
-			var device = _queryDispatcher.Dispatch<GetContractDevice, Device>(
-				new GetContractDevice { DeviceId = command.DeviceId, WithAuth = true });
+			var device = await _mediator.Send(
+				new GetDevice { DeviceId = command.DeviceId, UserName = command.UserName, WithAuth = true });
 
 			if (device != null)
 			{
@@ -47,8 +39,6 @@ namespace CMon.Services.CommandHandlers
 
 				if (device.Hash == null || device.Hash.SequenceEqual(hash) == false)
 				{
-					var userName = _identityProvider.GetUserName();
-
 					var now = DateTime.UtcNow;
 
 					using (var db = _connectionFactory.GetConection())
@@ -85,7 +75,7 @@ namespace CMon.Services.CommandHandlers
 								.Where(x => x.Id == device.Id)
 								.Set(x => x.Hash, hash)
 								.Set(x => x.ModifiedAt, now)
-								.Set(x => x.ModifiedBy, userName)
+								.Set(x => x.ModifiedBy, command.UserName)
 								.Update();
 
 							// todo: add operations log

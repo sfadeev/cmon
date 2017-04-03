@@ -2,33 +2,28 @@ using System.Linq;
 using CMon.Entities;
 using CMon.Models;
 using CMon.Models.Ccu;
-using CMon.Queries;
-using Montr.Core;
+using CMon.Requests;
+using MediatR;
 
-namespace CMon.Services.QueryHandler
+namespace CMon.Services.RequestHandlers
 {
-	public class GetContractDeviceQueryHandler : IQueryHandler<GetContractDevice, Device>
+	public class GetDeviceRequestHandler : IRequestHandler<GetDevice, Device>
 	{
-		private readonly IIdentityProvider _identityProvider;
 		private readonly IDbConnectionFactory _connectionFactory;
 
-		public GetContractDeviceQueryHandler(IIdentityProvider identityProvider,
-			IDbConnectionFactory connectionFactory)
+		public GetDeviceRequestHandler(IDbConnectionFactory connectionFactory)
 		{
-			_identityProvider = identityProvider;
 			_connectionFactory = connectionFactory;
 		}
 
-		public Device Retrieve(GetContractDevice query)
+		public Device Handle(GetDevice query)
 		{
-			var userName = _identityProvider.GetUserName();
-
 			using (var db = _connectionFactory.GetConection())
 			{
 				var dbDevice = (
 						from cu in db.GetTable<DbContractUser>()
 						join d in db.GetTable<DbDevice>() on cu.ContractId equals d.ContractId
-						where cu.UserName == userName && d.Id == query.DeviceId
+						where cu.UserName == query.UserName && d.Id == query.DeviceId
 						select d)
 					.SingleOrDefault();
 

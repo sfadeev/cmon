@@ -1,8 +1,8 @@
-﻿using Montr.Core;
+﻿using MediatR;
 
-namespace CMon.Commands
+namespace CMon.Requests
 {
-	public class AddDevice : ICommand<long>
+	public class AddDevice : IRequest<long>
 	{
 		public string Name { get; set; }
 

@@ -13,6 +13,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="wwwroot\build\**" />
+    <Content Remove="wwwroot\build\**" />
+    <EmbeddedResource Remove="wwwroot\build\**" />
+    <None Remove="wwwroot\build\**" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="wwwroot\**\*">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
     </None>
@@ -21,10 +28,10 @@
   <ItemGroup>
     <ProjectReference Include="..\LinqToDB.Identity\LinqToDB.Identity.csproj" />
     <ProjectReference Include="..\Montr.Localization\Montr.Localization.csproj" />
-    <ProjectReference Include="..\Montr.Core\Montr.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="1.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="1.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Routing" Version="1.1.1" />
