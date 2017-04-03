@@ -17,6 +17,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LinqToDB.Identity", "src\Li
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Montr.Localization", "src\Montr.Localization\Montr.Localization.csproj", "{0FD19C04-CD83-41A8-AB27-4CD6C63679E0}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Montr.Core", "src\Montr.Core\Montr.Core.csproj", "{1DDDA64E-9084-4DEF-8601-7CED094D9687}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +41,10 @@ Global
 		{0FD19C04-CD83-41A8-AB27-4CD6C63679E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0FD19C04-CD83-41A8-AB27-4CD6C63679E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0FD19C04-CD83-41A8-AB27-4CD6C63679E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DDDA64E-9084-4DEF-8601-7CED094D9687}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DDDA64E-9084-4DEF-8601-7CED094D9687}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DDDA64E-9084-4DEF-8601-7CED094D9687}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DDDA64E-9084-4DEF-8601-7CED094D9687}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -48,5 +54,6 @@ Global
 		{A8D002C0-4F29-4E5C-BFE4-4AF8E995FBE4} = {825AEACF-5B05-4BEC-96C3-7F742E32676F}
 		{4490894C-3572-4E63-86F1-EE5105CE8A06} = {C99EEF81-353B-41F1-BD1A-AC262CDC3AF4}
 		{0FD19C04-CD83-41A8-AB27-4CD6C63679E0} = {C99EEF81-353B-41F1-BD1A-AC262CDC3AF4}
+		{1DDDA64E-9084-4DEF-8601-7CED094D9687} = {C99EEF81-353B-41F1-BD1A-AC262CDC3AF4}
 	EndGlobalSection
 EndGlobal

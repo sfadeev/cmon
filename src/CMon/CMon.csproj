@@ -49,7 +49,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="1.1.1" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="1.1.1" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="1.4.1-dev-10147" />
-    <PackageReference Include="MailKit" Version="1.10.2" />
+    <PackageReference Include="MailKit" Version="1.12.0" />
     <PackageReference Include="DateMath" Version="1.0.0" />
     <PackageReference Include="Serilog.Sinks.Literate" Version="2.1.0" />
     <PackageReference Include="Serilog.Sinks.Async" Version="1.0.2-dev-00008" />
