@@ -2,7 +2,7 @@
 
 namespace CMon.Requests
 {
-	public class RefreshDevice : IRequest<bool>
+	public class RefreshDevice : IRequest
 	{
 		public string UserName { get; set; }
 

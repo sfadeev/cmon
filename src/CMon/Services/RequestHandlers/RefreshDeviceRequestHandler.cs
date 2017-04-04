@@ -7,26 +7,29 @@ using CMon.Entities;
 using CMon.Models.Ccu;
 using LinqToDB;
 using MediatR;
+using Microsoft.Extensions.Logging;
 
 namespace CMon.Services.RequestHandlers
 {
-	public class RefreshDeviceRequestHandler : IAsyncRequestHandler<RefreshDevice, bool>
+	public class RefreshDeviceRequestHandler : IAsyncRequestHandler<RefreshDevice>
 	{
 		private readonly IMediator _mediator;
 		private readonly IDbConnectionFactory _connectionFactory;
+		private readonly ILogger<RefreshDeviceRequestHandler> _logger;
 		private readonly ICcuGateway _gateway;
 		private readonly Sha1Hasher _hasher;
 
-		public RefreshDeviceRequestHandler(IMediator mediator,
-			IDbConnectionFactory connectionFactory, ICcuGateway gateway, Sha1Hasher hasher)
+		public RefreshDeviceRequestHandler(ILogger<RefreshDeviceRequestHandler> logger,
+			IMediator mediator, ICcuGateway gateway, Sha1Hasher hasher, IDbConnectionFactory connectionFactory)
 		{
+			_logger = logger;
 			_mediator = mediator;
-			_connectionFactory = connectionFactory;
 			_gateway = gateway;
 			_hasher = hasher;
+			_connectionFactory = connectionFactory;
 		}
 
-		public async Task<bool> Handle(RefreshDevice command)
+		public async Task Handle(RefreshDevice command)
 		{
 			var device = await _mediator.Send(
 				new GetDevice { DeviceId = command.DeviceId, UserName = command.UserName, WithAuth = true });
@@ -39,6 +42,11 @@ namespace CMon.Services.RequestHandlers
 
 				if (device.Hash == null || device.Hash.SequenceEqual(hash) == false)
 				{
+					_logger.LogDebug(
+						device.Hash == null
+							? "Initial device {0} configuration insert."
+							: "Updating device {0} configuration.", device.Id);
+
 					var now = DateTime.UtcNow;
 
 					using (var db = _connectionFactory.GetConection())
@@ -81,14 +89,14 @@ namespace CMon.Services.RequestHandlers
 							// todo: add operations log
 
 							transaction.Commit();
-
-							return true;
 						}
 					}
 				}
+				else
+				{
+					_logger.LogDebug("Device {0} configuration is not changed.", device.Id);
+				}
 			}
-
-			return false;
 		}
 
 		private async Task<IList<InputsInputNum>> GetInputs(Auth auth)

@@ -41,8 +41,7 @@ namespace CMon.Controllers.Apis
 		public void Refresh(long deviceId)
 		{
 			_job.Enqueue<IMediator>(x => x.Send(
-				new RefreshDevice { DeviceId = deviceId, UserName = _identityProvider.GetUserName() },
-				CancellationToken.None));
+				new RefreshDevice { DeviceId = deviceId, UserName = _identityProvider.GetUserName() }, CancellationToken.None));
 		}
 
 		[HttpPost("status")]

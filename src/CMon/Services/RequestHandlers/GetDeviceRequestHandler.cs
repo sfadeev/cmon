@@ -33,7 +33,8 @@ namespace CMon.Services.RequestHandlers
 					{
 						Id = dbDevice.Id,
 						Name = dbDevice.Name,
-						Imei = dbDevice.Imei
+						Imei = dbDevice.Imei,
+						Hash = dbDevice.Hash
 					};
 
 					if (query.WithAuth)
