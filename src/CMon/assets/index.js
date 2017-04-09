@@ -1,4 +1,7 @@
-require('bootstrap-webpack!./bootstrap.config.js');
+require("jquery-validation");
+require("jquery-validation-unobtrusive");
 
-require('./common');
-require('./dashboard');
+require("bootstrap-webpack!./bootstrap.config.js");
+
+require("./common");
+require("./dashboard");

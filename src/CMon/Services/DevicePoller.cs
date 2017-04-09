@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CMon.Entities;
-using CMon.Models.Ccu;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json.Linq;
 
@@ -18,27 +18,40 @@ namespace CMon.Services
 		public const short BoardTemp = 0xFF;
 
 		private readonly ILogger<DevicePoller> _logger;
+		private readonly IServiceProvider _services;
 		private readonly ICcuGateway _gateway;
 		private readonly IDeviceRepository _repository;
 
+		private readonly ConcurrentDictionary<long, IDeviceManager> _deviceManagers = new ConcurrentDictionary<long, IDeviceManager>();
 		private readonly ConcurrentDictionary<long, Timer> _timers = new ConcurrentDictionary<long, Timer>();
 
-		public DevicePoller(ILogger<DevicePoller> logger, ICcuGateway gateway, IDeviceRepository repository)
+		public DevicePoller(ILogger<DevicePoller> logger, IServiceProvider services, ICcuGateway gateway, IDeviceRepository repository)
 		{
 			_logger = logger;
+			_services = services;
 			_gateway = gateway;
 			_repository = repository;
+		}
+
+		public IDeviceManager GetManager(long deviceId)
+		{
+			return _deviceManagers[deviceId];
 		}
 
 		public void Start()
 		{
 			foreach (var deviceId in _repository.GetDevices().Select(x => x.Id))
 			{
+				// todo: subscribe on events of add/remove devices
+				var deviceManager = _deviceManagers[deviceId] = _services.GetService<CcuDeviceManager>();
+
+				deviceManager.Configure(deviceId);
+
 				_timers[deviceId] = new Timer(state =>
 				{
 					try
 					{
-						PollAsync(deviceId).Wait();
+						// PollAsync(deviceId).Wait();
 					}
 					catch (Exception ex)
 					{

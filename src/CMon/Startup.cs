@@ -135,8 +135,11 @@ namespace CMon
 			services.AddTransient<IEmailSender, MailKitEmailSender>();
 			services.AddTransient<ISmsSender, DefaultSmsSender>();
 
+			// todo: register by device type
+			services.AddTransient<CcuDeviceManager, CcuDeviceManager>();
+			
 			// Application services
-			// services.AddSingleton<IStartable, DevicePoller>();
+			services.AddSingleton<IStartable, DevicePoller>();
 			services.AddSingleton<IIdentityProvider, ClaimsIdentityProvider>();
 
             services.AddSingleton<Sha1Hasher, Sha1Hasher>();

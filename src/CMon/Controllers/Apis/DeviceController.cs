@@ -47,9 +47,7 @@ namespace CMon.Controllers.Apis
 		[HttpPost("status")]
 		public async Task<string> GetStatus(long deviceId)
 		{
-			var command = new GetDeviceStatus { DeviceId = deviceId };
-
-			return await _mediator.Send(command);
+			return await _mediator.Send(new GetDeviceStatus { DeviceId = deviceId });
 		}
 
 		// GET api/values/5
