@@ -17,12 +17,23 @@ body {
 }
 
 .navbar {
-	margin-bottom: 15px;
-}
+	// margin-bottom: 5px;
+	&.navbar-default {
+		background-color: #fff;
+		border-color: #e7e7e7;
+	}
 
-.navbar-default {
-    background-color: #fff;
-    border-color: #e7e7e7;
+	.dropdown-menu {
+		.small {
+			// color: #ccc;
+		}
+
+		.active {
+			.small {
+				color: #fff;
+			}
+		}
+	}
 }
 
 /* Wrapping element */

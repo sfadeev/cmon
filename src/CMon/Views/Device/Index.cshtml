@@ -1,10 +1,55 @@
-﻿@model CMon.ViewModels.Device.DeviceViewModel
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@model CMon.ViewModels.Device.DevicePageViewModel
+
+@inject IViewLocalizer Localizer
 
 @{
 	ViewData["Title"] = "#" + Model.Id;
 }
 
-@section navbar {
+@section navbar_left {
+	
+	@{
+		var selected = Model.Devices.FirstOrDefault(x => x.Id == Model.Id);
+	}
+
+	<ul class="nav navbar-nav">
+		<li class="dropdown">
+			<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+				@if (selected == null)
+				{
+					@Localizer["Controllers"]
+				}
+				else
+				{
+					@selected.Name <span class="small">@selected.Imei</span>
+				}
+				<span class="caret"></span>
+			</a>
+			<ul class="dropdown-menu">
+				@foreach (var device in Model.Devices)
+				{
+					<li class="@(device.Id == Model.Id ? "active" : string.Empty)">
+						<a href="@device.Url">@device.Name <span class="small">@device.Imei</span></a>
+					</li>
+				}
+				<li role="separator" class="divider"></li>
+				<li>
+					<a href="@Url.Action("Add", "Device")">
+						<i class="fa fa-plus fa-fw" aria-hidden="true"></i>&nbsp; Add Device
+					</a>
+				</li>
+			</ul>
+		</li>
+		<li>
+			<a class="dropdown-toggle" data-toggle="collapse" data-target="#device-settings" role="button" aria-haspopup="false" aria-expanded="true">
+				<i class="fa fa-cog" aria-hidden="true"></i>
+			</a>
+		</li>
+	</ul>
+}
+
+@section navbar_right {
 	<ul class="nav navbar-nav navbar-right">
 		<li>
 			<a class="dropdown-toggle" data-toggle="collapse" data-target="#time-range" role="button" aria-haspopup="false" aria-expanded="true">
@@ -13,6 +58,28 @@
 		</li>
 	</ul>
 }
+
+<div id="device-settings" class="row collapse">
+	<div>
+
+		<!-- Nav tabs -->
+		<ul class="nav nav-tabs" role="tablist">
+			<li role="presentation" class="active"><a href="#home" aria-controls="home" role="tab" data-toggle="tab">Home</a></li>
+			<li role="presentation"><a href="#profile" aria-controls="profile" role="tab" data-toggle="tab">Profile</a></li>
+			<li role="presentation"><a href="#messages" aria-controls="messages" role="tab" data-toggle="tab">Messages</a></li>
+			<li role="presentation"><a href="#settings" aria-controls="settings" role="tab" data-toggle="tab">Settings</a></li>
+		</ul>
+
+		<!-- Tab panes -->
+		<div class="tab-content">
+			<div role="tabpanel" class="tab-pane active" id="home">Home</div>
+			<div role="tabpanel" class="tab-pane" id="profile">Profile</div>
+			<div role="tabpanel" class="tab-pane" id="messages">Messages</div>
+			<div role="tabpanel" class="tab-pane" id="settings">Settings</div>
+		</div>
+
+	</div>
+</div>
 
 <div id="time-range" class="row collapse">
 	<div class="col-md-12">

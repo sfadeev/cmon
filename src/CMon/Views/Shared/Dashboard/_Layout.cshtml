@@ -29,17 +29,17 @@
                 </button>
 	            <a asp-area="" asp-controller="Home" asp-action="Index" class="navbar-brand">@appName</a>
             </div>
-            <div class="navbar-collapse collapse">
-				@await Html.PartialAsync("_DeviceNavPartial")
+	        <div class="navbar-collapse collapse">
+				@RenderSection("navbar_left", required: false)
 
-	            <button type="button" class="btn btn-default navbar-btn">Test</button>
-				<p class="navbar-form navbar-left">
+				@*<button type="button" class="btn btn-default navbar-btn">Test</button>*@
+				@*<p class="navbar-form navbar-left">
 					<button class="btn btn-success" onclick="location.href = '@Url.Action("Add", "Device")'; return false;">@Localizer["Add Device"]</button>
-				</p>
+				</p>*@
 
-                @await Html.PartialAsync("_LoginPartial")
-				@RenderSection("navbar", required: false)
-            </div>
+				@await Html.PartialAsync("_LoginPartial")
+				@RenderSection("navbar_right", required: false)
+			</div>
         </div>
     </div>
 	<div class="container-fluid content">

@@ -4,6 +4,7 @@ namespace CMon.ViewModels.Device
 {
 	public class AddDeviceViewModel
 	{
+		[Required]
 		[StringLength(64)]
 		[Display(Name = "Name")]
 		public string Name { get; set; }

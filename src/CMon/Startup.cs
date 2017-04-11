@@ -17,8 +17,10 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.DataAnnotations;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Internal;
 using Microsoft.Extensions.Configuration;
@@ -125,6 +127,9 @@ namespace CMon
 			});
 			JobHelper.SetSerializerSettings(
 				new JsonSerializerSettings { TypeNameHandling = TypeNameHandling.Objects });
+
+			services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+			services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
 			// Infrastructure services
 			services.AddSingleton<IBackgroundJob, HangfireBackgroundJob>();

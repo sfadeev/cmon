@@ -7,16 +7,24 @@ namespace CMon.ViewModels.Device
 		public IList<DeviceViewModel> Items { get; set; }
 	}
 	
+	public class DevicePageViewModel
+	{
+		public long? Id { get; set; }
+
+		public IList<DeviceViewModel> Devices { get; set; }
+
+		public DateRange[][] QuickRanges { get; set; }
+	}
+	
 	public class DeviceViewModel
 	{
+		public string Url { get; set; }
+
 		public long Id { get; set; }
 
 		public string Name { get; set; }
 
 		public string Imei { get; set; }
-
-		// todo: remove
-		public DateRange[][] QuickRanges { get; set; }
 	}
 	
 	public class DateRange

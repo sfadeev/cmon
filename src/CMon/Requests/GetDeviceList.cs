@@ -5,5 +5,6 @@ namespace CMon.Requests
 {
 	public class GetDeviceList : IRequest<DeviceListViewModel>
 	{
+		public string UserName { get; set; }
 	}
 }

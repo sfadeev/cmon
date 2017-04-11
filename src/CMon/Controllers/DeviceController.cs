@@ -1,5 +1,7 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Threading.Tasks;
 using CMon.Requests;
+using CMon.Services;
 using CMon.ViewModels.Device;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -11,47 +13,65 @@ namespace CMon.Controllers
 	public class DeviceController : Controller
 	{
 		private readonly IMediator _mediator;
+		private readonly IIdentityProvider _identityProvider;
 
-		public DeviceController(IMediator mediator)
+		public DeviceController(IMediator mediator, IIdentityProvider identityProvider)
 		{
 			_mediator = mediator;
+			_identityProvider = identityProvider;
 		}
 
-		public IActionResult Index(long id)
+		public async Task<IActionResult> Index(long? id)
 		{
-			var model = new DeviceViewModel
+			var deviceList = await _mediator.Send(
+				new GetDeviceList { UserName = _identityProvider.GetUserName() });
+
+			var selected = deviceList.Items.FirstOrDefault(x => x.Id == id);
+
+			if (selected == null && deviceList.Items.Count > 0)
+			{
+				return Redirect(deviceList.Items[0].Url);
+			}
+
+			var model = new DevicePageViewModel
 			{
 				Id = id,
-				QuickRanges = new[]
-				{
-					new[]
-					{
-						new DateRange { Name = "Last 30 minutes", From = "now-30m", To = "now" },
-						new DateRange { Name = "Last 1 hour", From = "now-1h", To = "now" },
-						new DateRange { Name = "Last 2 hours", From = "now-2h", To = "now" },
-						new DateRange { Name = "Last 4 hours", From = "now-4h", To = "now" },
-						new DateRange { Name = "Last 8 hours", From = "now-8h", To = "now" },
-						new DateRange { Name = "Last 12 hours", From = "now-12h", To = "now" },
-						new DateRange { Name = "Last 24 hours", From = "now-24h", To = "now" },
-					},
-					new[]
-					{
-						// new DateRange { Name = "Today", From = "now/d", To = "now/d" },
-						new DateRange { Name = "Today so far", From = "now/d", To = "now" },
-						// new DateRange { Name = "This week", From = "now/w", To = "now/w" },
-						new DateRange { Name = "This week so far", From = "now/w", To = "now" },
-						// new DateRange { Name = "This month", From = "now/M", To = "now/M" },
-						// new DateRange { Name = "This year", From = "now/y", To = "now/y" },
-					}
-				}
+				Devices = deviceList.Items,
+				QuickRanges = GetQuickRanges()
 			};
 
 			return View(model);
 		}
 
+		private static DateRange[][] GetQuickRanges()
+		{
+			return new[]
+			{
+				new[]
+				{
+					new DateRange { Name = "Last 30 minutes", From = "now-30m", To = "now" },
+					new DateRange { Name = "Last 1 hour", From = "now-1h", To = "now" },
+					new DateRange { Name = "Last 2 hours", From = "now-2h", To = "now" },
+					new DateRange { Name = "Last 4 hours", From = "now-4h", To = "now" },
+					new DateRange { Name = "Last 8 hours", From = "now-8h", To = "now" },
+					new DateRange { Name = "Last 12 hours", From = "now-12h", To = "now" },
+					new DateRange { Name = "Last 24 hours", From = "now-24h", To = "now" }
+				},
+				new[]
+				{
+					// new DateRange { Name = "Today", From = "now/d", To = "now/d" },
+					new DateRange { Name = "Today so far", From = "now/d", To = "now" },
+					// new DateRange { Name = "This week", From = "now/w", To = "now/w" },
+					new DateRange { Name = "This week so far", From = "now/w", To = "now" }
+					// new DateRange { Name = "This month", From = "now/M", To = "now/M" },
+					// new DateRange { Name = "This year", From = "now/y", To = "now/y" },
+				}
+			};
+		}
+
 		public async Task<IActionResult> List()
 		{
-			var query = new GetDeviceList();
+			var query = new GetDeviceList { UserName = _identityProvider.GetUserName() };
 
 			var model = await _mediator.Send(query);
 
