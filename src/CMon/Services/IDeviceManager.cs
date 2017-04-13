@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using CMon.Entities;
 using CMon.Models.Ccu;
@@ -132,13 +133,16 @@ namespace CMon.Services
 
 				var result = new List<InputsInputNum>();
 
-				for (var inputNum = 0; inputNum < inputsInitialResult.InputsInitial.InCount; inputNum++)
+				if (inputsInitialResult.Code == StatusCode.Ok)
 				{
-					_status = "GetInputsInputNum " + inputNum;
+					for (var inputNum = 0; inputNum < inputsInitialResult.InputsInitial.InCount; inputNum++)
+					{
+						_status = "GetInputsInputNum " + inputNum;
 
-					var inputNumResult = await _gateway.GetInputsInputNum(auth, inputNum);
+						var inputNumResult = await _gateway.GetInputsInputNum(auth, inputNum);
 
-					result.Add(inputNumResult.InputsInputNum);
+						result.Add(inputNumResult.InputsInputNum);
+					}
 				}
 
 				return result;
@@ -149,5 +153,4 @@ namespace CMon.Services
 			}
 		}
 	}
-
 }

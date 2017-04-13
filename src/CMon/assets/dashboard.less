@@ -7,9 +7,7 @@
 @import "./chart.less";
 
 body.dashboard {
-
 	/* padding-top: @navbar-height; */
-
 	.footer {
 		padding: 15px;
 		margin-top: 20px;
@@ -17,5 +15,15 @@ body.dashboard {
 	}
 
 	.content {
+	}
+
+	.expandable {
+		padding: 0;
+		background-color: lighten(#000, 97.5%);
+		border-bottom: 1px solid #ccc;
+
+		.expandable-content {
+			padding: 10px;
+		}
 	}
 }

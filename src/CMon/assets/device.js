@@ -1,42 +1,29 @@
 ﻿var request = require("superagent");
 
+var deviceId = $(".dashboard-content").data("deviceId"),
+	xsrfToken = document.querySelector("input[name=__RequestVerificationToken]").value;
+
 var timeoutId;
 
-var requestStatus = function(deviceId) {
-	request.post("/api/device/status")
+var post = function(url, handler) {
+	request.post(url)
         .query({ deviceId: deviceId })
-		.set("X-XSRF-TOKEN", document.querySelector("input[name=__RequestVerificationToken]").value)
-		.end(function(err, res) {
-			$(".status").text(res.text);
+		.set("X-XSRF-TOKEN", xsrfToken)
+		.end(handler);
+}
+var requestStatus = function () {
 
-            timeoutId = setTimeout(function() { requestStatus(deviceId); }, 3000);
-		});
+	post("/api/device/status", function(err, res) {
+		$(".status").text(res.text);
+		timeoutId = setTimeout(function() { requestStatus(); }, 3000);
+	});
 }
 
-$(".device-list button.btn-refresh").click(function () {
-
-	var deviceId = $(this).data("deviceId");
-
-	request.post("/api/device/refresh")
-		.query({ deviceId: deviceId })
-		.set("X-XSRF-TOKEN", document.querySelector("input[name=__RequestVerificationToken]").value)
-		.end(function (err, res) {
-			console.log(arguments);
-		});
-
-    requestStatus(deviceId);
-
+$(".btn-refresh").click(function () {
+	post("/api/device/refresh");
 	return false;
-
 });
 
-$(".device-list button.btn-status").click(function () {
-	
-	if (timeoutId) {
-		clearTimeout(timeoutId);
-		timeoutId = null;
-    }
-
-	return false;
-
+$(function () {
+	requestStatus();
 });
