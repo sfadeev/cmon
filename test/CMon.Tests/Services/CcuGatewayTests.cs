@@ -197,6 +197,34 @@ namespace CMon.Tests.Services
 		}
 
 		[Fact]
+		public async void GetSystemInitial_AsAdmin()
+		{
+			// arrange
+			var gateway = new CcuGateway(Logger);
+
+			// act
+			var result = await gateway.GetSystemInitial(AdmAuth);
+
+			// assert
+			Assert.Equal(HttpStatusCode.OK, result.HttpStatusCode);
+			Assert.Null(result.Status);
+		}
+
+		[Fact]
+		public async void GetSystemPoll_AsAdmin()
+		{
+			// arrange
+			var gateway = new CcuGateway(Logger);
+
+			// act
+			var result = await gateway.GetSystemPoll(AdmAuth);
+
+			// assert
+			Assert.Equal(HttpStatusCode.OK, result.HttpStatusCode);
+			Assert.Null(result.Status);
+		}
+
+		[Fact]
 		public async void GetDeviceInfo()
 		{
 			// arrange

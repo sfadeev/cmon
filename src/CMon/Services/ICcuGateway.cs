@@ -27,6 +27,10 @@ namespace CMon.Services
 
 		Task<ProfilesProfNumResult> GetProfilesProfNum(Auth auth, int profNum);
 
+		Task<SystemInitialResult> GetSystemInitial(Auth auth);
+
+		Task<SystemPollResult> GetSystemPoll(Auth auth);
+
 		Task<DeviceInfo> GetDeviceInfo(Auth auth);
 
 		Task<StateAndEvents> GetStateAndEvents(Auth auth);
@@ -81,6 +85,16 @@ namespace CMon.Services
 		public async Task<ProfilesProfNumResult> GetProfilesProfNum(Auth auth, int profNum)
 		{
 			return await Get<ProfilesProfNumResult>(auth, GetCmdUrl(new { DataType = "ProfilesProfNum", ProfNum = profNum }));
+		}
+
+		public async Task<SystemInitialResult> GetSystemInitial(Auth auth)
+		{
+			return await Get<SystemInitialResult>(auth, GetCmdUrl(new { DataType = "SystemInitial" }));
+		}
+
+		public async Task<SystemPollResult> GetSystemPoll(Auth auth)
+		{
+			return await Get<SystemPollResult>(auth, GetCmdUrl(new { DataType = "SystemPoll" }));
 		}
 
 		public async Task<DeviceInfo> GetDeviceInfo(Auth auth)
