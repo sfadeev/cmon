@@ -1,27 +1,8 @@
+using CMon.Models;
 using LinqToDB.Mapping;
 
 namespace CMon.Entities
 {
-	public enum InputType : byte
-	{
-		None = 0,
-		Discrete = 1,
-		Analog = 2,
-		Rtd02 = 3,
-		Rtd03 = 4
-	}
-
-	public enum RangeType : byte
-	{
-		None = 0,
-		LowOrHigh = 1,
-		Low = 2,
-		Average = 3,
-		High = 4,
-		LowHysteresis = 5,
-		HighHysteresis = 6
-	}
-
 	[Table(Schema = "public", Name = "input")]
 	public class DbInput
 	{

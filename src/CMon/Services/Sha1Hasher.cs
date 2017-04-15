@@ -5,9 +5,9 @@ namespace CMon.Services
 {
 	public class Sha1Hasher
 	{
-		public byte[] ComputeHash(object inputs)
+		public byte[] Compute(object value)
 		{
-			var serialized = JsonConvert.SerializeObject(inputs);
+			var serialized = JsonConvert.SerializeObject(value);
 
 			var bytes = Encoding.UTF8.GetBytes(serialized);
 

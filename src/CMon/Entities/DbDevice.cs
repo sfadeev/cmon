@@ -1,4 +1,5 @@
-﻿using LinqToDB.Mapping;
+﻿using CMon.Models;
+using LinqToDB.Mapping;
 
 namespace CMon.Entities
 {
@@ -26,13 +27,10 @@ namespace CMon.Entities
 		[Column(Name = "password")]
 		public string Password { get; set; }
 
+		[Column(Name = "config")]
+		public string Config { get; set; }
+
 		[Column(Name = "hash")]
 		public byte[] Hash { get; set; }
-	}
-
-	public enum DeviceStatus
-	{
-		None = 0,
-		Active = 1
 	}
 }

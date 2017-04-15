@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using CMon.Entities;
+using CMon.Models;
 using CMon.Models.Ccu;
 using CMon.Requests;
 using LinqToDB;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
 
 namespace CMon.Services
 {
@@ -24,14 +25,13 @@ namespace CMon.Services
 	public class CcuDeviceManager : IDeviceManager
 	{
 		private long _deviceId;
-		private string _status;
+		private string _status = string.Empty;
 
 		private readonly IMediator _mediator;
 		private readonly IDbConnectionFactory _connectionFactory;
 		private readonly ILogger<CcuDeviceManager> _logger;
 		private readonly ICcuGateway _gateway;
 		private readonly Sha1Hasher _hasher;
-
 
 		public CcuDeviceManager(ILogger<CcuDeviceManager> logger,
 			IMediator mediator, ICcuGateway gateway, Sha1Hasher hasher, IDbConnectionFactory connectionFactory)
@@ -60,9 +60,9 @@ namespace CMon.Services
 
 			if (device != null)
 			{
-				var inputs = await GetInputs(device.Auth);
+				var config = await GetConfig(device.Auth);
 
-				var hash = _hasher.ComputeHash(inputs);
+				var hash = _hasher.Compute(config);
 
 				if (device.Hash == null || device.Hash.SequenceEqual(hash) == false)
 				{
@@ -78,12 +78,12 @@ namespace CMon.Services
 						using (var transaction = db.BeginTransaction())
 						{
 							// remove current inputs
-							db.GetTable<DbInput>()
+							/*db.GetTable<DbInput>()
 								.Where(x => x.DeviceId == device.Id)
-								.Delete();
+								.Delete();*/
 
 							// insert new inputs
-							// todo: read other device info (model, serial no. etc)
+							/*// todo: read other device info (model, serial no. etc)
 							foreach (var input in inputs.Where(x => x.Enable))
 							{
 								var dbInput = new DbInput
@@ -100,11 +100,12 @@ namespace CMon.Services
 								};
 
 								db.Insert(dbInput);
-							}
+							}*/
 
-							// update hash
+							// update device
 							db.GetTable<DbDevice>()
 								.Where(x => x.Id == device.Id)
+								.Set(x => x.Config, JsonConvert.SerializeObject(config))
 								.Set(x => x.Hash, hash)
 								.Set(x => x.ModifiedAt, now)
 								.Set(x => x.ModifiedBy, command.UserName)
@@ -123,34 +124,82 @@ namespace CMon.Services
 			}
 		}
 
-		private async Task<IList<InputsInputNum>> GetInputs(Auth auth)
+		private async Task<DeviceConfig> GetConfig(Auth auth)
 		{
+			var result = new DeviceConfig();
+
 			try
 			{
-				_status = "GetInputsInitial";
+				_status = "GetIndexInitialResult";
+				var indexInitialResult = await _gateway.GetIndexInitial(auth);
 
-				var inputsInitialResult = await _gateway.GetInputsInitial(auth);
-
-				var result = new List<InputsInputNum>();
-
-				if (inputsInitialResult.Code == StatusCode.Ok)
+				if (indexInitialResult.Status.Code == StatusCode.Ok)
 				{
-					for (var inputNum = 0; inputNum < inputsInitialResult.InputsInitial.InCount; inputNum++)
+					var deviceInfo = indexInitialResult.IndexInitial.DeviceInfo;
+
+					result.Info = new DeviceInformation
 					{
-						_status = "GetInputsInputNum " + inputNum;
+						DeviceType = deviceInfo.DeviceType,
+						DeviceMod = deviceInfo.DeviceMod,
+						HwVer = deviceInfo.HwVer,
+						FwVer = deviceInfo.FwVer,
+						BootVer = deviceInfo.BootVer,
+						FwBuildDate = deviceInfo.FwBuildDate,
+						CountryCode = deviceInfo.CountryCode,
+						Serial = deviceInfo.Serial,
+						Imei = deviceInfo.Imei,
+						InputsCount = deviceInfo.InputsCount,
+						PartitionsCount = deviceInfo.PartitionsCount,
+						ExtBoard = deviceInfo.ExtBoard,
+						uGuardVerCode = deviceInfo.uGuardVerCode
+					};
 
-						var inputNumResult = await _gateway.GetInputsInputNum(auth, inputNum);
+					_status = "GetInputsInitial";
+					var inputsInitialResult = await _gateway.GetInputsInitial(auth);
 
-						result.Add(inputNumResult.InputsInputNum);
+					var inputs = new List<DeviceInput>();
+
+					if (inputsInitialResult.Status.Code == StatusCode.Ok)
+					{
+						for (var inputNum = 0; inputNum < inputsInitialResult.InputsInitial.InCount; inputNum++)
+						{
+							_status = "GetInputsInputNum " + inputNum;
+							var inputNumResult = await _gateway.GetInputsInputNum(auth, inputNum);
+
+							if (inputNumResult.Status.Code == StatusCode.Ok)
+							{
+								var ccuInput = inputNumResult.InputsInputNum;
+
+								inputs.Add(new DeviceInput
+								{
+									InputNo = (short) (ccuInput.InputNum + 1),
+									Type = (InputType) ccuInput.InputType,
+									Name = ccuInput.InputName,
+									ActiveName = ccuInput.InputActiveName,
+									PassiveName = ccuInput.InputPassiveName,
+									AlarmZoneRangeType = (RangeType) ccuInput.AlarmZone.RangeType,
+									AlarmZoneMinValue = ccuInput.AlarmZone.UserMinVal,
+									AlarmZoneMaxValue = ccuInput.AlarmZone.UserMaxVal
+								});
+							}
+						}
 					}
-				}
 
-				return result;
+					result.Inputs = inputs.ToArray();
+
+					_status = string.Empty;
+				}
+				else
+				{
+					_status = indexInitialResult.Status.Description;
+				}
 			}
-			finally
+			catch (Exception ex)
 			{
-				_status = null;
+				_status = ex.Message;
 			}
+
+			return result;
 		}
 	}
 }

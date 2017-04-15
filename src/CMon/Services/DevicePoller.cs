@@ -51,7 +51,7 @@ namespace CMon.Services
 				{
 					try
 					{
-						// PollAsync(deviceId).Wait();
+						PollAsync(deviceId).Wait();
 					}
 					catch (Exception ex)
 					{

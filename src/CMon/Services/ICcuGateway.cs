@@ -133,6 +133,9 @@ namespace CMon.Services
 						try
 						{
 							result = JsonConvert.DeserializeObject<TResult>(content);
+
+							if (result.Status == null) result.Status = new Status { Code = StatusCode.Ok };
+
 						}
 						catch (Exception ex)
 						{

@@ -22,7 +22,7 @@ namespace CMon.Tests.Services
 					}).ToList();
 
 			// act
-			var result = hasher.ComputeHash(inputs);
+			var result = hasher.Compute(inputs);
 
 			// assert
 			Assert.NotNull(result);

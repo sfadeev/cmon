@@ -14,7 +14,7 @@ var post = function(url, handler) {
 var requestStatus = function () {
 
 	post("/api/device/status", function(err, res) {
-		$(".status").text(res.text);
+		if (res.status === 200) $(".status").text(res.text);
 		timeoutId = setTimeout(function() { requestStatus(); }, 3000);
 	});
 }
@@ -25,5 +25,5 @@ $(".btn-refresh").click(function () {
 });
 
 $(function () {
-	requestStatus();
+	if (deviceId) requestStatus();
 });

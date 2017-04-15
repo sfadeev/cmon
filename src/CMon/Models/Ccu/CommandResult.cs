@@ -6,7 +6,7 @@ namespace CMon.Models.Ccu
 	{
 		public Status Status { get; set; }
 
-		public StatusCode Code { get; set; }
+		// public StatusCode Code { get; set; }
 
 		public HttpStatusCode HttpStatusCode { get; set; }
 	}
