@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using CMon.Entities;
+using CMon.Models;
 using LinqToDB;
+using Newtonsoft.Json;
 
 namespace CMon.Services
 {
@@ -14,7 +16,9 @@ namespace CMon.Services
 
 		// IList<DbInput> GetInputs(long deviceId);
 
-		void SaveToDb(long deviceId, short input, decimal value);
+		void SaveInputValue(long deviceId, short input, decimal value);
+
+		IEnumerable<DeviceEvent> SaveEvents(long deviceId, IEnumerable<DeviceEvent> events);
 	}
 
 	public class DefaultDeviceRepository : IDeviceRepository
@@ -50,7 +54,7 @@ namespace CMon.Services
 			}
 		}*/
 
-		public void SaveToDb(long deviceId, short input, decimal value)
+		public void SaveInputValue(long deviceId, short input, decimal value)
 		{
 			using (var db = _connectionFactory.GetConection())
 			{
@@ -61,6 +65,48 @@ namespace CMon.Services
 					Value = value,
 					CreatedAt = DateTime.UtcNow
 				});
+			}
+		}
+
+		public IEnumerable<DeviceEvent> SaveEvents(long deviceId, IEnumerable<DeviceEvent> events)
+		{
+			using (var db = _connectionFactory.GetConection())
+			{
+				var saved = new List<DeviceEvent>();
+
+				foreach (var @event in events)
+				{
+					var dbEvent = db.GetTable<DbEvent>()
+						.SingleOrDefault(x => x.DeviceId == deviceId && x.ExternalId == @event.ExternalId);
+
+					if (dbEvent == null)
+					{
+						dbEvent = new DbEvent
+						{
+							DeviceId = deviceId,
+							CreatedAt = DateTime.UtcNow,
+							EventType = @event.EventType,
+							ExternalId = @event.ExternalId,
+							// Info = JsonConvert.SerializeObject(@event.Info)
+						};
+
+						dbEvent.Id = (long) db.InsertWithIdentity(dbEvent);
+
+						// exception on insert - so update instead
+						// Npgsql.PostgresException: 42804: column "info" is of type json but expression is of type text
+
+						db.GetTable<DbEvent>()
+							.Where(x => x.Id == dbEvent.Id)
+							.Set(x => x.Info, JsonConvert.SerializeObject(@event.Info))
+							.Update();
+
+						@event.Id = dbEvent.Id;
+
+						saved.Add(@event);
+					}
+				}
+
+				return saved;
 			}
 		}
 	}

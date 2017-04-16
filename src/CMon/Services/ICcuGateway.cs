@@ -34,6 +34,8 @@ namespace CMon.Services
 		Task<DeviceInfo> GetDeviceInfo(Auth auth);
 
 		Task<StateAndEventsResult> GetStateAndEvents(Auth auth);
+
+		Task<AckEventsResult> AckEvents(Auth auth, long[] ids);
 	}
 
 	public class CcuGateway : ICcuGateway
@@ -105,6 +107,11 @@ namespace CMon.Services
 		public async Task<StateAndEventsResult> GetStateAndEvents(Auth auth)
 		{
 			return await Get<StateAndEventsResult>(auth, GetCmdUrl(new { Command = "GetStateAndEvents" }));
+		}
+
+		public async Task<AckEventsResult> AckEvents(Auth auth, long[] ids)
+		{
+			return await Get<AckEventsResult>(auth, GetCmdUrl(new { Command = "AckEvents", IDs = ids }));
 		}
 
 		private async Task<TResult> Get<TResult>(Auth auth, string url) where TResult : CommandResult, new()

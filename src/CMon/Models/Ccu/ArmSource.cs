@@ -5,7 +5,7 @@ namespace CMon.Models.Ccu
 	/// </summary>
 	public class ArmSource
 	{
-		public ArmSourceType Type { get; set; }
+		public string Type { get; set; }
 
 		// Дополнительные параметры для источника изменения режима охраны TouchMemory
 

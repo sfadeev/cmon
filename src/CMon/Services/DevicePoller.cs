@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using CMon.Models;
@@ -77,32 +79,69 @@ namespace CMon.Services
 			var device = await _mediator.Send(
 				new GetDevice { DeviceId = deviceId, WithAuth = true });
 
-			var stateAndEvents = _gateway.GetStateAndEvents(device.Auth);
+			var stateAndEvents = await _gateway.GetStateAndEvents(device.Auth);
 
-			var t = (decimal) stateAndEvents.Result.Temp;
-
-			_repository.SaveToDb(device.Id, BoardTemp, t);
-
-			var message = $"[{device.Id}] - {BoardTemp}:{t:N4}";
-
-			if (device.Config?.Inputs != null)
+			if (stateAndEvents != null && stateAndEvents.HttpStatusCode == HttpStatusCode.OK)
 			{
-				foreach (var input in device.Config.Inputs)
+				var t = (decimal) stateAndEvents.Temp;
+
+				_repository.SaveInputValue(device.Id, BoardTemp, t);
+
+				var message = $"[{device.Id}] - {BoardTemp}:{t:N4}";
+
+				if (device.Config?.Inputs != null)
 				{
-					if (input.Type == InputType.Rtd02 || input.Type == InputType.Rtd03)
+					foreach (var input in device.Config.Inputs)
 					{
-						t = GetInputTemperature(stateAndEvents.Result.Inputs[input.InputNo - 1].Voltage);
+						if (input.Type == InputType.Rtd02 || input.Type == InputType.Rtd03)
+						{
+							t = GetInputTemperature(stateAndEvents.Inputs[input.InputNo - 1].Voltage);
 
-						_repository.SaveToDb(device.Id, input.InputNo, t);
+							_repository.SaveInputValue(device.Id, input.InputNo, t);
 
-						message += $" - {input.InputNo}:{t:N4}";
+							message += $" - {input.InputNo}:{t:N4}";
+						}
 					}
 				}
+
+				if (stateAndEvents.Events != null)
+				{
+					var events = new List<DeviceEvent>();
+
+					foreach (var @event in stateAndEvents.Events)
+					{
+						events.Add(new DeviceEvent
+						{
+							EventType = @event.Type,
+							ExternalId = @event.Id,
+							Info = new DeviceEventInformation
+							{
+								Number = @event.Number,
+								Partitions = @event.Partitions,
+								Partition = @event.Partition,
+								Source = @event.Source,
+								UserName = @event.UserName,
+								ErrorCode = @event.ErrorCode
+							}
+						});
+					}
+
+					var saved = _repository.SaveEvents(device.Id, events);
+
+					var savedIds = saved
+						.Select(x => x.ExternalId)
+						.Where(x => x.HasValue)
+						.Cast<long>()
+						.ToArray();
+
+					if (savedIds.Length > 0)
+					{
+						await _gateway.AckEvents(device.Auth, savedIds);
+					}
+				}
+
+				_logger.LogInformation(message);
 			}
-
-			// todo: write messages to operations log
-
-			_logger.LogInformation(message);
 		}
 
 		private static decimal GetInputTemperature(long discrete)

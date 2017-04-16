@@ -1,11 +1,9 @@
-namespace CMon.Models.Ccu
+using CMon.Models.Ccu;
+
+namespace CMon.Models
 {
-	public class Event
+	public class DeviceEventInformation
 	{
-		public long Id { get; set; }
-
-		public string Type { get; set; }
-
 		// ƒополнительные параметры дл€ событий InputActive и InputPassive
 		// ƒополнительные параметры дл€ событи€ ProfileApplied
 
@@ -16,7 +14,7 @@ namespace CMon.Models.Ccu
 		// ƒополнительные параметры дл€ событий Arm, Disarm, Protect
 
 		public int? Partition { get; set; }
-		
+
 		public ArmSource Source { get; set; }
 
 		// ƒополнительные параметры дл€ источников изменени€ режима охраны uGuardNet и Shell
