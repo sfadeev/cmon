@@ -4,6 +4,7 @@ using CMon.Models;
 using CMon.Models.Ccu;
 using CMon.Requests;
 using MediatR;
+using Newtonsoft.Json;
 
 namespace CMon.Services.RequestHandlers
 {
@@ -20,12 +21,17 @@ namespace CMon.Services.RequestHandlers
 		{
 			using (var db = _connectionFactory.GetConection())
 			{
-				var dbDevice = (
-						from cu in db.GetTable<DbContractUser>()
-						join d in db.GetTable<DbDevice>() on cu.ContractId equals d.ContractId
-						where cu.UserName == query.UserName && d.Id == query.DeviceId
-						select d)
-					.SingleOrDefault();
+				// todo: check usage without UserName, check privileges before call
+				var queriable = query.UserName == null
+					? from d in db.GetTable<DbDevice>()
+					where d.Id == query.DeviceId
+					select d
+					: from cu in db.GetTable<DbContractUser>()
+					join d in db.GetTable<DbDevice>() on cu.ContractId equals d.ContractId
+					where cu.UserName == query.UserName && d.Id == query.DeviceId
+					select d;
+
+				var dbDevice = queriable.SingleOrDefault();
 
 				if (dbDevice != null)
 				{
@@ -37,6 +43,12 @@ namespace CMon.Services.RequestHandlers
 						Hash = dbDevice.Hash
 					};
 
+					if (dbDevice.Config != null)
+					{
+						device.Config = JsonConvert.DeserializeObject<DeviceConfig>(dbDevice.Config);
+					}
+
+					// todo: create method GetAuth 
 					if (query.WithAuth)
 					{
 						device.Auth = new Auth

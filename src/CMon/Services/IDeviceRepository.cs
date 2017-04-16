@@ -10,9 +10,9 @@ namespace CMon.Services
 	{
 		IList<DbDevice> GetDevices();
 
-		DbDevice GetDevice(long deviceId);
+		// DbDevice GetDevice(long deviceId);
 
-		IList<DbInput> GetInputs(long deviceId);
+		// IList<DbInput> GetInputs(long deviceId);
 
 		void SaveToDb(long deviceId, short input, decimal value);
 	}
@@ -34,21 +34,21 @@ namespace CMon.Services
 			}
 		}
 
-		public DbDevice GetDevice(long deviceId)
+		/*public DbDevice GetDevice(long deviceId)
 		{
 			using (var db = _connectionFactory.GetConection())
 			{
 				return db.GetTable<DbDevice>().SingleOrDefault(x => x.Id == deviceId);
 			}
-		}
+		}*/
 
-		public IList<DbInput> GetInputs(long deviceId)
+		/*public IList<DbInput> GetInputs(long deviceId)
 		{
 			using (var db = _connectionFactory.GetConection())
 			{
 				return db.GetTable<DbInput>().Where(x => x.DeviceId == deviceId).ToList();
 			}
-		}
+		}*/
 
 		public void SaveToDb(long deviceId, short input, decimal value)
 		{

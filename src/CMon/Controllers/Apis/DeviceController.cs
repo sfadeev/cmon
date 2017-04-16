@@ -30,11 +30,17 @@ namespace CMon.Controllers.Apis
 
 		// GET: api/device/values
 		[HttpGet("values")]
-		public DeviceStatistic GetValues(long deviceId, string from, string to)
+		public async Task<DeviceStatistic> GetValues(long deviceId, string from, string to)
 		{
-			var request = new InputValueRequest { DeviceId = deviceId, BeginDate = from, EndDate = to };
+			var request = new InputValueRequest
+			{
+				DeviceId = deviceId,
+				UserName = _identityProvider.GetUserName(),
+				BeginDate = from,
+				EndDate = to
+			};
 
-			return _valueProvider.GetValues(request);
+			return await _valueProvider.GetValues(request);
 		}
 
 		[HttpPost("refresh")]

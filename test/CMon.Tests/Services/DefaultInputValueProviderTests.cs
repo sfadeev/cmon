@@ -33,7 +33,7 @@ namespace CMon.Tests.Services
 		public void Test1()
 		{
 			var connectionFactory = new DefaultDbConnectionFactory<DbContext, DbConnection>();
-			var provider = new DefaultInputValueProvider(connectionFactory);
+			var provider = new DefaultInputValueProvider(null, connectionFactory);
 
 			// act
 			var stats = provider.GetValues(new InputValueRequest

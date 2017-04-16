@@ -1,15 +1,13 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using CMon.Entities;
+using CMon.Models;
+using CMon.Requests;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json.Linq;
 
 namespace CMon.Services
 {
@@ -18,6 +16,7 @@ namespace CMon.Services
 		public const short BoardTemp = 0xFF;
 
 		private readonly ILogger<DevicePoller> _logger;
+		private readonly IMediator _mediator;
 		private readonly IServiceProvider _services;
 		private readonly ICcuGateway _gateway;
 		private readonly IDeviceRepository _repository;
@@ -25,9 +24,11 @@ namespace CMon.Services
 		private readonly ConcurrentDictionary<long, IDeviceManager> _deviceManagers = new ConcurrentDictionary<long, IDeviceManager>();
 		private readonly ConcurrentDictionary<long, Timer> _timers = new ConcurrentDictionary<long, Timer>();
 
-		public DevicePoller(ILogger<DevicePoller> logger, IServiceProvider services, ICcuGateway gateway, IDeviceRepository repository)
+		public DevicePoller(ILogger<DevicePoller> logger,
+			IMediator mediator, IServiceProvider services, ICcuGateway gateway, IDeviceRepository repository)
 		{
 			_logger = logger;
+			_mediator = mediator;
 			_services = services;
 			_gateway = gateway;
 			_repository = repository;
@@ -73,91 +74,42 @@ namespace CMon.Services
 
 		public async Task PollAsync(long deviceId)
 		{
-			var device = _repository.GetDevice(deviceId);
+			var device = await _mediator.Send(
+				new GetDevice { DeviceId = deviceId, WithAuth = true });
 
-			/*var auth = new Auth { Imei = device.Imei, Username = device.Username, Password = device.Password };
+			var stateAndEvents = _gateway.GetStateAndEvents(device.Auth);
 
-			var stateAndEvents = _gateway.GetStateAndEvents(auth);*/
+			var t = (decimal) stateAndEvents.Result.Temp;
 
-			var inputs = _repository.GetInputs(deviceId);
+			_repository.SaveToDb(device.Id, BoardTemp, t);
 
-			var url = "https://ccu.sh/data.cgx?cmd={\"Command\":\"GetStateAndEvents\"}";
+			var message = $"[{device.Id}] - {BoardTemp}:{t:N4}";
 
-			var json = await Get(device, url);
-
-			if (json != null)
+			if (device.Config?.Inputs != null)
 			{
-				var jo = JObject.Parse(json);
-
-				// if (jo.SelectToken("Events")?.HasValues == true)
-				if (/*device.Id == 1 &&*/ json.Length >= 609)
+				foreach (var input in device.Config.Inputs)
 				{
-					_logger.LogInformation(url + "\n" + json);
-
-					// File.WriteAllText("c:\\temp\\ccu\\" + DateTime.Now.ToString("yyyy-MM-dd-HH-mm-ss") + "-GetStateAndEvents.json", json);
-				}
-
-				var t = GetBoardTemperature(jo);
-				_repository.SaveToDb(device.Id, BoardTemp, t);
-
-				var message = $"[{device.Id}] - {BoardTemp}:{t:N4}";
-
-				foreach (var input in inputs)
-				{
-					t = GetInputTemperature(jo, input.InputNo - 1);
-					_repository.SaveToDb(device.Id, input.InputNo, t);
-
-					message += $" - {input.InputNo}:{t:N4}";
-				}
-
-				_logger.LogInformation(message);
-			}
-		}
-
-		private async Task<string> Get(DbDevice device, string url)
-		{
-			using (var client = new HttpClient())
-			{
-				try
-				{
-					var auth = $"{device.Username}@{device.Imei}:{device.Password}";
-					var authBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(auth));
-
-					client.DefaultRequestHeaders.Add("Authorization", "Basic " + authBase64);
-
-					var response = await client.GetAsync(url);
-
-					// response.EnsureSuccessStatusCode();
-
-					if (response.StatusCode != HttpStatusCode.OK)
+					if (input.Type == InputType.Rtd02 || input.Type == InputType.Rtd03)
 					{
-						_logger.LogError("[{0}] - {1} {2} - {3}", device.Id, (int)response.StatusCode, response.StatusCode, response.ReasonPhrase);
-						return null;
-					}
+						t = GetInputTemperature(stateAndEvents.Result.Inputs[input.InputNo - 1].Voltage);
 
-					return await response.Content.ReadAsStringAsync();
-				}
-				catch (HttpRequestException ex)
-				{
-					_logger.LogError(0, ex, "Get(url) exception");
+						_repository.SaveToDb(device.Id, input.InputNo, t);
+
+						message += $" - {input.InputNo}:{t:N4}";
+					}
 				}
 			}
 
-			return null;
+			// todo: write messages to operations log
+
+			_logger.LogInformation(message);
 		}
 
-		private static decimal GetInputTemperature(JObject jo, int input)
+		private static decimal GetInputTemperature(long discrete)
 		{
-			var discrete = jo.SelectToken($"Inputs[{input}].Voltage").Value<long>();
 			var voltage = discrete * 10M / 4095;
+
 			var temp = (voltage / 5M - 0.5M) / 0.01M;
-
-			return temp;
-		}
-
-		private static decimal GetBoardTemperature(JObject jo)
-		{
-			var temp = jo.SelectToken("Temp").Value<long>();
 
 			return temp;
 		}

@@ -1,15 +1,18 @@
 ﻿using System;
 using System.Linq;
+using System.Threading.Tasks;
 using CMon.Entities;
 using CMon.Models;
+using CMon.Requests;
 using DaleNewman;
 using LinqToDB;
+using MediatR;
 
 namespace CMon.Services
 {
 	public interface IInputValueProvider
     {
-		DeviceStatistic GetValues(InputValueRequest request);
+	    Task<DeviceStatistic> GetValues(InputValueRequest request);
     }
 
 	public class InputValueOptions
@@ -25,6 +28,8 @@ namespace CMon.Services
 
 	public class InputValueRequest
 	{
+		public string UserName { get; set; }
+
 		public long DeviceId { get; set; }
 
 		public string BeginDate { get; set; }
@@ -34,14 +39,16 @@ namespace CMon.Services
 
 	public class DefaultInputValueProvider : IInputValueProvider
 	{
+		private readonly IMediator _mediator;
 		private readonly IDbConnectionFactory _connectionFactory;
 
-		public DefaultInputValueProvider(IDbConnectionFactory connectionFactory)
+		public DefaultInputValueProvider(IMediator mediator, IDbConnectionFactory connectionFactory)
 		{
+			_mediator = mediator;
 			_connectionFactory = connectionFactory;
 		}
 
-		public DeviceStatistic GetValues(InputValueRequest request)
+		public async Task<DeviceStatistic> GetValues(InputValueRequest request)
 		{
 			var options = new InputValueOptions();
 
@@ -53,9 +60,11 @@ namespace CMon.Services
 			groupByMinutes = Math.Max(Math.Min(
 					groupByMinutes, options.MaxGroupByMinutes), options.MinGroupByMinutes);
 
+			var device = await _mediator.Send(new GetDevice { DeviceId = request.DeviceId, UserName = request.UserName });
+
 			using (var db = _connectionFactory.GetConection())
 			{
-				var dbInput = db.GetTable<DbInput>().Where(x => x.DeviceId == request.DeviceId).ToList();
+				// var dbInput = db.GetTable<DbInput>().Where(x => x.DeviceId == request.DeviceId).ToList();
 
 				var table = db.GetTable<DbInputValue>();
 
@@ -116,7 +125,7 @@ namespace CMon.Services
 					.Select(i => new InputStatistic
 					{
 						InputNo = i.Key,
-						Name = dbInput.FirstOrDefault(x => x.InputNo == i.Key)?.Name ?? "CCUxxx",
+						Name = device.Config?.Inputs?.FirstOrDefault(x => x.InputNo == i.Key)?.Name ?? device.Name,
 						Values = i.Select(x =>
 							new InputPeriodValue
 							{
