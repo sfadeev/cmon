@@ -33,7 +33,7 @@ namespace CMon.Services
 
 		Task<DeviceInfo> GetDeviceInfo(Auth auth);
 
-		Task<StateAndEvents> GetStateAndEvents(Auth auth);
+		Task<StateAndEventsResult> GetStateAndEvents(Auth auth);
 	}
 
 	public class CcuGateway : ICcuGateway
@@ -102,9 +102,9 @@ namespace CMon.Services
 			return await Get<DeviceInfo>(auth, GetCmdUrl(new { Command = "GetDeviceInfo" }));
 		}
 
-		public async Task<StateAndEvents> GetStateAndEvents(Auth auth)
+		public async Task<StateAndEventsResult> GetStateAndEvents(Auth auth)
 		{
-			return await Get<StateAndEvents>(auth, GetCmdUrl(new { Command = "GetStateAndEvents" }));
+			return await Get<StateAndEventsResult>(auth, GetCmdUrl(new { Command = "GetStateAndEvents" }));
 		}
 
 		private async Task<TResult> Get<TResult>(Auth auth, string url) where TResult : CommandResult, new()

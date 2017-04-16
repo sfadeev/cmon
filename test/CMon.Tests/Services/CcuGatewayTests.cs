@@ -249,7 +249,7 @@ namespace CMon.Tests.Services
 
 			// assert
 			Assert.Equal(HttpStatusCode.OK, result.HttpStatusCode);
-			Assert.Null(result.Status);
+			Assert.Equal(StatusCode.Ok, result.Status.Code);
 		}
 	}
 }

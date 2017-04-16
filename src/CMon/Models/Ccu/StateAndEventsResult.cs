@@ -1,6 +1,6 @@
-namespace CMon.Models.Ccu
+﻿namespace CMon.Models.Ccu
 {
-	public class StateAndEvents : CommandResult
+	public class StateAndEventsResult : CommandResult
 	{
 		public Input[] Inputs { get; set; }
 
@@ -17,5 +17,7 @@ namespace CMon.Models.Ccu
 		public long Temp { get; set; }
 
 		public float Balance { get; set; }
+
+		public Event[] Events { get; set; }
 	}
 }
