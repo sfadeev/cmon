@@ -76,8 +76,12 @@ namespace CMon.Services
 
 				foreach (var @event in events)
 				{
+					var lastDay = DateTime.UtcNow.Subtract(TimeSpan.FromDays(1));
+
 					var dbEvent = db.GetTable<DbEvent>()
-						.SingleOrDefault(x => x.DeviceId == deviceId && x.ExternalId == @event.ExternalId);
+						.SingleOrDefault(x => x.DeviceId == deviceId &&
+											x.ExternalId == @event.ExternalId &&
+											x.CreatedAt > lastDay); // within last day
 
 					if (dbEvent == null)
 					{

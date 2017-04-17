@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using CMon.Entities;
 using CMon.Models;
@@ -20,27 +21,34 @@ namespace CMon.Services
 		string GetStatus();
 
 		Task Refresh(RefreshDevice command);
+
+		Task PollAsync(long deviceId);
 	}
 
 	public class CcuDeviceManager : IDeviceManager
 	{
+		public const short BoardTemp = 0xFF;
+
 		private long _deviceId;
 		private string _status = string.Empty;
 
 		private readonly IMediator _mediator;
 		private readonly IDbConnectionFactory _connectionFactory;
+		private readonly IDeviceRepository _repository;
 		private readonly ILogger<CcuDeviceManager> _logger;
 		private readonly ICcuGateway _gateway;
 		private readonly Sha1Hasher _hasher;
 
 		public CcuDeviceManager(ILogger<CcuDeviceManager> logger,
-			IMediator mediator, ICcuGateway gateway, Sha1Hasher hasher, IDbConnectionFactory connectionFactory)
+			IMediator mediator, ICcuGateway gateway, Sha1Hasher hasher,
+			IDbConnectionFactory connectionFactory, IDeviceRepository repository)
 		{
 			_logger = logger;
 			_mediator = mediator;
 			_gateway = gateway;
 			_hasher = hasher;
 			_connectionFactory = connectionFactory;
+			_repository = repository;
 		}
 
 		public void Configure(long deviceId)
@@ -175,6 +183,86 @@ namespace CMon.Services
 			}
 
 			return result;
+		}
+
+		public async Task PollAsync(long deviceId)
+		{
+			var device = await _mediator.Send(
+				new GetDevice { DeviceId = deviceId, WithAuth = true });
+
+			var stateAndEvents = await _gateway.GetStateAndEvents(device.Auth);
+
+			// todo: check 429 (Too Many Requests)
+			if (stateAndEvents != null && stateAndEvents.HttpStatusCode == HttpStatusCode.OK)
+			{
+				var t = (decimal)stateAndEvents.Temp;
+
+				_repository.SaveInputValue(device.Id, BoardTemp, t);
+
+				var message = $"[{device.Id}] - {BoardTemp}:{t:N4}";
+
+				if (device.Config?.Inputs != null)
+				{
+					foreach (var input in device.Config.Inputs)
+					{
+						if (input.Type == InputType.Rtd02 || input.Type == InputType.Rtd03)
+						{
+							t = GetInputTemperature(stateAndEvents.Inputs[input.InputNo - 1].Voltage);
+
+							_repository.SaveInputValue(device.Id, input.InputNo, t);
+
+							message += $" - {input.InputNo}:{t:N4}";
+						}
+					}
+				}
+
+				if (stateAndEvents.Events != null)
+				{
+					var events = new List<DeviceEvent>();
+
+					foreach (var @event in stateAndEvents.Events)
+					{
+						events.Add(new DeviceEvent
+						{
+							EventType = @event.Type,
+							ExternalId = @event.Id,
+							Info = new DeviceEventInformation
+							{
+								Number = @event.Number,
+								Partitions = @event.Partitions,
+								Partition = @event.Partition,
+								Source = @event.Source,
+								UserName = @event.UserName,
+								ErrorCode = @event.ErrorCode
+							}
+						});
+					}
+
+					var saved = _repository.SaveEvents(device.Id, events);
+
+					var savedIds = saved
+						.Select(x => x.ExternalId)
+						.Where(x => x.HasValue)
+						.Cast<long>()
+						.ToArray();
+
+					if (savedIds.Length > 0)
+					{
+						await _gateway.AckEvents(device.Auth, savedIds);
+					}
+				}
+
+				_logger.LogInformation(message);
+			}
+		}
+
+		private static decimal GetInputTemperature(long discrete)
+		{
+			var voltage = discrete * 10M / 4095;
+
+			var temp = (voltage / 5M - 0.5M) / 0.01M;
+
+			return temp;
 		}
 	}
 }

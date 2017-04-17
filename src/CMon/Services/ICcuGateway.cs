@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Net;
-using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using CMon.Models.Ccu;
@@ -43,10 +42,12 @@ namespace CMon.Services
 		private const string BaseUrl = "https://ccu.sh/data.cgx";
 
 		private readonly ILogger<CcuGateway> _logger;
+		private readonly IHttpClientFactory _httpClientFactory;
 
-		public CcuGateway(ILogger<CcuGateway> logger)
+		public CcuGateway(ILogger<CcuGateway> logger, IHttpClientFactory httpClientFactory)
 		{
 			_logger = logger;
+			_httpClientFactory = httpClientFactory;
 		}
 
 		public async Task<IndexInitialResult> GetIndexInitial(Auth auth)
@@ -118,12 +119,12 @@ namespace CMon.Services
 		{
 			try
 			{
-				using (var client = new HttpClient())
+				using (var client = _httpClientFactory.CreateClient())
 				{
 					var authStr = $"{auth.Username}@{auth.Imei}:{auth.Password}";
 					var authBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(authStr));
 
-					client.DefaultRequestHeaders.Add("Authorization", "Basic " + authBase64);
+					client.AddHeader("Authorization", "Basic " + authBase64);
 
 					_logger.LogDebug("Requesting url {0}", url);
 
@@ -135,7 +136,7 @@ namespace CMon.Services
 
 					if (response.StatusCode == HttpStatusCode.OK)
 					{
-						var content = await response.Content.ReadAsStringAsync();
+						var content = await response.ReadContentAsync();
 
 						try
 						{

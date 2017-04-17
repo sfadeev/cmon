@@ -130,6 +130,7 @@ namespace CMon
 
 			services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 			services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+			services.AddSingleton<IHttpClientFactory, DefaultHttpClientFactory>();
 
 			// Infrastructure services
 			services.AddSingleton<IBackgroundJob, HangfireBackgroundJob>();
