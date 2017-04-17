@@ -47,7 +47,7 @@ namespace CMon.Services
 					{
 						_logger.LogError(0, ex, "Error sending request for device id {deviceId}", deviceId);
 					}
-				}, deviceId, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15));
+				}, deviceId, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(25));
 			}
 		}
 

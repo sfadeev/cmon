@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
@@ -115,59 +116,66 @@ namespace CMon.Services
 			return await Get<AckEventsResult>(auth, GetCmdUrl(new { Command = "AckEvents", IDs = ids }));
 		}
 
+		private readonly ConcurrentDictionary<string, AsyncLock> _locks = new ConcurrentDictionary<string, AsyncLock>();
+
 		private async Task<TResult> Get<TResult>(Auth auth, string url) where TResult : CommandResult, new()
 		{
-			try
+			var awaiter = _locks.GetOrAdd(auth.Imei, x => new AsyncLock());
+
+			using (await awaiter.LockAsync())
 			{
-				using (var client = _httpClientFactory.CreateClient())
+				try
 				{
-					var authStr = $"{auth.Username}@{auth.Imei}:{auth.Password}";
-					var authBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(authStr));
-
-					client.AddHeader("Authorization", "Basic " + authBase64);
-
-					_logger.LogDebug("Requesting url {0}", url);
-
-					var response = await client.GetAsync(url);
-
-					TResult result;
-
-					_logger.LogDebug("Request to url {0} completed with code {1}", url, response.StatusCode);
-
-					if (response.StatusCode == HttpStatusCode.OK)
+					using (var client = _httpClientFactory.CreateClient())
 					{
-						var content = await response.ReadContentAsync();
+						var authStr = $"{auth.Username}@{auth.Imei}:{auth.Password}";
+						var authBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(authStr));
 
-						try
+						client.AddHeader("Authorization", "Basic " + authBase64);
+
+						_logger.LogDebug("Requesting url {0}", url);
+
+						var response = await client.GetAsync(url);
+
+						TResult result;
+
+						_logger.LogDebug("Request to url {0} completed with code {1}", url, response.StatusCode);
+
+						if (response.StatusCode == HttpStatusCode.OK)
 						{
-							result = JsonConvert.DeserializeObject<TResult>(content);
+							var content = await response.ReadContentAsync();
 
-							if (result.Status == null) result.Status = new Status { Code = StatusCode.Ok };
+							try
+							{
+								result = JsonConvert.DeserializeObject<TResult>(content);
 
+								if (result.Status == null) result.Status = new Status { Code = StatusCode.Ok };
+
+							}
+							catch (Exception ex)
+							{
+								_logger.LogError(0, ex, "Failed to deserialize content {0}", content);
+
+								throw;
+							}
 						}
-						catch (Exception ex)
+						else
 						{
-							_logger.LogError(0, ex, "Failed to deserialize content {0}", content);
-
-							throw;
+							result = new TResult();
 						}
-					}
-					else
-					{
-						result = new TResult();
-					}
 
-					result.HttpStatusCode = response.StatusCode;
+						result.HttpStatusCode = response.StatusCode;
 
-					return result;
+						return result;
+					}
 				}
-			}
-			catch (Exception ex)
-			{
-				_logger.LogError(0, ex, "Failed to load {0} for {1} from {2}", typeof(TResult).Name, auth?.DebuggerDisplay, url);
-			}
+				catch (Exception ex)
+				{
+					_logger.LogError(0, ex, "Failed to load {0} for {1} from {2}", typeof(TResult).Name, auth?.DebuggerDisplay, url);
+				}
 
-			return default(TResult);
+				return default(TResult);
+			}
 		}
 
 		private static string GetCmdUrl(object cmd)

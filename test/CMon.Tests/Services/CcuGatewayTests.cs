@@ -254,7 +254,7 @@ namespace CMon.Tests.Services
 		}
 
 		[Fact]
-		public async void GetStateAndEvents_2()
+		public async void GetStateAndEvents_FromFile()
 		{
 			// arrange
 			var httpResponseMock = new Mock<IHttpResponse>();
