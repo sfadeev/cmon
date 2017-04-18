@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\src\CMon\CMon.csproj" />
+    <ProjectReference Include="..\..\src\Montr.Core\Montr.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

@@ -20,8 +20,8 @@ namespace CMon.Extensions
 
 		    return new LoggerConfiguration()
 				.MinimumLevel.ControlledBy(loggingLevelSwitch)
-				.MinimumLevel.Override("System", LogEventLevel.Information)
-				.MinimumLevel.Override("Microsoft", LogEventLevel.Information)
+				.MinimumLevel.Override("System", LogEventLevel.Warning)
+				.MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
 				.WriteTo.LiterateConsole(outputTemplate: outputTemplate)
 				.WriteTo.Async(a => a.RollingFile(pathFormat, outputTemplate: outputTemplate))
 				.Enrich.FromLogContext()

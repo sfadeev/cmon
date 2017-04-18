@@ -2,8 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace CMon.Services
+namespace Montr.Core.Helpers
 {
+	// https://blogs.msdn.microsoft.com/pfxteam/2012/02/12/building-async-coordination-primitives-part-5-asyncsemaphore/
 	public class AsyncSemaphore
 	{
 		private static readonly Task _completed = Task.FromResult(true);

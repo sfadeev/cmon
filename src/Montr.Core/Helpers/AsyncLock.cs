@@ -2,8 +2,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace CMon.Services
+namespace Montr.Core.Helpers
 {
+	// https://blogs.msdn.microsoft.com/pfxteam/2012/02/12/building-async-coordination-primitives-part-6-asynclock/
 	public class AsyncLock
 	{
 		private readonly AsyncSemaphore _semaphore;
@@ -29,7 +30,10 @@ namespace CMon.Services
 		{
 			private readonly AsyncLock _toRelease;
 
-			internal Releaser(AsyncLock toRelease) { _toRelease = toRelease; }
+			internal Releaser(AsyncLock toRelease)
+			{
+				_toRelease = toRelease;
+			}
 
 			public void Dispose()
 			{

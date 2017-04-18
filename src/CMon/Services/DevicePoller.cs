@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using Microsoft.Extensions.DependencyInjection;
@@ -30,24 +31,45 @@ namespace CMon.Services
 
 		public void Start()
 		{
-			foreach (var deviceId in _repository.GetDevices().Select(x => x.Id))
+			foreach (var deviceId in _repository.GetDevices().Select(x => x.Id)/*.Where(x => x > 10)*/)
 			{
 				// todo: subscribe on events of add/remove devices
 				var deviceManager = _deviceManagers[deviceId] = _services.GetService<CcuDeviceManager>();
 
 				deviceManager.Configure(deviceId);
 
+				var timerLock = new object();
+
 				_timers[deviceId] = new Timer(state =>
 				{
+					var lockTaken = false;
+
 					try
 					{
-						deviceManager.PollAsync(deviceId).Wait();
+						lockTaken = Monitor.TryEnter(timerLock);
+						if (lockTaken)
+						{
+							try
+							{
+								deviceManager.PollAsync(deviceId).Wait();
+							}
+							catch (Exception ex)
+							{
+								_logger.LogError(0, ex, "Error sending request for device {deviceId}", deviceId);
+							}
+						}
+						else
+						{
+							_logger.LogDebug(0, "Skip polling device {deviceId} - polling already running.", deviceId);
+						}
 					}
-					catch (Exception ex)
+					finally
 					{
-						_logger.LogError(0, ex, "Error sending request for device id {deviceId}", deviceId);
+						if (lockTaken) Monitor.Exit(timerLock);
+
+						_logger.LogDebug(0, "Process threads count {count}", Process.GetCurrentProcess().Threads.Count);
 					}
-				}, deviceId, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(25));
+				}, deviceId, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15));
 			}
 		}
 

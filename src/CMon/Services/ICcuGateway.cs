@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using CMon.Models.Ccu;
 using Microsoft.Extensions.Logging;
+using Montr.Core.Helpers;
 using Newtonsoft.Json;
 
 namespace CMon.Services
@@ -133,13 +135,16 @@ namespace CMon.Services
 
 						client.AddHeader("Authorization", "Basic " + authBase64);
 
-						_logger.LogDebug("Requesting url {0}", url);
+						_logger.LogDebug("{0} - requesting {1}", auth.DebuggerDisplay, typeof(TResult).Name);
+
+						var stopwatch = new Stopwatch();
+						stopwatch.Start();
 
 						var response = await client.GetAsync(url);
 
 						TResult result;
 
-						_logger.LogDebug("Request to url {0} completed with code {1}", url, response.StatusCode);
+						_logger.LogDebug("{0} - request {1} completed with code {2}, elapsed {3}", auth.DebuggerDisplay, typeof(TResult).Name, response.StatusCode, stopwatch.Elapsed);
 
 						if (response.StatusCode == HttpStatusCode.OK)
 						{
@@ -150,11 +155,10 @@ namespace CMon.Services
 								result = JsonConvert.DeserializeObject<TResult>(content);
 
 								if (result.Status == null) result.Status = new Status { Code = StatusCode.Ok };
-
 							}
 							catch (Exception ex)
 							{
-								_logger.LogError(0, ex, "Failed to deserialize content {0}", content);
+								_logger.LogError(0, ex, "{0} - failed to deserialize {1} content: \n {2}", auth.DebuggerDisplay, typeof(TResult).Name, content);
 
 								throw;
 							}
@@ -171,7 +175,7 @@ namespace CMon.Services
 				}
 				catch (Exception ex)
 				{
-					_logger.LogError(0, ex, "Failed to load {0} for {1} from {2}", typeof(TResult).Name, auth?.DebuggerDisplay, url);
+					_logger.LogError(0, ex, "{0} - failed to load {1} for {2} from {3}", auth.DebuggerDisplay, typeof(TResult).Name, auth.DebuggerDisplay, url);
 				}
 
 				return default(TResult);

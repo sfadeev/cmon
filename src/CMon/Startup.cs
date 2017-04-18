@@ -278,7 +278,11 @@ namespace CMon
 					template: "{controller=Home}/{action=Index}/{id?}");
 			});
 
-			app.UseHangfireServer();
+			app.UseHangfireServer(new BackgroundJobServerOptions
+			{
+				WorkerCount = 5
+			});
+
 			app.UseHangfireDashboard(options: new DashboardOptions
 			{
 				Authorization = new IDashboardAuthorizationFilter[]
