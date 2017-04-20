@@ -70,6 +70,7 @@ namespace CMon
 			// configure options
 			services.Configure<GoogleOptions>(Configuration.GetSection("Authentication").GetSection(GoogleDefaults.AuthenticationScheme));
 
+			services.Configure<DeviceOptions>(Configuration.GetSection("DeviceOptions"));
 			services.Configure<EmailSenderOptions>(Configuration.GetSection("EmailSender"));
 
 			services.Configure<RequestLocalizationOptions>(options =>
@@ -142,10 +143,11 @@ namespace CMon
 			services.AddTransient<ISmsSender, DefaultSmsSender>();
 
 			// todo: register by device type
+			services.AddSingleton<IDeviceManagerFactory, DefaultDeviceManagerFactory>();
 			services.AddTransient<CcuDeviceManager, CcuDeviceManager>();
 			
 			// Application services
-			services.AddSingleton<IStartable, DevicePoller>();
+			services.AddSingleton<IStartable, DevicePollingStarter>();
 			services.AddSingleton<IIdentityProvider, ClaimsIdentityProvider>();
 
             services.AddSingleton<Sha1Hasher, Sha1Hasher>();

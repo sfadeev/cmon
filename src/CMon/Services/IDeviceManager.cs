@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
 using CMon.Entities;
 using CMon.Models;
@@ -10,6 +11,7 @@ using CMon.Requests;
 using LinqToDB;
 using MediatR;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace CMon.Services
@@ -22,7 +24,16 @@ namespace CMon.Services
 
 		Task Refresh(RefreshDevice command);
 
-		Task PollAsync(long deviceId);
+		void StartPolling();
+
+		void StopPolling();
+	}
+
+	public class DeviceOptions
+	{
+		public bool PollingEnabled { get; set; }
+
+		public int PollingIntervalSeconds { get; set; }
 	}
 
 	public class CcuDeviceManager : IDeviceManager
@@ -36,14 +47,16 @@ namespace CMon.Services
 		private readonly IDbConnectionFactory _connectionFactory;
 		private readonly IDeviceRepository _repository;
 		private readonly ILogger<CcuDeviceManager> _logger;
+		private readonly IOptions<DeviceOptions> _options;
 		private readonly ICcuGateway _gateway;
 		private readonly Sha1Hasher _hasher;
 
-		public CcuDeviceManager(ILogger<CcuDeviceManager> logger,
+		public CcuDeviceManager(ILogger<CcuDeviceManager> logger, IOptions<DeviceOptions> options,
 			IMediator mediator, ICcuGateway gateway, Sha1Hasher hasher,
 			IDbConnectionFactory connectionFactory, IDeviceRepository repository)
 		{
 			_logger = logger;
+			_options = options;
 			_mediator = mediator;
 			_gateway = gateway;
 			_hasher = hasher;
@@ -104,6 +117,55 @@ namespace CMon.Services
 				{
 					_logger.LogDebug("Device {0} configuration is not changed.", device.Id);
 				}
+			}
+		}
+
+		private readonly object _timerLock = new object ();
+
+		private Timer _timer;
+
+		public void StartPolling()
+		{
+			if (_options.Value.PollingEnabled)
+			{
+				_timer = new Timer(state =>
+				{
+					var lockTaken = false;
+
+					try
+					{
+						lockTaken = Monitor.TryEnter(_timerLock);
+
+						if (lockTaken)
+						{
+							try
+							{
+								PollAsync(_deviceId).Wait();
+							}
+							catch (Exception ex)
+							{
+								_logger.LogError(0, ex, "Error sending request for device {deviceId}", _deviceId);
+							}
+						}
+						else
+						{
+							_logger.LogDebug(0, "Skip polling device {deviceId} - polling already running.", _deviceId);
+						}
+					}
+					finally
+					{
+						if (lockTaken) Monitor.Exit(_timerLock);
+					}
+				}, _deviceId, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(_options.Value.PollingIntervalSeconds));
+			}
+		}
+
+		public void StopPolling()
+		{
+			if (_timer != null)
+			{
+				_timer.Dispose();
+				_timer = null;
 			}
 		}
 
