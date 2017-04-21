@@ -83,39 +83,42 @@ namespace CMon.Services
 			{
 				var config = await GetConfig(device.Auth);
 
-				var hash = _hasher.Compute(config);
-
-				if (device.Hash == null || device.Hash.SequenceEqual(hash) == false)
+				if (config != null)
 				{
-					_logger.LogDebug(
-						device.Hash == null
-							? "Initial device {0} configuration insert."
-							: "Updating device {0} configuration.", device.Id);
+					var hash = _hasher.Compute(config);
 
-					var now = DateTime.UtcNow;
-
-					using (var db = _connectionFactory.GetConection())
+					if (device.Hash == null || device.Hash.SequenceEqual(hash) == false)
 					{
-						using (var transaction = db.BeginTransaction())
+						_logger.LogDebug(
+							device.Hash == null
+								? "Initial device {0} configuration insert."
+								: "Updating device {0} configuration.", device.Id);
+
+						var now = DateTime.UtcNow;
+
+						using (var db = _connectionFactory.GetConection())
 						{
-							// update device
-							db.GetTable<DbDevice>()
-								.Where(x => x.Id == device.Id)
-								.Set(x => x.Config, JsonConvert.SerializeObject(config))
-								.Set(x => x.Hash, hash)
-								.Set(x => x.ModifiedAt, now)
-								.Set(x => x.ModifiedBy, command.UserName)
-								.Update();
+							using (var transaction = db.BeginTransaction())
+							{
+								// update device
+								db.GetTable<DbDevice>()
+									.Where(x => x.Id == device.Id)
+									.Set(x => x.Config, JsonConvert.SerializeObject(config))
+									.Set(x => x.Hash, hash)
+									.Set(x => x.ModifiedAt, now)
+									.Set(x => x.ModifiedBy, command.UserName)
+									.Update();
 
-							// todo: add operations log
+								// todo: add operations log
 
-							transaction.Commit();
+								transaction.Commit();
+							}
 						}
 					}
-				}
-				else
-				{
-					_logger.LogDebug("Device {0} configuration is not changed.", device.Id);
+					else
+					{
+						_logger.LogDebug("Device {0} configuration is not changed.", device.Id);
+					}
 				}
 			}
 		}
@@ -233,6 +236,8 @@ namespace CMon.Services
 					result.Inputs = inputs.ToArray();
 
 					_status = string.Empty;
+
+					return result;
 				}
 				else
 				{
@@ -242,9 +247,10 @@ namespace CMon.Services
 			catch (Exception ex)
 			{
 				_status = ex.Message;
+
 			}
 
-			return result;
+			return null;
 		}
 
 		public async Task PollAsync(long deviceId)

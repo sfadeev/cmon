@@ -18,6 +18,8 @@ namespace CMon.Services
 
 		void SaveInputValue(long deviceId, short input, decimal value);
 
+		IList<DeviceEvent> LoadEvents(long deviceId, DateTime beginDate, DateTime endDate);
+
 		IEnumerable<DeviceEvent> SaveEvents(long deviceId, IEnumerable<DeviceEvent> events);
 	}
 
@@ -65,6 +67,35 @@ namespace CMon.Services
 					Value = value,
 					CreatedAt = DateTime.UtcNow
 				});
+			}
+		}
+
+		public IList<DeviceEvent> LoadEvents(long deviceId, DateTime beginDate, DateTime endDate)
+		{
+			using (var db = _connectionFactory.GetConection())
+			{
+				var result = new List<DeviceEvent>();
+
+				var events = db.GetTable<DbEvent>()
+					.Where(x => x.DeviceId == deviceId &&
+								x.CreatedAt >= beginDate &&
+								x.CreatedAt <= endDate);
+
+				foreach (var dbEvent in events)
+				{
+					result.Add(new DeviceEvent
+					{
+						Id = dbEvent.Id,
+						EventType = dbEvent.EventType,
+						ExternalId = dbEvent.ExternalId,
+						CreatedAt = dbEvent.CreatedAt,
+						CreatedBy = dbEvent.CreatedBy,
+						Info = string.IsNullOrEmpty(dbEvent.Info)
+							? null : JsonConvert.DeserializeObject<DeviceEventInformation>(dbEvent.Info)
+					});
+				}
+
+				return result;
 			}
 		}
 

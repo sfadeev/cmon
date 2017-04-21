@@ -8,13 +8,8 @@ using DaleNewman;
 using LinqToDB;
 using MediatR;
 
-namespace CMon.Services
+namespace CMon.Services.RequestHandlers
 {
-	public interface IInputValueProvider
-    {
-	    Task<DeviceStatistic> GetValues(InputValueRequest request);
-    }
-
 	public class InputValueOptions
 	{
 		public int MaxDataPoints { get; set; }  = 500;
@@ -26,29 +21,18 @@ namespace CMon.Services
 		public int? GroupByMinutes { get; set; }
 	}
 
-	public class InputValueRequest
-	{
-		public string UserName { get; set; }
-
-		public long DeviceId { get; set; }
-
-		public string BeginDate { get; set; }
-
-		public string EndDate { get; set; }
-	}
-
-	public class DefaultInputValueProvider : IInputValueProvider
+	public class GetDeviceInputsRequestHandler : IAsyncRequestHandler<GetDeviceInputs, GetDeviceInputs.Result>
 	{
 		private readonly IMediator _mediator;
 		private readonly IDbConnectionFactory _connectionFactory;
 
-		public DefaultInputValueProvider(IMediator mediator, IDbConnectionFactory connectionFactory)
+		public GetDeviceInputsRequestHandler(IMediator mediator, IDbConnectionFactory connectionFactory)
 		{
 			_mediator = mediator;
 			_connectionFactory = connectionFactory;
 		}
 
-		public async Task<DeviceStatistic> GetValues(InputValueRequest request)
+		public async Task<GetDeviceInputs.Result> Handle(GetDeviceInputs request)
 		{
 			var options = new InputValueOptions();
 
@@ -136,7 +120,7 @@ namespace CMon.Services
 							}).ToList()
 					}).ToList();
 
-				return new DeviceStatistic
+				return new GetDeviceInputs.Result
 				{
 					BeginDate = beginDate,
 					EndDate = endDate,

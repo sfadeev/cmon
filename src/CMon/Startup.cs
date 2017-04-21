@@ -4,6 +4,7 @@ using System.Reflection;
 using CMon.Entities;
 using CMon.Extensions;
 using CMon.Services;
+using CMon.Services.RequestHandlers;
 using Hangfire;
 using Hangfire.Common;
 using Hangfire.Dashboard;
@@ -153,7 +154,6 @@ namespace CMon
             services.AddSingleton<Sha1Hasher, Sha1Hasher>();
             services.AddSingleton<ICcuGateway, CcuGateway>();
             services.AddTransient<IDeviceRepository, DefaultDeviceRepository>();
-			services.AddTransient<IInputValueProvider, DefaultInputValueProvider>();
 
 			services.AddMediatR(typeof(Startup).GetTypeInfo().Assembly);
 		}

@@ -11,6 +11,7 @@ var post = function(url, handler) {
 		.set("X-XSRF-TOKEN", xsrfToken)
 		.end(handler);
 }
+
 var requestStatus = function () {
 
 	post("/api/device/status", function(err, res) {
@@ -19,11 +20,28 @@ var requestStatus = function () {
 	});
 }
 
+var requestEvents = function (range) {
+
+	post("/api/device/events?from=" + range.from + "&to=" + range.to + "&t=" + new Date().getTime(),
+		function(err, res) {
+			console.log(res.body.items);
+			if (range.to === "now") {
+				setTimeout(function () { requestEvents(range); }, 15000);
+			}
+		});
+}
+
 $(".btn-refresh").click(function () {
 	post("/api/device/refresh");
 	return false;
 });
 
 $(function () {
-	if (deviceId) requestStatus();
+	if (deviceId) {
+		requestStatus();
+
+		$("#time-range").on("apply", function (e, range) {
+			requestEvents(range);
+		});
+	}
 });

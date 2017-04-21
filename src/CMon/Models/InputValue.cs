@@ -32,12 +32,4 @@ namespace CMon.Models
 		public IList<InputPeriodValue> Values { get; set; }
 	}
 
-	public class DeviceStatistic
-	{
-		public DateTime BeginDate { get; set; }
-
-		public DateTime EndDate { get; set; }
-
-		public IList<InputStatistic> Inputs { get; set; }
-	}
 }

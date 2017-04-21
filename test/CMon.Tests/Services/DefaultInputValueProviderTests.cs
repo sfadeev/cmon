@@ -1,6 +1,8 @@
 ﻿using System.IO;
 using CMon.Entities;
+using CMon.Requests;
 using CMon.Services;
+using CMon.Services.RequestHandlers;
 using LinqToDB.Data;
 using LinqToDB.DataProvider.PostgreSQL;
 using Microsoft.Extensions.Configuration;
@@ -30,13 +32,13 @@ namespace CMon.Tests.Services
 		}
 
 		[Fact]
-		public void Test1()
+		public async void Test1()
 		{
 			var connectionFactory = new DefaultDbConnectionFactory<DbContext, DbConnection>();
-			var provider = new DefaultInputValueProvider(null, connectionFactory);
+			var provider = new GetDeviceInputsRequestHandler(null, connectionFactory);
 
 			// act
-			var stats = provider.GetValues(new InputValueRequest
+			var stats = await provider.Handle(new GetDeviceInputs
 			{
 				DeviceId = 0,
 				BeginDate = "now-2y",
