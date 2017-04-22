@@ -78,8 +78,10 @@ namespace CMon.Services
 
 				var events = db.GetTable<DbEvent>()
 					.Where(x => x.DeviceId == deviceId &&
-								x.CreatedAt >= beginDate &&
-								x.CreatedAt <= endDate);
+								// x.CreatedAt >= beginDate &&
+								x.CreatedAt <= endDate)
+					.OrderByDescending(x => x.CreatedAt)
+					.Take(10);
 
 				foreach (var dbEvent in events)
 				{
