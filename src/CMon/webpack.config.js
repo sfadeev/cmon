@@ -1,7 +1,7 @@
-var path = require('path'),
+var path = require("path"),
     webpack = require("webpack"),
     extractText = require("extract-text-webpack-plugin"),
-    uglifyjs = require('uglifyjs-webpack-plugin');
+    uglifyjs = require("uglifyjs-webpack-plugin");
 
 const extractLess = new extractText({
     filename: "[name].css",
@@ -10,7 +10,8 @@ const extractLess = new extractText({
 
 module.exports = {
     entry: { 
-        scripts: "./assets/index.js",
+	    dashboard: "./assets/Dashboard.jsx",
+   		scripts: "./assets/index.js",
         styles: "./assets/index.less"
     },
     output: {
@@ -21,18 +22,21 @@ module.exports = {
         rules: [{
                 test: /\.less$/,
                 use: extractLess.extract({
-                    use: [{
-                        loader: "css-loader"
-                    }, {
-                        loader: "less-loader"
-                    }],
+                    use: [{ loader: "css-loader" }, { loader: "less-loader" }],
                     // use style-loader in development
                     fallback: "style-loader"
                 })
-            },
-            { test: /bootstrap\/js\//, loader: 'imports?jQuery=jquery' },
-			// Needed for the css-loader when [bootstrap-webpack](https://github.com/bline/bootstrap-webpack)
-			// loads bootstrap's css.
+			},
+	        {
+				test: /\.jsx?$/,
+				exclude: /node_modules/,
+				loader: "babel-loader",
+				options: {
+					presets: [ "es2015", "react" ]
+				}
+	        },
+            { test: /bootstrap\/js\//, loader: "imports?jQuery=jquery" },
+			// Needed for the css-loader when [bootstrap-webpack](https://github.com/bline/bootstrap-webpack) loads bootstrap's css.
 			{ test: /\.(woff|woff2)(\?.*$|$)/, loader: "url-loader?limit=10000&mimetype=application/font-woff" },
 			{ test: /\.ttf(\?.*$|$)/, loader: "file-loader" },
 			{ test: /\.eot(\?.*$|$)/, loader: "file-loader" },
@@ -50,6 +54,6 @@ module.exports = {
         extractLess
     ],
     resolve: {
-        extensions: [ '.js', '.jsx' ]
+        extensions: [ ".js", ".jsx" ]
     }
 };

@@ -40,8 +40,8 @@ $(function () {
 	if (deviceId) {
 		requestStatus();
 
-		$("#time-range").on("apply", function (e, range) {
+		/*$("#time-range").on("apply", function (e, range) {
 			requestEvents(range);
-		});
+		});*/
 	}
 });

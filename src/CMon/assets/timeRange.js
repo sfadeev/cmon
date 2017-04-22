@@ -16,6 +16,8 @@ var apply = function(range) {
 	$range
 		.collapse("hide")
 		.trigger("apply", range);
+
+	window.dispatchEvent(new CustomEvent("apply-filter", { detail: range }));
 }
 
 $form.submit(function () {
