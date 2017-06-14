@@ -1,5 +1,5 @@
-﻿var React = require("react"),
-	request = require('superagent');
+﻿import React from "react";
+import request from "superagent";
 
 class Events extends React.Component {
 	constructor(props) {
