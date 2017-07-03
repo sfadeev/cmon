@@ -4,7 +4,6 @@ using System.Reflection;
 using CMon.Entities;
 using CMon.Extensions;
 using CMon.Services;
-using CMon.Services.RequestHandlers;
 using Hangfire;
 using Hangfire.Common;
 using Hangfire.Dashboard;
@@ -148,7 +147,7 @@ namespace CMon
 			services.AddTransient<CcuDeviceManager, CcuDeviceManager>();
 			
 			// Application services
-			services.AddSingleton<IStartable, DevicePollingStarter>();
+			// services.AddSingleton<IStartable, DevicePollingStarter>();
 			services.AddSingleton<IIdentityProvider, ClaimsIdentityProvider>();
 
             services.AddSingleton<Sha1Hasher, Sha1Hasher>();

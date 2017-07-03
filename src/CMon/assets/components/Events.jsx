@@ -18,29 +18,21 @@ class Events extends React.Component {
 	}
 	render() {
 		return (
-			<div className="table-responsive">
-				<table className="table table-bordered table-condensed table-hover">
-					<thead>
-						<tr>
-							<th>createdAt</th>
-							<th>eventType</th>
-							<th>externalId</th>
-							<th>info</th>
-						</tr>
-					</thead>
-					<tbody>
-						{this.state.items.map(item => {
-							return (
-								<tr key={item.id}>
-									<td>{item.createdAt}</td>
-									<td>{item.eventType}</td>
-									<td>{item.externalId}</td>
-									<td><code>{JSON.stringify(item.info)}</code></td>
-								</tr>
-							);
-						}) }
-					</tbody>
-				</table>
+			<div>
+				{this.state.items.map(item => {
+					return (
+						<div key={item.id} className="row">
+							<div className="col-md-1">
+								{item.eventType}
+							</div>
+							<div className="col-md-11">
+								<code>{JSON.stringify(item.info)}</code>
+								<br />
+								[{item.externalId}] - {item.createdAt}
+							</div>
+						</div>
+					);
+				})}
 			</div>
 		);
 	}
