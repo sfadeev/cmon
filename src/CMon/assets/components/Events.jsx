@@ -23,12 +23,14 @@ class Events extends React.Component {
 					return (
 						<div key={item.id} className="row">
 							<div className="col-md-1">
-								{item.eventType}
+								<div class="media-left media-middle">
+									{item.eventType}
+								</div>
 							</div>
 							<div className="col-md-11">
 								<code>{JSON.stringify(item.info)}</code>
 								<br />
-								[{item.externalId}] - {item.createdAt}
+								<span className="badge">{item.externalId}</span> {item.createdAt}
 							</div>
 						</div>
 					);

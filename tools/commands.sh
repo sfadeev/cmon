@@ -44,3 +44,7 @@ chown blackish /var/log/cmon
 
 # htop - an interactive process viewer for Unix
 htop
+
+# backup postgres
+pg_dump -U postgres -h localhost cmon-prod -F tar -f 20170509-cmon-prod.backup
+tar czf 20170509-cmon-prod.backup.tar.gz 20170509-cmon-prod.backup
