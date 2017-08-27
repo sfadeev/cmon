@@ -6,7 +6,6 @@ using CMon.Entities;
 using CMon.Services;
 using CMon.ViewModels.Account;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;

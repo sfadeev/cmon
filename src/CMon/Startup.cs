@@ -13,11 +13,13 @@ using LinqToDB.DataProvider.PostgreSQL;
 using LinqToDB.Identity;
 using MediatR;
 using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
@@ -97,6 +99,18 @@ namespace CMon
 				})
 				.AddLinqToDBStores(new DefaultConnectionFactory<DbContext, DbConnection>(), typeof(long))
 				.AddDefaultTokenProviders();
+			services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+				.AddCookie(o => o.LoginPath = new PathString("/login"))
+				.AddGoogle(o =>
+				{
+					o.ClientId = Configuration["Authentication:Google:ClientId"];
+					o.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
+				})
+				/*.AddFacebook(o =>
+				{
+					o.AppId = Configuration["facebook:appid"];
+					o.AppSecret = Configuration["facebook:appsecret"];
+				})*/;
 
 			services.AddLocalization(options => options.ResourcesPath = "Resources");
 
@@ -115,7 +129,6 @@ namespace CMon
 				})
 				.AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
 				.AddDataAnnotationsLocalization();
-
 
 			// Hangfire
 			services.AddHangfire(configuration =>
@@ -257,10 +270,10 @@ namespace CMon
 
 			app.UseStaticFiles();
 
-			app.UseIdentity();
+			app.UseAuthentication();
 
-			app.UseGoogleAuthentication();
-			app.UseCookieAuthentication();
+			// app.UseGoogleAuthentication();
+			// app.UseCookieAuthentication();
 
 			app.UseMvc(routes =>
 			{

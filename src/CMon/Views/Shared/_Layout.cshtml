@@ -1,4 +1,5 @@
-﻿@using CMon.Services
+﻿@using System
+@using CMon.Services
 @using Microsoft.AspNetCore.Mvc.Localization
 
 @inject IDeviceRepository DeviceRepository
@@ -6,7 +7,7 @@
 
 @{
 	var appName = "c°mon";
-	var version = Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application.ApplicationVersion;
+	var version = System.Reflection.Assembly.GetEntryAssembly().GetName().Version;
 }
 
 <!DOCTYPE html>

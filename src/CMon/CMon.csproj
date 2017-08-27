@@ -2,12 +2,11 @@
 
   <PropertyGroup>
     <VersionPrefix>0.0.2</VersionPrefix>
-    <TargetFramework>netcoreapp1.1</TargetFramework>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
     <PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>CMon</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>CMon</PackageId>
-    <RuntimeFrameworkVersion>1.1.1</RuntimeFrameworkVersion>
     <UserSecretsId>cmon</UserSecretsId>
     <Description />
   </PropertyGroup>
@@ -32,34 +31,34 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="1.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="1.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Routing" Version="1.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="1.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="1.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="1.1.1" />
-    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="1.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="1.1.2" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="1.1.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="1.1.1" />
-    <PackageReference Include="Serilog.Extensions.Logging" Version="1.4.1-dev-10147" />
-    <PackageReference Include="MailKit" Version="1.12.0" />
+    <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="2.0.0" />
+    <PackageReference Include="Serilog.Extensions.Logging" Version="2.1.0-dev-10193" />
+    <PackageReference Include="MailKit" Version="1.18.0" />
     <PackageReference Include="DateMath" Version="1.0.0" />
-    <PackageReference Include="Serilog.Sinks.Literate" Version="2.1.0" />
-    <PackageReference Include="Serilog.Sinks.Async" Version="1.0.2-dev-00008" />
-    <PackageReference Include="Serilog.Sinks.RollingFile" Version="3.3.1-dev-00767" />
+    <PackageReference Include="Serilog.Sinks.Literate" Version="3.0.1-dev-00044" />
+    <PackageReference Include="Serilog.Sinks.Async" Version="1.2.0-dev-00018" />
+    <PackageReference Include="Serilog.Sinks.RollingFile" Version="3.3.1-dev-00771" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="3.0.0" />
-    <PackageReference Include="linq2db.Core" Version="1.7.6" />
-    <PackageReference Include="Npgsql" Version="3.2.2" />
-    <PackageReference Include="Hangfire.AspNetCore" Version="1.6.12" />
-    <PackageReference Include="Hangfire.PostgreSql" Version="1.4.7.1" />
+    <PackageReference Include="linq2db.Core" Version="1.8.3" />
+    <PackageReference Include="Npgsql" Version="3.2.5" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.6.15" />
+    <PackageReference Include="Hangfire.PostgreSql" Version="1.4.8.1" />
   </ItemGroup>
 
   <ItemGroup>
