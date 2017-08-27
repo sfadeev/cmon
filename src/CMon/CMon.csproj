@@ -3,7 +3,8 @@
   <PropertyGroup>
     <VersionPrefix>0.0.2</VersionPrefix>
     <TargetFramework>netcoreapp2.0</TargetFramework>
-    <PreserveCompilationContext>true</PreserveCompilationContext>
+		<MvcRazorCompileOnPublish>true</MvcRazorCompileOnPublish>
+		<PreserveCompilationContext>true</PreserveCompilationContext>
     <AssemblyName>CMon</AssemblyName>
     <OutputType>Exe</OutputType>
     <PackageId>CMon</PackageId>
@@ -38,6 +39,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.0" />
+		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.ViewCompilation" Version="2.0.0" PrivateAssets="All" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.0.0" />

@@ -53,14 +53,14 @@
 				<p>@Localizer["Use another service to register"]</p>
 
 				@{
-					var loginProviders = SignInManager.GetExternalAuthenticationSchemes().ToList();
+					var loginProviders = await SignInManager.GetExternalAuthenticationSchemesAsync();
 
 					<form asp-controller="Account" asp-action="ExternalLogin" asp-route-returnurl="@ViewData["ReturnUrl"]" method="post" class="form-horizontal">
 						<div>
 							<p>
 								@foreach (var provider in loginProviders)
 								{
-									<button type="submit" class="btn btn-default" name="provider" value="@provider.AuthenticationScheme">
+									<button type="submit" class="btn btn-default" name="provider" value="@provider.Name">
 										<i class="fa fa-google fa-fw" aria-hidden="true"></i>&nbsp; @provider.DisplayName
 									</button>
 								}
