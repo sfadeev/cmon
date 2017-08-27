@@ -147,7 +147,7 @@ namespace CMon
 			services.AddTransient<CcuDeviceManager, CcuDeviceManager>();
 			
 			// Application services
-			// services.AddSingleton<IStartable, DevicePollingStarter>();
+			services.AddSingleton<IStartable, DevicePollingStarter>();
 			services.AddSingleton<IIdentityProvider, ClaimsIdentityProvider>();
 
             services.AddSingleton<Sha1Hasher, Sha1Hasher>();

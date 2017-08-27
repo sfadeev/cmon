@@ -22,12 +22,12 @@ class Events extends React.Component {
 				{this.state.items.map(item => {
 					return (
 						<div key={item.id} className="row">
-							<div className="col-md-1">
-								<div class="media-left media-middle">
+							<div className="col-md-2">
+								<div className="media-left media-middle">
 									{item.eventType}
 								</div>
 							</div>
-							<div className="col-md-11">
+							<div className="col-md-10">
 								<code>{JSON.stringify(item.info)}</code>
 								<br />
 								<span className="badge">{item.externalId}</span> {item.createdAt}
