@@ -57,7 +57,7 @@
     <PackageReference Include="Serilog.Sinks.Async" Version="1.2.0-dev-00018" />
     <PackageReference Include="Serilog.Sinks.RollingFile" Version="3.3.1-dev-00771" />
     <PackageReference Include="Serilog.Enrichers.Thread" Version="3.0.0" />
-    <PackageReference Include="linq2db.Core" Version="1.8.3" />
+    <PackageReference Include="linq2db.Core" Version="1.9.0" />
     <PackageReference Include="Npgsql" Version="3.2.5" />
     <PackageReference Include="Hangfire.AspNetCore" Version="1.6.15" />
     <PackageReference Include="Hangfire.PostgreSql" Version="1.4.8.1" />

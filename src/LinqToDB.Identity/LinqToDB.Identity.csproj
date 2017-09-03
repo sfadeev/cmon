@@ -28,7 +28,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.0.0" />
-    <PackageReference Include="linq2db.Core" Version="1.8.3" />
+    <PackageReference Include="linq2db.Core" Version="1.9.0" />
   </ItemGroup>
 
 </Project>
