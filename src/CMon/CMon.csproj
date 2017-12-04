@@ -38,8 +38,10 @@
     <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.0.0-alpha2-t0051f6f5a" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.ViewCompilation" Version="2.0.0" PrivateAssets="All" />
+		<PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="2.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.UserSecrets" Version="2.0.0" />
@@ -51,7 +53,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Google" Version="2.0.0" />
     <PackageReference Include="Serilog.Extensions.Logging" Version="2.1.0-dev-10193" />
-    <PackageReference Include="MailKit" Version="1.18.0" />
+    <PackageReference Include="MailKit" Version="1.18.1.1" />
     <PackageReference Include="DateMath" Version="1.0.0" />
     <PackageReference Include="Serilog.Sinks.Literate" Version="3.0.1-dev-00044" />
     <PackageReference Include="Serilog.Sinks.Async" Version="1.2.0-dev-00018" />
@@ -59,8 +61,9 @@
     <PackageReference Include="Serilog.Enrichers.Thread" Version="3.0.0" />
     <PackageReference Include="linq2db.Core" Version="1.9.0" />
     <PackageReference Include="Npgsql" Version="3.2.5" />
-    <PackageReference Include="Hangfire.AspNetCore" Version="1.6.15" />
+    <PackageReference Include="Hangfire.AspNetCore" Version="1.6.16" />
     <PackageReference Include="Hangfire.PostgreSql" Version="1.4.8.1" />
+    <PackageReference Include="System.Threading.Tasks.Channels" Version="0.1.0-e170713-1" />
   </ItemGroup>
 
   <ItemGroup>

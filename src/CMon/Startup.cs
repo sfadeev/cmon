@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Reflection;
 using CMon.Entities;
 using CMon.Extensions;
+using CMon.Hubs;
 using CMon.Services;
 using Hangfire;
 using Hangfire.Common;
@@ -25,6 +26,7 @@ using Microsoft.AspNetCore.Mvc.DataAnnotations;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.ViewFeatures.Internal;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -130,6 +132,16 @@ namespace CMon
 				.AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
 				.AddDataAnnotationsLocalization();
 
+			services.AddSignalR();
+
+			services.AddSingleton(typeof(DefaultHubLifetimeManager<>), typeof(DefaultHubLifetimeManager<>));
+			services.AddSingleton(typeof(HubLifetimeManager<>), typeof(DefaultPresenceHublifetimeManager<>));
+			services.AddSingleton(typeof(IUserTracker<>), typeof(InMemoryUserTracker<>));
+
+			//services.AddSingleton(typeof(RedisHubLifetimeManager<>), typeof(RedisHubLifetimeManager<>));
+			//services.AddSingleton(typeof(HubLifetimeManager<>), typeof(RedisPresenceHublifetimeManager<>));
+			//services.AddSingleton(typeof(IUserTracker<>), typeof(RedisUserTracker<>));
+
 			// Hangfire
 			services.AddHangfire(configuration =>
 			{
@@ -160,7 +172,7 @@ namespace CMon
 			services.AddTransient<CcuDeviceManager, CcuDeviceManager>();
 			
 			// Application services
-			services.AddSingleton<IStartable, DevicePollingStarter>();
+			// services.AddSingleton<IStartable, DevicePollingStarter>();
 			services.AddSingleton<IIdentityProvider, ClaimsIdentityProvider>();
 
             services.AddSingleton<Sha1Hasher, Sha1Hasher>();
@@ -274,6 +286,11 @@ namespace CMon
 
 			// app.UseGoogleAuthentication();
 			// app.UseCookieAuthentication();
+
+			app.UseSignalR(routes =>
+			{
+				routes.MapHub<Chat>("chat");
+			});
 
 			app.UseMvc(routes =>
 			{
