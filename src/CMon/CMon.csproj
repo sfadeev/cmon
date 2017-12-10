@@ -38,7 +38,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Routing" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Server.IISIntegration" Version="2.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Server.Kestrel" Version="2.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.0.0-alpha2-t0051f6f5a" />
+    <PackageReference Include="Microsoft.AspNetCore.SignalR" Version="1.0.0-alpha2-final" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="2.0.0" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.ViewCompilation" Version="2.0.0" PrivateAssets="All" />
 		<PackageReference Include="Microsoft.AspNetCore.WebSockets" Version="2.0.0" />
@@ -63,7 +63,6 @@
     <PackageReference Include="Npgsql" Version="3.2.5" />
     <PackageReference Include="Hangfire.AspNetCore" Version="1.6.16" />
     <PackageReference Include="Hangfire.PostgreSql" Version="1.4.8.1" />
-    <PackageReference Include="System.Threading.Tasks.Channels" Version="0.1.0-e170713-1" />
   </ItemGroup>
 
   <ItemGroup>

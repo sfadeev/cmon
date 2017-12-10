@@ -72,47 +72,60 @@ var TextMessageFormat;
 })(TextMessageFormat = exports.TextMessageFormat || (exports.TextMessageFormat = {}));
 var BinaryMessageFormat;
 (function (BinaryMessageFormat) {
+    // The length prefix of binary messages is encoded as VarInt. Read the comment in
+    // the BinaryMessageParser.TryParseMessage for details.
     function write(output) {
-        // .byteLength does is undefined in IE10
+        // msgpack5 uses returns Buffer instead of Uint8Array on IE10 and some other browser
+        //  in which case .byteLength does will be undefined
         let size = output.byteLength || output.length;
-        let buffer = new Uint8Array(size + 8);
-        // javascript bitwise operators only support 32-bit integers
-        for (let i = 7; i >= 4; i--) {
-            buffer[i] = size & 0xff;
-            size = size >> 8;
-        }
-        buffer.set(output, 8);
+        let lenBuffer = [];
+        do {
+            let sizePart = size & 0x7f;
+            size = size >> 7;
+            if (size > 0) {
+                sizePart |= 0x80;
+            }
+            lenBuffer.push(sizePart);
+        } while (size > 0);
+        // msgpack5 uses returns Buffer instead of Uint8Array on IE10 and some other browser
+        //  in which case .byteLength does will be undefined
+        size = output.byteLength || output.length;
+        let buffer = new Uint8Array(lenBuffer.length + size);
+        buffer.set(lenBuffer, 0);
+        buffer.set(output, lenBuffer.length);
         return buffer.buffer;
     }
     BinaryMessageFormat.write = write;
     function parse(input) {
         let result = [];
         let uint8Array = new Uint8Array(input);
-        // 8 - the length prefix size
+        const maxLengthPrefixSize = 5;
+        const numBitsToShift = [0, 7, 14, 21, 28];
         for (let offset = 0; offset < input.byteLength;) {
-            if (input.byteLength < offset + 8) {
-                throw new Error("Cannot read message size");
-            }
-            // Note javascript bitwise operators only support 32-bit integers - for now cutting bigger messages.
-            // Tracking bug https://github.com/aspnet/SignalR/issues/613
-            if (!(uint8Array[offset] == 0 && uint8Array[offset + 1] == 0 && uint8Array[offset + 2] == 0
-                && uint8Array[offset + 3] == 0 && (uint8Array[offset + 4] & 0x80) == 0)) {
-                throw new Error("Messages bigger than 2147483647 bytes are not supported");
-            }
+            let numBytes = 0;
             let size = 0;
-            for (let i = 4; i < 8; i++) {
-                size = (size << 8) | uint8Array[offset + i];
+            let byteRead;
+            do {
+                byteRead = uint8Array[offset + numBytes];
+                size = size | ((byteRead & 0x7f) << (numBitsToShift[numBytes]));
+                numBytes++;
+            } while (numBytes < Math.min(maxLengthPrefixSize, input.byteLength - offset) && (byteRead & 0x80) != 0);
+            if ((byteRead & 0x80) !== 0 && numBytes < maxLengthPrefixSize) {
+                throw new Error("Cannot read message size.");
             }
-            if (uint8Array.byteLength >= (offset + 8 + size)) {
+            if (numBytes === maxLengthPrefixSize && byteRead > 7) {
+                throw new Error("Messages bigger than 2GB are not supported.");
+            }
+            if (uint8Array.byteLength >= (offset + numBytes + size)) {
                 // IE does not support .slice() so use subarray
                 result.push(uint8Array.slice
-                    ? uint8Array.slice(offset + 8, offset + 8 + size)
-                    : uint8Array.subarray(offset + 8, offset + 8 + size));
+                    ? uint8Array.slice(offset + numBytes, offset + numBytes + size)
+                    : uint8Array.subarray(offset + numBytes, offset + numBytes + size));
             }
             else {
-                throw new Error("Incomplete message");
+                throw new Error("Incomplete message.");
             }
-            offset = offset + 8 + size;
+            offset = offset + numBytes + size;
         }
         return result;
     }
@@ -290,7 +303,7 @@ class HttpConnection {
         if (url.lastIndexOf("https://", 0) === 0 || url.lastIndexOf("http://", 0) === 0) {
             return url;
         }
-        if (typeof window === 'undefined') {
+        if (typeof window === 'undefined' || !window || !window.document) {
             throw new Error(`Cannot resolve '${url}'.`);
         }
         let parser = window.document.createElement("a");
