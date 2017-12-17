@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Globalization;
 using System.Reflection;
+using CMon.Controllers;
 using CMon.Entities;
 using CMon.Extensions;
 using CMon.Hubs;
@@ -64,19 +65,20 @@ namespace CMon
 
 		public void ConfigureServices(IServiceCollection services)
 		{
-			var connectionString = Configuration["Data:DefaultConnection:ConnectionString"];
-
-			DataConnection.DefaultConfiguration = "Default";
-
-			DataConnection.AddConfiguration(
-				DataConnection.DefaultConfiguration, connectionString, new PostgreSQLDataProvider(PostgreSQLVersion.v93));
-
-			// configure options
+			// Options
 			services.Configure<GoogleOptions>(Configuration.GetSection("Authentication").GetSection(GoogleDefaults.AuthenticationScheme));
 
+			services.Configure<ConnectionStringsOptions>(Configuration.GetSection("ConnectionStrings"));
 			services.Configure<DeviceOptions>(Configuration.GetSection("DeviceOptions"));
 			services.Configure<EmailSenderOptions>(Configuration.GetSection("EmailSender"));
 
+			// var connectionString = Configuration["Data:DefaultConnection:ConnectionString"];
+			var connectionStrings = Configuration.GetSection("ConnectionStrings").Get<ConnectionStringsOptions>();
+			DataConnection.DefaultConfiguration = "Default";
+			DataConnection.AddConfiguration(
+				DataConnection.DefaultConfiguration, connectionStrings.Default, new PostgreSQLDataProvider(PostgreSQLVersion.v93));
+
+			// Localization
 			services.Configure<RequestLocalizationOptions>(options =>
 			{
 				options.DefaultRequestCulture = new RequestCulture("ru");
@@ -145,7 +147,7 @@ namespace CMon
 			// Hangfire
 			services.AddHangfire(configuration =>
 			{
-				configuration.UsePostgreSqlStorage(connectionString,
+				configuration.UsePostgreSqlStorage(connectionStrings.Default,
 					new PostgreSqlStorageOptions
 					{
 						PrepareSchemaIfNecessary = false
@@ -172,7 +174,7 @@ namespace CMon
 			services.AddTransient<CcuDeviceManager, CcuDeviceManager>();
 			
 			// Application services
-			// services.AddSingleton<IStartable, DevicePollingStarter>();
+			services.AddSingleton<IStartable, DevicePollingStarter>();
 			services.AddSingleton<IIdentityProvider, ClaimsIdentityProvider>();
 
             services.AddSingleton<Sha1Hasher, Sha1Hasher>();
@@ -311,7 +313,7 @@ namespace CMon
 
 			app.UseHangfireServer(new BackgroundJobServerOptions
 			{
-				WorkerCount = 5
+				// WorkerCount = 5
 			});
 
 			app.UseHangfireDashboard(options: new DashboardOptions
