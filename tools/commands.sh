@@ -15,6 +15,13 @@ systemctl start dotnet-cmon-web.service
 systemctl stop dotnet-cmon-web.service
 systemctl status dotnet-cmon-web.service
 
+# /etc/systemd/system/
+systemctl enable asktaskbot.service
+systemctl start asktaskbot.service
+systemctl stop asktaskbot.service
+systemctl status asktaskbot.service
+
+
 sudo journalctl -fu dotnet-cmon.service
 sudo journalctl -fu dotnet-cmon-web.service
 
@@ -30,6 +37,19 @@ sudo journalctl -fu dotnet-cmon-web.service --since "2016-10-18" --until "2016-1
 
 # sudo letsencrypt certonly -a webroot --webroot-path=/var/www/html -d montr.net
 sudo letsencrypt certonly -a webroot --webroot-path=/var/www/ccu.montr.net -d ccu.montr.net
+sudo letsencrypt certonly -a webroot --webroot-path=/var/www/asktaskbot.montr.net -d asktaskbot.montr.net
+
+sudo certbot --nginx -d asktaskbot.montr.net
+#  - Congratulations! Your certificate and chain have been saved at:
+#    /etc/letsencrypt/live/asktaskbot.montr.net/fullchain.pem
+#    Your key file has been saved at:
+#    /etc/letsencrypt/live/asktaskbot.montr.net/privkey.pem
+#    Your cert will expire on 2018-03-17. To obtain a new or tweaked
+#    version of this certificate in the future, simply run certbot again
+#    with the "certonly" option. To non-interactively renew *all* of
+#    your certificates, run "certbot renew"
+
+
 
 # https://www.ssllabs.com/ssltest/analyze.html?d=ccu.montr.net
 
