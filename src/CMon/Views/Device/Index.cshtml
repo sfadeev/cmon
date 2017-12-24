@@ -8,7 +8,7 @@
 }
 
 @section navbar_left {
-	
+
 	@{
 		var selected = Model.Devices.FirstOrDefault(x => x.Id == Model.Id);
 	}
@@ -68,7 +68,7 @@
 
 <div id="time-range" class="row collapse expandable">
 	<div class="expandable-content">
-	<button type="button" class="close" data-toggle="collapse" data-target="#time-range" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+		<button type="button" class="close" data-toggle="collapse" data-target="#time-range" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
 		<div class="col-md-12">
 			@foreach (var column in Model.QuickRanges)
 			{
@@ -83,26 +83,26 @@
 				<div class="form-group">
 					<label for="from" class="col-sm-5 control-label">From</label>
 					<div class="col-sm-7">
-						<input type="text" class="form-control" id="from" value="now-1h"/>
+						<input type="text" class="form-control" id="from" value="now-1h" />
 					</div>
 				</div>
 				<div class="form-group">
 					<label for="to" class="col-sm-5 control-label">To</label>
 					<div class="col-sm-7">
-						<input type="text" class="form-control" id="to" value="now"/>
+						<input type="text" class="form-control" id="to" value="now" />
 					</div>
 				</div>
 				@*<div class="form-group">
-				<label for="refresh-interval" class="col-sm-5 control-label">Auto refresh</label>
-				<div class="col-sm-7">
-					<select class="form-control" id="refresh-interval">
-						<option>Off</option>
-						<option>15 seconds</option>
-						<option>30 seconds</option>
-						<option>1 minute</option>
-					</select>
-				</div>
-			</div>*@
+						<label for="refresh-interval" class="col-sm-5 control-label">Auto refresh</label>
+						<div class="col-sm-7">
+							<select class="form-control" id="refresh-interval">
+								<option>Off</option>
+								<option>15 seconds</option>
+								<option>30 seconds</option>
+								<option>1 minute</option>
+							</select>
+						</div>
+					</div>*@
 				<div class="form-group">
 					<div class="col-sm-offset-5 col-sm-7">
 						<button type="submit" class="btn btn-default">Apply</button>
@@ -114,7 +114,7 @@
 </div>
 
 <div class="row dashboard-content" data-device-id="@Model.Id">
-	
+
 	<div class="col-md-6">
 		<i class="loading-indicator pull-right fa fa-circle-o-notch fa-spin fa-fw"></i>
 		<div id="chart" data-device-id="@Model.Id"></div>
@@ -128,6 +128,32 @@
 </div>
 
 @section scripts
-{
+	{
+	<script type="text/javascript" src="~/lib/signalr-client/signalr-client-1.0.0-alpha2-final.js"></script>
 	<script type="text/javascript" src="~/build/dashboard.js"></script>
+
+	<script type="text/javascript">
+		let transportType = signalR.TransportType[getParameterByName('transport')] || signalR.TransportType.WebSockets;
+		let logger = new signalR.ConsoleLogger(signalR.LogLevel.Information);
+		let http = new signalR.HttpConnection(`http://${document.location.host}/dashboard`, { transport: transportType, logger: logger });
+		var connection = new signalR.HubConnection(http, logger);
+
+		connection.start().catch(err => console.error(err));
+
+		connection.on("DeviceStatus", x => {
+			console.log("DeviceStatus", x);
+		});
+
+		function getParameterByName(name, url) {
+			if (!url) {
+				url = window.location.href;
+			}
+			name = name.replace(/[\[\]]/g, "\\$&");
+			var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)"),
+				results = regex.exec(url);
+			if (!results) return null;
+			if (!results[2]) return '';
+			return decodeURIComponent(results[2].replace(/\+/g, " "));
+		};
+	</script>
 }

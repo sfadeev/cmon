@@ -273,9 +273,9 @@ namespace CMon.Services
 				{
 					foreach (var input in device.Config.Inputs)
 					{
-						if (input.Type == InputType.Rtd02 || input.Type == InputType.Rtd03)
+						if (input.Type == InputType.Rtd02 || input.Type == InputType.Rtd03 || input.Type == InputType.Rtd04)
 						{
-							t = GetInputTemperature(stateAndEvents.Inputs[input.InputNo - 1].Voltage);
+							t = GetInputTemperature(input, stateAndEvents.Inputs[input.InputNo - 1].Voltage);
 
 							_repository.SaveInputValue(device.Id, input.InputNo, t);
 
@@ -324,13 +324,34 @@ namespace CMon.Services
 			}
 		}
 
-		private static decimal GetInputTemperature(long discrete)
+		private static decimal GetInputTemperature(DeviceInput input, long discrete)
 		{
-			var voltage = discrete * 10M / 4095;
+			var voltage = discrete * 10M / MAX_RANGE_VAL;
 
-			var temp = (voltage / 5M - 0.5M) / 0.01M;
+			decimal temp;
+
+			if (input.Type == InputType.Rtd02)
+			{
+				temp = (voltage / 3M - 0.5M) / 0.01M;
+			}
+			else if (input.Type == InputType.Rtd03)
+			{
+				temp = (voltage / 5M - 0.5M) / 0.01M;
+			}
+			else if (input.Type == InputType.Rtd04)
+			{
+				temp = -3.03641M * (decimal)Math.Pow((double)voltage, 3) 
+						+ 25.5916M * (decimal)Math.Pow((double)voltage, 2) 
+						- 87.9556M * voltage + 120.641M;
+			}
+			else
+			{
+				throw new InvalidOperationException($"Input type {input.Type} is not supported.");
+			}
 
 			return temp;
 		}
+
+		private const decimal MAX_RANGE_VAL = 4095;
 	}
 }

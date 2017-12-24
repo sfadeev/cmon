@@ -74,14 +74,20 @@ var draw = function(data, update) {
 	// var x_domain = d3.extent(data.inputs[0].values, function (d) { return d.period; });
 
 	var y_domain = [
-		d3.min(data.inputs, function(i) { return d3.min(i.values, function(d) { return d.min; }) }) * 0.75 || 0.0,
-		d3.max(data.inputs, function(i) { return d3.max(i.values, function(d) { return d.max; }) }) * 1.10 || 0.0
+		d3.min(data.inputs, function(i) { return d3.min(i.values, function(d) { return d.min; }) }) || 0.0,
+		d3.max(data.inputs, function(i) { return d3.max(i.values, function(d) { return d.max; }) }) || 0.0
 	];
 
 	if (options.showZero) {
 		y_domain[0] = Math.min(y_domain[0], 0.0);
 		y_domain[1] = Math.max(y_domain[1], 0.0);
 	}
+
+	// add padding
+	/*y_domain[0] = y_domain[0] * 0.75;
+	y_domain[1] = y_domain[1] * 1.1;*/
+	y_domain[0] = y_domain[0] - 7.5;
+	y_domain[1] = y_domain[1] + 7.5;
 
 	var z_domain = data.inputs.map(function(c) { return c.inputNo; });
 

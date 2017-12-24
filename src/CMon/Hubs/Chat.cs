@@ -11,10 +11,22 @@ using Microsoft.Extensions.Logging;
 namespace CMon.Hubs
 {
 	[Authorize]
+	public class DashboardHub : HubWithPresence
+	{
+		public DashboardHub(IUserTracker<HubWithPresence> userTracker) : base(userTracker)
+		{
+		}
+
+		public Task OnDeviceStatus(string status)
+		{
+			return Clients.Client(Context.ConnectionId).InvokeAsync("DeviceStatus", status);
+		}
+	}
+
+	[Authorize]
 	public class Chat : HubWithPresence
 	{
-		public Chat(IUserTracker<Chat> userTracker)
-			: base(userTracker)
+		public Chat(IUserTracker<Chat> userTracker) : base(userTracker)
 		{
 		}
 

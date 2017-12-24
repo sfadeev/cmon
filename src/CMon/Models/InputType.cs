@@ -2,10 +2,11 @@ namespace CMon.Models
 {
 	public enum InputType : byte
 	{
-		None = 0,
-		Discrete = 1,
-		Analog = 2,
-		Rtd02 = 3,
-		Rtd03 = 4
+		// None = 0,
+		Discrete = 0,
+		Analog = 1,
+		Rtd02 = 2,
+		Rtd03 = 3,
+		Rtd04 = 4 // ?
 	}
 }

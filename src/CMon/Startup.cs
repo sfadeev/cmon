@@ -292,6 +292,7 @@ namespace CMon
 			app.UseSignalR(routes =>
 			{
 				routes.MapHub<Chat>("chat");
+				routes.MapHub<DashboardHub>("dashboard");
 			});
 
 			app.UseMvc(routes =>

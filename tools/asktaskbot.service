@@ -1,14 +1,14 @@
 [Unit]
-    Description=asktaskbot
+Description=asktaskbot
 
-    [Service]
-    WorkingDirectory=/var/asktaskbot/bin
-    ExecStart=/usr/local/bin/gunicorn myapp:my_web_app --bind 127.0.0.1:8080 --worker-class aiohttp.GunicornWebWorker
-    Restart=always
-    RestartSec=10
-    SyslogIdentifier=asktaskbot
-    User=blackish
- 
-    [Install]
-    WantedBy=multi-user.target
+[Service]
+WorkingDirectory=/var/asktaskbot
+ExecStart=/usr/local/bin/gunicorn bot:web_app --bind 127.0.0.1:8080 --worker-class aiohttp.GunicornWebWorker
+Restart=always
+RestartSec=10
+SyslogIdentifier=asktaskbot
+User=blackish
+Environment=key=value
 
+[Install]
+WantedBy=multi-user.target
