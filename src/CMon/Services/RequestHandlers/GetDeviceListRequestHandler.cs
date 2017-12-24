@@ -1,4 +1,6 @@
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using CMon.Entities;
 using CMon.Requests;
 using CMon.ViewModels.Device;
@@ -25,7 +27,7 @@ namespace CMon.Services.RequestHandlers
 			// _urlHelper = urlHelper;
 		}
 
-		public DeviceListViewModel Handle(GetDeviceList query)
+		public Task<DeviceListViewModel> Handle(GetDeviceList query, CancellationToken cancellationToken)
 		{
 			using (var db = _connectionFactory.GetConection())
 			{
@@ -52,16 +54,16 @@ namespace CMon.Services.RequestHandlers
 							})
 						.ToList();
 
-					return new DeviceListViewModel
+					return Task.FromResult(new DeviceListViewModel
 					{
 						Items = devices
-					};
+					});
 				}
 
-				return new DeviceListViewModel
+				return Task.FromResult(new DeviceListViewModel
 				{
 					Items = Enumerable.Empty<DeviceViewModel>().ToList()
-				};
+				});
 			}
 		}
 	}

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using CMon.Entities;
 using CMon.Models;
 using CMon.Requests;
@@ -20,7 +22,7 @@ namespace CMon.Services.RequestHandlers
 			_connectionFactory = connectionFactory;
 		}
 
-		public long Handle(AddDevice command)
+		public Task<long> Handle(AddDevice command, CancellationToken cancellationToken)
 		{
 			if (_identityProvider.IsAuthenticated == false)
 				throw new InvalidOperationException("User should be authenticated to add devices.");
@@ -94,7 +96,7 @@ namespace CMon.Services.RequestHandlers
 
 					transaction.Commit();
 
-					return deviceId;
+					return Task.FromResult(deviceId) ;
 				}
 			}
 		}

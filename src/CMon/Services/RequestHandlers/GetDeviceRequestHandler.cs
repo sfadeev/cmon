@@ -1,4 +1,6 @@
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using CMon.Entities;
 using CMon.Models;
 using CMon.Models.Ccu;
@@ -17,7 +19,7 @@ namespace CMon.Services.RequestHandlers
 			_connectionFactory = connectionFactory;
 		}
 
-		public Device Handle(GetDevice query)
+		public Task<Device> Handle(GetDevice query, CancellationToken cancellationToken)
 		{
 			using (var db = _connectionFactory.GetConection())
 			{
@@ -59,10 +61,10 @@ namespace CMon.Services.RequestHandlers
 						};
 					}
 
-					return device;
+					return Task.FromResult(device) ;
 				}
 
-				return null;
+				return Task.FromResult<Device>(null);
 			}
 		}
 	}

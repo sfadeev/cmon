@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using CMon.Entities;
 using CMon.Models;
@@ -21,7 +22,7 @@ namespace CMon.Services.RequestHandlers
 		public int? GroupByMinutes { get; set; }
 	}
 
-	public class GetDeviceInputsRequestHandler : IAsyncRequestHandler<GetDeviceInputs, GetDeviceInputs.Result>
+	public class GetDeviceInputsRequestHandler : IRequestHandler<GetDeviceInputs, GetDeviceInputs.Result>
 	{
 		private readonly IMediator _mediator;
 		private readonly IDbConnectionFactory _connectionFactory;
@@ -32,7 +33,7 @@ namespace CMon.Services.RequestHandlers
 			_connectionFactory = connectionFactory;
 		}
 
-		public async Task<GetDeviceInputs.Result> Handle(GetDeviceInputs request)
+		public async Task<GetDeviceInputs.Result> Handle(GetDeviceInputs request, CancellationToken cancellationToken)
 		{
 			var options = new InputValueOptions();
 
@@ -44,7 +45,7 @@ namespace CMon.Services.RequestHandlers
 			groupByMinutes = Math.Max(Math.Min(
 					groupByMinutes, options.MaxGroupByMinutes), options.MinGroupByMinutes);
 
-			var device = await _mediator.Send(new GetDevice { DeviceId = request.DeviceId, UserName = request.UserName });
+			var device = await _mediator.Send(new GetDevice { DeviceId = request.DeviceId, UserName = request.UserName }, cancellationToken);
 
 			using (var db = _connectionFactory.GetConection())
 			{

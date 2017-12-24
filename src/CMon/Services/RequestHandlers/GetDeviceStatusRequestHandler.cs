@@ -1,10 +1,11 @@
+using System.Threading;
 using System.Threading.Tasks;
 using CMon.Requests;
 using MediatR;
 
 namespace CMon.Services.RequestHandlers
 {
-	public class GetDeviceStatusRequestHandler : IAsyncRequestHandler<GetDeviceStatus, string>
+	public class GetDeviceStatusRequestHandler : IRequestHandler<GetDeviceStatus, string>
 	{
 		private readonly IDeviceManagerFactory _deviceManagerFactory;
 
@@ -13,7 +14,7 @@ namespace CMon.Services.RequestHandlers
 			_deviceManagerFactory = deviceManagerFactory;
 		}
 
-		public Task<string> Handle(GetDeviceStatus message)
+		public Task<string> Handle(GetDeviceStatus message, CancellationToken cancellationToken)
 		{
 			var manager = _deviceManagerFactory.GetDeviceManager(message.DeviceId);
 

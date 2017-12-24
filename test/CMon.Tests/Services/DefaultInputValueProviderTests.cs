@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Threading;
 using CMon.Entities;
 using CMon.Requests;
 using CMon.Services;
@@ -43,7 +44,7 @@ namespace CMon.Tests.Services
 				DeviceId = 0,
 				BeginDate = "now-2y",
 				EndDate = "now"
-			});
+			}, CancellationToken.None);
 
 			// assert
 			Assert.NotNull(stats);
