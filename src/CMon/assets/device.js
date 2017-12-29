@@ -38,7 +38,7 @@ $(".btn-refresh").click(function () {
 
 $(function () {
 	if (deviceId) {
-		requestStatus();
+		// requestStatus();
 
 		/*$("#time-range").on("apply", function (e, range) {
 			requestEvents(range);

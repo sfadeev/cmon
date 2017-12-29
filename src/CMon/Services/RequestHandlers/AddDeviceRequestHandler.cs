@@ -37,6 +37,8 @@ namespace CMon.Services.RequestHandlers
 			{
 				using (var transaction = db.BeginTransaction())
 				{
+					long contractId;
+
 					var contractUser = db.GetTable<DbContractUser>()
 						.SingleOrDefault(x => x.UserName == userName);
 
@@ -48,7 +50,7 @@ namespace CMon.Services.RequestHandlers
 							CreatedBy = userName
 						};
 
-						var contractId = (long)db.InsertWithIdentity(contract);
+						contractId = (long)db.InsertWithIdentity(contract);
 
 						contractUser = new DbContractUser
 						{
@@ -67,20 +69,25 @@ namespace CMon.Services.RequestHandlers
 						if (contractUser.Role != ContractUserRole.Admin && contractUser.Role != ContractUserRole.Manager)
 							throw new InvalidOperationException("User is not authorized to add devices.");
 
+						contractId = contractUser.ContractId;
+
 						db.GetTable<DbContract>()
-							.Where(x => x.Id == contractUser.ContractId)
+							.Where(x => x.Id == contractId)
 							.Set(x => x.ModifiedAt, now)
 							.Set(x => x.ModifiedBy, userName)
 							.Update();
 					}
 
 					// todo: use tarif limits
-					var deviceCount = db.GetTable<DbDevice>().Count(x => x.ContractId == contractUser.ContractId);
-					if (deviceCount >= tarifLimit.MaxDeviceCount) throw new InvalidOperationException("Tarif limit of devices exceeded.");
+					var deviceCount = db.GetTable<DbDevice>().Count(x => x.ContractId == contractId);
+
+					// todo: validation before add
+					if (deviceCount >= tarifLimit.MaxDeviceCount)
+						throw new InvalidOperationException("Tarif limit of devices exceeded.");
 
 					var device = new DbDevice
 					{
-						ContractId = contractUser.ContractId,
+						ContractId = contractId,
 						Status = DeviceStatus.None,
 						Name = command.Name,
 						Imei = command.Imei,

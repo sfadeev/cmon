@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using CMon.Entities;
+using CMon.Hubs;
 using CMon.Models;
 using CMon.Models.Ccu;
 using CMon.Requests;
@@ -46,6 +47,7 @@ namespace CMon.Services
 		private readonly IMediator _mediator;
 		private readonly IDbConnectionFactory _connectionFactory;
 		private readonly IDeviceRepository _repository;
+		private readonly DashboardNotifier _dashboardNotifier;
 		private readonly ILogger<CcuDeviceManager> _logger;
 		private readonly IOptions<DeviceOptions> _options;
 		private readonly ICcuGateway _gateway;
@@ -53,7 +55,8 @@ namespace CMon.Services
 
 		public CcuDeviceManager(ILogger<CcuDeviceManager> logger, IOptions<DeviceOptions> options,
 			IMediator mediator, ICcuGateway gateway, Sha1Hasher hasher,
-			IDbConnectionFactory connectionFactory, IDeviceRepository repository)
+			IDbConnectionFactory connectionFactory, IDeviceRepository repository,
+			DashboardNotifier dashboardNotifier)
 		{
 			_logger = logger;
 			_options = options;
@@ -62,6 +65,7 @@ namespace CMon.Services
 			_hasher = hasher;
 			_connectionFactory = connectionFactory;
 			_repository = repository;
+			_dashboardNotifier = dashboardNotifier;
 		}
 
 		public void Configure(long deviceId)
@@ -178,7 +182,7 @@ namespace CMon.Services
 
 			try
 			{
-				_status = "GetIndexInitialResult";
+				SetStatus("GetIndexInitialResult");
 				var indexInitialResult = await _gateway.GetIndexInitial(auth);
 
 				if (indexInitialResult.Status.Code == StatusCode.Ok)
@@ -202,7 +206,7 @@ namespace CMon.Services
 						uGuardVerCode = deviceInfo.uGuardVerCode
 					};
 
-					_status = "GetInputsInitial";
+					SetStatus("GetInputsInitial");
 					var inputsInitialResult = await _gateway.GetInputsInitial(auth);
 
 					var inputs = new List<DeviceInput>();
@@ -211,7 +215,7 @@ namespace CMon.Services
 					{
 						for (var inputNum = 0; inputNum < inputsInitialResult.InputsInitial.InCount; inputNum++)
 						{
-							_status = "GetInputsInputNum " + inputNum;
+							SetStatus("GetInputsInputNum " + inputNum);
 							var inputNumResult = await _gateway.GetInputsInputNum(auth, inputNum);
 
 							if (inputNumResult.Status.Code == StatusCode.Ok)
@@ -235,24 +239,31 @@ namespace CMon.Services
 
 					result.Inputs = inputs.ToArray();
 
-					_status = string.Empty;
+					SetStatus(string.Empty);
 
 					return result;
 				}
 				else
 				{
-					_status = indexInitialResult.Status.Description;
+					SetStatus(indexInitialResult.Status.Description);
 				}
 			}
 			catch (Exception ex)
 			{
-				_status = ex.Message;
+				SetStatus(ex.Message);
 
 			}
 
 			return null;
 		}
 
+		private void SetStatus(string status)
+		{
+			_status = status;
+
+			_dashboardNotifier.Notify(hub => hub.OnStatusUpdated(_deviceId, status));
+		}
+		
 		public async Task PollAsync(long deviceId)
 		{
 			var device = await _mediator.Send(
@@ -271,7 +282,7 @@ namespace CMon.Services
 
 				if (device.Config?.Inputs != null)
 				{
-					foreach (var input in device.Config.Inputs)
+					foreach (var input in device.Config.Inputs/* remove --> */.Where(x => x.InputNo < 5))
 					{
 						if (input.Type == InputType.Rtd02 || input.Type == InputType.Rtd03 || input.Type == InputType.Rtd04)
 						{
@@ -321,6 +332,8 @@ namespace CMon.Services
 				}
 
 				_logger.LogInformation(message);
+
+				SetStatus(message);
 			}
 		}
 
@@ -343,6 +356,8 @@ namespace CMon.Services
 				temp = -3.03641M * (decimal)Math.Pow((double)voltage, 3) 
 						+ 25.5916M * (decimal)Math.Pow((double)voltage, 2) 
 						- 87.9556M * voltage + 120.641M;
+
+				// temp = -40.3289M * (decimal)Math.Log(0.28738 * (double)voltage);
 			}
 			else
 			{

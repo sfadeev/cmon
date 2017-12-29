@@ -21,6 +21,7 @@ systemctl start asktaskbot.service
 systemctl stop asktaskbot.service
 systemctl status asktaskbot.service
 
+sudo journalctl -fu asktaskbot
 
 sudo journalctl -fu dotnet-cmon.service
 sudo journalctl -fu dotnet-cmon-web.service

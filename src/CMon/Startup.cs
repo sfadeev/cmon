@@ -138,6 +138,7 @@ namespace CMon
 
 			services.AddSingleton(typeof(DefaultHubLifetimeManager<>), typeof(DefaultHubLifetimeManager<>));
 			services.AddSingleton(typeof(HubLifetimeManager<>), typeof(DefaultPresenceHublifetimeManager<>));
+			// services.AddSingleton(typeof(DefaultPresenceHublifetimeManager<>), typeof(DefaultPresenceHublifetimeManager<>));
 			services.AddSingleton(typeof(IUserTracker<>), typeof(InMemoryUserTracker<>));
 
 			//services.AddSingleton(typeof(RedisHubLifetimeManager<>), typeof(RedisHubLifetimeManager<>));
@@ -172,6 +173,7 @@ namespace CMon
 			// todo: register by device type
 			services.AddSingleton<IDeviceManagerFactory, DefaultDeviceManagerFactory>();
 			services.AddTransient<CcuDeviceManager, CcuDeviceManager>();
+			services.AddTransient<DashboardNotifier, DashboardNotifier>();
 			
 			// Application services
 			services.AddSingleton<IStartable, DevicePollingStarter>();

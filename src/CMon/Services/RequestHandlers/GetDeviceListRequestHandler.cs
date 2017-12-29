@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,6 +30,8 @@ namespace CMon.Services.RequestHandlers
 
 		public Task<DeviceListViewModel> Handle(GetDeviceList query, CancellationToken cancellationToken)
 		{
+			IList<DeviceViewModel> devices;
+
 			using (var db = _connectionFactory.GetConection())
 			{
 				var dbContract = (
@@ -42,7 +45,7 @@ namespace CMon.Services.RequestHandlers
 				{
 					var urlHelper = _urlHelperFactory.GetUrlHelper(_actionContextAccessor.ActionContext);
 
-					var devices = (
+					devices = (
 							from d in db.GetTable<DbDevice>()
 							where d.ContractId == dbContract.Id
 							select new DeviceViewModel
@@ -53,18 +56,17 @@ namespace CMon.Services.RequestHandlers
 								Imei = d.Imei
 							})
 						.ToList();
-
-					return Task.FromResult(new DeviceListViewModel
-					{
-						Items = devices
-					});
 				}
-
-				return Task.FromResult(new DeviceListViewModel
+				else
 				{
-					Items = Enumerable.Empty<DeviceViewModel>().ToList()
-				});
+					devices = Enumerable.Empty<DeviceViewModel>().ToList();
+				}
 			}
+	
+			return Task.FromResult(new DeviceListViewModel
+			{
+				Items = devices
+			});
 		}
 	}
 }

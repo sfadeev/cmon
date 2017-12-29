@@ -3,6 +3,8 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CMon.Requests;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,13 +15,51 @@ namespace CMon.Hubs
 	[Authorize]
 	public class DashboardHub : HubWithPresence
 	{
-		public DashboardHub(IUserTracker<HubWithPresence> userTracker) : base(userTracker)
+		private readonly IMediator _mediator;
+
+		public DashboardHub(IMediator mediator, IUserTracker<HubWithPresence> userTracker) : base(userTracker)
 		{
+			_mediator = mediator;
 		}
 
-		public Task OnDeviceStatus(string status)
+		public override async Task OnConnectedAsync()
 		{
-			return Clients.Client(Context.ConnectionId).InvokeAsync("DeviceStatus", status);
+			var contract = await _mediator.Send(new GetContract
+			{
+				UserName = Context.User.Identity.Name,
+			});
+
+			if (contract?.Devices != null)
+			{
+				foreach (var device in contract.Devices)
+				{
+					await Groups.AddAsync(Context.ConnectionId, "Device." + device.Id);
+				}
+			}
+
+			await base.OnConnectedAsync();
+		}
+
+		public Task OnStatusUpdated(long deviceId, string status)
+		{
+			// return Clients.Client(Context.ConnectionId).InvokeAsync("StatusUpdated", status);
+
+			return Clients.Group("Device." + deviceId).InvokeAsync("StatusUpdated", status);
+		}
+	}
+
+	public class DashboardNotifier
+	{
+		private readonly HubLifetimeManager<DashboardHub> _hublifetimeManager;
+
+		public DashboardNotifier(HubLifetimeManager<DashboardHub> hublifetimeManager)
+		{
+			_hublifetimeManager = hublifetimeManager;
+		}
+
+		public Task Notify(Func<DashboardHub, Task> action)
+		{
+			return ((DefaultPresenceHublifetimeManager<DashboardHub>)_hublifetimeManager).Notify(action);
 		}
 	}
 
@@ -214,7 +254,7 @@ namespace CMon.Hubs
 			await Notify(hub => hub.OnUsersLeft(users));
 		}
 
-		private async Task Notify(Func<THub, Task> invocation)
+		public async Task Notify(Func<THub, Task> invocation)
 		{
 			foreach (var connection in _connections)
 			{

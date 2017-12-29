@@ -137,12 +137,12 @@
 		let logger = new signalR.ConsoleLogger(signalR.LogLevel.Information);
 		let http = new signalR.HttpConnection(`http://${document.location.host}/dashboard`, { transport: transportType, logger: logger });
 		var connection = new signalR.HubConnection(http, logger);
+		
+		connection.on("StatusUpdated", x => {
+			console.log("StatusUpdated", x);
+		});
 
 		connection.start().catch(err => console.error(err));
-
-		connection.on("DeviceStatus", x => {
-			console.log("DeviceStatus", x);
-		});
 
 		function getParameterByName(name, url) {
 			if (!url) {
