@@ -1,7 +1,9 @@
 ﻿import React from "react";
 import request from "superagent";
 
-class Events extends React.Component {
+import Panel from "./Panel"
+
+class BlockEvents extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
@@ -21,7 +23,7 @@ class Events extends React.Component {
 	requestEvents(range) {
 		console.log("Requesting events", range);
 
-		var deviceId = $(".dashboard-content").data("deviceId"),
+		var deviceId = this.props.deviceId,
 			xsrfToken = document.querySelector("input[name=__RequestVerificationToken]").value;
 
 		request
@@ -34,6 +36,7 @@ class Events extends React.Component {
 			})
 			.end((err, res) => {
 				this.setState(res.body);
+
 				/*if (res.ok) {
 					var types = res.body || [];
 					this.setState({ classifierTypes: types });
@@ -49,26 +52,30 @@ class Events extends React.Component {
 	}
 	render() {
 		return (
-			<div>
+			<Panel>
 				{this.state.items.map(item => {
 					return (
 						<div key={item.id} className="row">
+							<div className="col-md-1">
+								<span className="badge">{item.externalId}</span>
+							</div>							
+							<div className="col-md-4">
+								{item.createdAt}
+							</div>
 							<div className="col-md-2">
 								<div className="media-left media-middle">
 									{item.eventType}
 								</div>
 							</div>
-							<div className="col-md-10">
-								<code>{JSON.stringify(item.info)}</code>
-								<br />
-								<span className="badge">{item.externalId}</span> {item.createdAt}
+							<div className="col-md-5">
+								<code style={{wordBreak: 'break-all'}}>{JSON.stringify(item.info)}</code>
 							</div>
 						</div>
 					);
 				})}
-			</div>
+			</Panel>
 		);
 	}
 }
 
-module.exports = Events;
+module.exports = BlockEvents;

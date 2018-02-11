@@ -113,25 +113,22 @@
 	</div>
 </div>
 
-<div class="row dashboard-content" data-device-id="@Model.Id">
+<div class="row dashboard-container" data-device-id="@Model.Id">
+	
+	<div id="app" data-device-id="@Model.Id"></div>
 
 	<div class="col-md-6">
 		<i class="loading-indicator pull-right fa fa-circle-o-notch fa-spin fa-fw"></i>
 		<div id="chart" data-device-id="@Model.Id"></div>
 	</div>
 
-	<div class="col-md-6">
+	@*<div class="col-md-6">
 		<i class="loading-indicator pull-right fa fa-circle-o-notch fa-spin fa-fw"></i>
-		<div id="events"></div>
-	</div>
+	</div>*@
 
 </div>
 
-<figure class="highlight">
-	<pre><code id="log"></code></pre>
-</figure>
-
 @section scripts
 {
-	<script type="text/javascript" src="~/build/dashboard.js"></script>
+	<script type="text/javascript" src="~/build/app.js"></script>
 }

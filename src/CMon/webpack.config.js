@@ -10,7 +10,7 @@ const extractLess = new extractText({
 
 module.exports = {
     entry: { 
-	    dashboard: "./assets/Dashboard.jsx",
+	    app: "./assets/components/App.jsx",
    		scripts: "./assets/index.js",
         styles: "./assets/index.less"
     },

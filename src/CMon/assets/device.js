@@ -1,7 +1,7 @@
 ﻿var request = require("superagent");
 var signalr = require("@aspnet/signalr-client");
 
-var deviceId = $(".dashboard-content").data("deviceId"),
+var deviceId = $(".dashboard-container").data("deviceId"),
 	xsrfToken = document.querySelector("input[name=__RequestVerificationToken]").value;
 
 var timeoutId;

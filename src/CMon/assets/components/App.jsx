@@ -1,10 +1,15 @@
-﻿import React from "react"
-import EventsBlock from "../containers/EventsBlock"
+﻿import React from "react";
+import ReactDOM from "react-dom";
 
-const App = () => (
-	<div>
-		<EventsBlock />
+import BlockEvents from "./BlockEvents"
+
+const App = (props) => (
+	<div className="col-md-6">
+		<BlockEvents deviceId={props.deviceId} />
 	</div>
 );
 
-export default App;
+var container = document.getElementById("app"),
+	deviceId = container.getAttribute("data-device-id");
+
+ReactDOM.render(<App deviceId={deviceId} />, container);
