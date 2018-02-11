@@ -1,6 +1,5 @@
 ﻿import React from "react";
 import request from "superagent";
-
 import Panel from "./Panel"
 
 class BlockEvents extends React.Component {
@@ -52,7 +51,7 @@ class BlockEvents extends React.Component {
 	}
 	render() {
 		return (
-			<Panel>
+			<Panel span="6">
 				{this.state.items.map(item => {
 					return (
 						<div key={item.id} className="row">

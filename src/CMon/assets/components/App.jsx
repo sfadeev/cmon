@@ -2,12 +2,22 @@
 import ReactDOM from "react-dom";
 
 import BlockEvents from "./BlockEvents"
+import BlockSingle from "./BlockSingle"
 
-const App = (props) => (
-	<div className="col-md-6">
-		<BlockEvents deviceId={props.deviceId} />
-	</div>
-);
+class App extends React.Component {
+	render() {
+		return ([
+			<BlockEvents deviceId={this.props.deviceId } />,
+			<BlockSingle deviceId={this.props.deviceId } />,
+			<BlockSingle deviceId={this.props.deviceId } />,
+			<BlockSingle deviceId={this.props.deviceId } />,
+			<BlockSingle deviceId={this.props.deviceId } />,
+			<BlockSingle deviceId={this.props.deviceId } />,
+			<BlockSingle deviceId={this.props.deviceId } />,
+			<BlockSingle deviceId={this.props.deviceId } />
+		]);
+	}
+}
 
 var container = document.getElementById("app"),
 	deviceId = container.getAttribute("data-device-id");
