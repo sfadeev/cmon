@@ -27,6 +27,13 @@ namespace CMon.ViewModels.Device
 		public string Imei { get; set; }
 	}
 	
+	public class BlockViewModel
+	{
+		public string Type { get; set; }
+
+		public string Name { get; set; }
+	}
+	
 	public class DateRange
 	{
 		public string Name { get; set; }

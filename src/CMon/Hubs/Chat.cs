@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using CMon.Models.Ccu;
 using CMon.Requests;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -50,6 +51,16 @@ namespace CMon.Hubs
 			// return Clients.Client(Context.ConnectionId).InvokeAsync("StatusUpdated", status);
 
 			return Clients.Group("Device." + deviceId).InvokeAsync("StatusUpdated", deviceId, status);
+		}
+
+		public Task OnStateAndEvents(long deviceId, StateAndEventsResult status)
+		{
+			return Clients.Group("Device." + deviceId).InvokeAsync("StateAndEvents", deviceId, status);
+		}
+
+		public Task OnInputTemperature(long deviceId, short inputNo, decimal temp)
+		{
+			return Clients.Group("Device." + deviceId).InvokeAsync("InputTemperature", deviceId, inputNo, temp);
 		}
 	}
 

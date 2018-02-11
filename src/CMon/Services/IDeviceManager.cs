@@ -283,6 +283,8 @@ namespace CMon.Services
 
 				_repository.SaveInputValue(device.Id, BoardTemp, t);
 
+				await _dashboardNotifier.Notify(hub => hub.OnInputTemperature(_deviceId, BoardTemp, t));
+
 				var message = $"[{device.Id}] - {BoardTemp}:{t:N4}";
 
 				if (device.Config?.Inputs != null)
@@ -295,10 +297,14 @@ namespace CMon.Services
 
 							_repository.SaveInputValue(device.Id, input.InputNo, t);
 
+							await _dashboardNotifier.Notify(hub => hub.OnInputTemperature(_deviceId, input.InputNo, t));
+
 							message += $" - {input.InputNo}:{t:N4}";
 						}
 					}
 				}
+
+				await _dashboardNotifier.Notify(hub => hub.OnStateAndEvents(_deviceId, stateAndEvents));
 
 				if (stateAndEvents.Events != null)
 				{

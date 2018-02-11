@@ -56,6 +56,18 @@ $(function () {
 		window.dispatchEvent(new CustomEvent("status-updated", { detail: { deviceId: deviceId, status: status } } ));
 	});
 	
+	connection.on("StateAndEvents", (deviceId, status) => {
+		// console.log("StateAndEvents", deviceId, status);
+
+		window.dispatchEvent(new CustomEvent("status-and-events", { detail: { deviceId: deviceId, status: status } } ));
+	});
+	
+	connection.on("InputTemperature", (deviceId, inputNo, temp) => {
+		console.log("InputTemperature", deviceId, inputNo, temp);
+
+		window.dispatchEvent(new CustomEvent("input-temperature", { detail: { deviceId: deviceId, inputNo: inputNo, temp: temp } } ));
+	});
+	
 	connection.start().catch(err => {
 		console.error(err);
 	});

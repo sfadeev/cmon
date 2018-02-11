@@ -23,13 +23,23 @@ namespace CMon.Controllers.Apis
 			_mediator = mediator;
 		}
 
+		[HttpPost("blocks")]
+		public async Task<GetDeviceBlocks.Result> GetBlocks(long deviceId)
+		{
+			return await _mediator.Send(new GetDeviceBlocks
+			{
+				UserName = _identityProvider.GetUserName(),
+				DeviceId = deviceId
+			});
+		}
+
 		[HttpGet("values")]
 		public async Task<GetDeviceInputs.Result> GetValues(long deviceId, string from, string to)
 		{
 			return await _mediator.Send(new GetDeviceInputs
 			{
-				DeviceId = deviceId,
 				UserName = _identityProvider.GetUserName(),
+				DeviceId = deviceId,
 				BeginDate = from,
 				EndDate = to
 			});
@@ -40,8 +50,8 @@ namespace CMon.Controllers.Apis
 		{
 			return await _mediator.Send(new GetDeviceEvents
 			{
-				DeviceId = deviceId,
 				UserName = _identityProvider.GetUserName(),
+				DeviceId = deviceId,
 				BeginDate = from,
 				EndDate = to
 			});
