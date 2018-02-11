@@ -1,4 +1,5 @@
 ﻿var request = require("superagent");
+var signalr = require("@aspnet/signalr-client");
 
 var deviceId = $(".dashboard-content").data("deviceId"),
 	xsrfToken = document.querySelector("input[name=__RequestVerificationToken]").value;
@@ -15,9 +16,13 @@ var post = function(url, handler) {
 var requestStatus = function () {
 
 	post("/api/device/status", function(err, res) {
-		if (res.status === 200) $(".status").text(res.text);
+		if (res.status === 200) displayStatus(res.text);
 		timeoutId = setTimeout(function() { requestStatus(); }, 3000);
 	});
+}
+
+var displayStatus = function(status) {
+	$(".status").text(status);
 }
 
 var requestEvents = function (range) {
@@ -37,6 +42,24 @@ $(".btn-refresh").click(function () {
 });
 
 $(function () {
+	let connection = new signalr.HubConnection("/dashboard");
+
+	connection.on("Log", (deviceId, message) => {
+		// console.log(message);
+		$("#log").text(message);
+	});
+	
+	connection.on("StatusUpdated", (deviceId, status) => {
+		// console.log("StatusUpdated", deviceId, status);
+		// displayStatus(status);
+
+		window.dispatchEvent(new CustomEvent("status-updated", { detail: { deviceId: deviceId, status: status } } ));
+	});
+	
+	connection.start().catch(err => {
+		console.error(err);
+	});
+
 	if (deviceId) {
 		// requestStatus();
 

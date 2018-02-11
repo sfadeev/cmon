@@ -182,7 +182,7 @@ namespace CMon.Services
 
 			try
 			{
-				SetStatus("GetIndexInitialResult");
+				Log("GetIndexInitialResult");
 				var indexInitialResult = await _gateway.GetIndexInitial(auth);
 
 				if (indexInitialResult.Status.Code == StatusCode.Ok)
@@ -206,7 +206,7 @@ namespace CMon.Services
 						uGuardVerCode = deviceInfo.uGuardVerCode
 					};
 
-					SetStatus("GetInputsInitial");
+					Log("GetInputsInitial");
 					var inputsInitialResult = await _gateway.GetInputsInitial(auth);
 
 					var inputs = new List<DeviceInput>();
@@ -215,7 +215,7 @@ namespace CMon.Services
 					{
 						for (var inputNum = 0; inputNum < inputsInitialResult.InputsInitial.InCount; inputNum++)
 						{
-							SetStatus("GetInputsInputNum " + inputNum);
+							Log("GetInputsInputNum " + inputNum);
 							var inputNumResult = await _gateway.GetInputsInputNum(auth, inputNum);
 
 							if (inputNumResult.Status.Code == StatusCode.Ok)
@@ -239,22 +239,27 @@ namespace CMon.Services
 
 					result.Inputs = inputs.ToArray();
 
-					SetStatus(string.Empty);
+					Log(string.Empty);
 
 					return result;
 				}
 				else
 				{
-					SetStatus(indexInitialResult.Status.Description);
+					Log(indexInitialResult.Status.Description);
 				}
 			}
 			catch (Exception ex)
 			{
-				SetStatus(ex.Message);
+				Log(ex.GetType().Name + " - " + ex.Message);
 
 			}
 
 			return null;
+		}
+
+		private void Log(string message)
+		{
+			_dashboardNotifier.Notify(hub => hub.Log(_deviceId, message));
 		}
 
 		private void SetStatus(string status)
@@ -282,7 +287,7 @@ namespace CMon.Services
 
 				if (device.Config?.Inputs != null)
 				{
-					foreach (var input in device.Config.Inputs/* remove --> */.Where(x => x.InputNo < 5))
+					foreach (var input in device.Config.Inputs)
 					{
 						if (input.Type == InputType.Rtd02 || input.Type == InputType.Rtd03 || input.Type == InputType.Rtd04)
 						{

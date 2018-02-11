@@ -7,38 +7,20 @@ class Events extends React.Component {
 		this.state = {
 			items: []
 		};
+		this.onApplyFilter = this.onApplyFilter.bind(this);
 	}
 	componentDidMount() {
-		window.addEventListener("apply-filter", (e) => {
-			this.requestEvents(e.detail);
-		});
+		window.addEventListener("apply-filter", this.onApplyFilter);
 	}
 	componentWillUnmount() {
-		window.removeEventListener("apply-filter");
+		window.removeEventListener("apply-filter", this.onApplyFilter);
 	}
-	render() {
-		return (
-			<div>
-				{this.state.items.map(item => {
-					return (
-						<div key={item.id} className="row">
-							<div className="col-md-2">
-								<div className="media-left media-middle">
-									{item.eventType}
-								</div>
-							</div>
-							<div className="col-md-10">
-								<code>{JSON.stringify(item.info)}</code>
-								<br />
-								<span className="badge">{item.externalId}</span> {item.createdAt}
-							</div>
-						</div>
-					);
-				})}
-			</div>
-		);
+	onApplyFilter(e) {
+		this.requestEvents(e.detail);
 	}
 	requestEvents(range) {
+		console.log("Requesting events", range);
+
 		var deviceId = $(".dashboard-content").data("deviceId"),
 			xsrfToken = document.querySelector("input[name=__RequestVerificationToken]").value;
 
@@ -64,6 +46,28 @@ class Events extends React.Component {
 					this.setState({ errors: [err.message] });
 				}*/
 			});
+	}
+	render() {
+		return (
+			<div>
+				{this.state.items.map(item => {
+					return (
+						<div key={item.id} className="row">
+							<div className="col-md-2">
+								<div className="media-left media-middle">
+									{item.eventType}
+								</div>
+							</div>
+							<div className="col-md-10">
+								<code>{JSON.stringify(item.info)}</code>
+								<br />
+								<span className="badge">{item.externalId}</span> {item.createdAt}
+							</div>
+						</div>
+					);
+				})}
+			</div>
+		);
 	}
 }
 

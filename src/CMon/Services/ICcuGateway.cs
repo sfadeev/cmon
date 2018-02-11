@@ -144,10 +144,10 @@ namespace CMon.Services
 
 						TResult result;
 
-						_logger.LogDebug("{0} - request {1} completed with code {2}, elapsed {3}", auth.DebuggerDisplay, typeof(TResult).Name, response.StatusCode, stopwatch.Elapsed);
-
 						if (response.StatusCode == HttpStatusCode.OK)
 						{
+							_logger.LogDebug("{0} - request {1} completed with code {2}, elapsed {3}", auth.DebuggerDisplay, typeof(TResult).Name, response.StatusCode, stopwatch.Elapsed);
+
 							var content = await response.ReadContentAsync();
 
 							try
@@ -165,6 +165,8 @@ namespace CMon.Services
 						}
 						else
 						{
+							_logger.LogInformation("{0} - request {1} failed with code {2}, elapsed {3}", auth.DebuggerDisplay, typeof(TResult).Name, response.StatusCode, stopwatch.Elapsed);
+							
 							result = new TResult();
 						}
 

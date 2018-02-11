@@ -278,18 +278,24 @@ var draw = function(data, update) {
 	}
 };
 
-var timeoutId;
+var timeoutId,
+	deviceId = parseInt(chart.attr("data-device-id"));
+
+var getDeviceId = function() {
+	return deviceId;
+}
 
 var loadData = function (range) {
+	// console.log("Loading chart data", getDeviceId(), range);
 
-	if (timeoutId) {
+	/*if (timeoutId) {
 		clearTimeout(timeoutId);
 		timeoutId = null;
-	}
+	}*/
 
 	$(".loading-indicator").show();
 
-	var apiUrl = "/api/device/values?deviceId=" + chart.attr("data-device-id") + "&from=" + range.from + "&to=" + range.to + "&t=" + new Date().getTime();
+	var apiUrl = "/api/device/values?deviceId=" + getDeviceId() + "&from=" + range.from + "&to=" + range.to + "&t=" + new Date().getTime();
 
 	d3.json(apiUrl, function(error, data) {
 
@@ -301,9 +307,9 @@ var loadData = function (range) {
 
 		$(".loading-indicator").hide();
 
-		if (range.to === "now") {
+		/*if (range.to === "now") {
 			timeoutId = setTimeout(function() { loadData(range, true); }, 15000);
-		}
+		}*/
 	});
 }
 
@@ -322,8 +328,24 @@ var parse = function (data) {
 	return data;
 }
 
+var _range;
+
 $("#time-range").on("apply", function (e, range) {
+	_range = range;
 	loadData(range);
+});
+
+window.addEventListener("status-updated", function (e) {
+	if (e.detail.deviceId === getDeviceId()) {
+		// console.log("chart.status-updated", e.detail);
+		if (document.hidden === false) {
+			if (_range && _range.to === "now") {
+				loadData(_range);
+			}
+		} else {
+			// console.log("document.hidden");
+		}
+	}
 });
 
 $(window).resize(function () {

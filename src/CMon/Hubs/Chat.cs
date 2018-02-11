@@ -40,11 +40,16 @@ namespace CMon.Hubs
 			await base.OnConnectedAsync();
 		}
 
+		public Task Log(long deviceId, string message)
+		{
+			return Clients.Group("Device." + deviceId).InvokeAsync("Log", deviceId, message);
+		}
+
 		public Task OnStatusUpdated(long deviceId, string status)
 		{
 			// return Clients.Client(Context.ConnectionId).InvokeAsync("StatusUpdated", status);
 
-			return Clients.Group("Device." + deviceId).InvokeAsync("StatusUpdated", status);
+			return Clients.Group("Device." + deviceId).InvokeAsync("StatusUpdated", deviceId, status);
 		}
 	}
 

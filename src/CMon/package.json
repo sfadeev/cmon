@@ -2,6 +2,7 @@
   "name": "cmon",
   "version": "1.0.0",
   "dependencies": {
+    "@aspnet/signalr-client": "^1.0.0-alpha2-final",
     "bootstrap": "^3.3.7",
     "d3": "^4.7.3",
     "font-awesome": "^4.7.0",
