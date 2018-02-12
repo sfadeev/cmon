@@ -15,14 +15,16 @@ module.exports = class BlockEvents extends React.Component {
 		window.removeEventListener("input-temperature", this.onInputTemperature);
 	}
 	onInputTemperature(e) {
-		if ((`${e.detail.deviceId}`) === this.props.deviceId && (`${e.detail.inputNo}`) === this.props.name) {
-			this.setState({ value: Math.round(e.detail.temp * 100) / 100 });
+		if ((`${e.detail.deviceId}`) === this.props.deviceId && e.detail.inputNo === this.props.inputNo) {
+			this.setState({ value: e.detail.temp.toFixed(2) });
 		}
 	}
 	render() {
 		return (
-			<Panel span="1" title={this.props.name}>
-				<h3>{this.state.value || "--"}</h3>
+			<Panel span="2" title={this.props.name}>
+				<div className="single">
+					<span className="value">{this.state.value || "--"}</span>
+				</div>
 			</Panel>
 		);
 	}

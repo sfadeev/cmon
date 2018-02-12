@@ -63,7 +63,7 @@ $(function () {
 	});
 	
 	connection.on("InputTemperature", (deviceId, inputNo, temp) => {
-		console.log("InputTemperature", deviceId, inputNo, temp);
+		// console.log("InputTemperature", deviceId, inputNo, temp);
 
 		window.dispatchEvent(new CustomEvent("input-temperature", { detail: { deviceId: deviceId, inputNo: inputNo, temp: temp } } ));
 	});

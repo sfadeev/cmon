@@ -32,6 +32,8 @@ namespace CMon.ViewModels.Device
 		public string Type { get; set; }
 
 		public string Name { get; set; }
+
+		public short InputNo { get; set; }
 	}
 	
 	public class DateRange
