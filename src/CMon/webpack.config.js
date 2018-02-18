@@ -11,8 +11,8 @@ const extractLess = new extractText({
 module.exports = {
     entry: { 
 	    app: "./assets/components/App.jsx",
-   		scripts: "./assets/index.js",
-        styles: "./assets/index.less"
+   		scripts: "./assets/",
+        styles: "./assets/styles/"
     },
     output: {
         path: path.join(__dirname, "wwwroot/build"),
@@ -54,6 +54,6 @@ module.exports = {
         extractLess
     ],
     resolve: {
-        extensions: [ ".js", ".jsx" ]
+        extensions: [ ".less", ".js", ".jsx" ]
     }
 };

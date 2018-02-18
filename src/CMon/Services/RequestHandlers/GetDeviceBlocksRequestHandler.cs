@@ -25,7 +25,7 @@ namespace CMon.Services.RequestHandlers
 
 			var blocks = new List<BlockViewModel>
 			{
-				new BlockViewModel { Type = "events", Name = "Events" }
+				new BlockViewModel { Type = "events", Name = "События" }
 			};
 
 			blocks.AddRange(
