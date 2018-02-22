@@ -9,5 +9,11 @@ namespace CMon.Models
 		public long? ExternalId { get; set; }
 
 		public DeviceEventInformation Info { get; set; }
+
+		public string DisplayTitle { get; set; }
+
+		public string DisplayIcon { get; set; }
+
+		public string[] DisplayParams { get; set; }
 	}
 }

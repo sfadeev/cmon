@@ -34,26 +34,24 @@ class BlockEvents extends React.Component {
 	render() {
 		return (
 			<Panel span="6" title={this.props.name}>
-				{this.state.items.map(item => {
-					return (
-						<div key={item.id} className="row">
-							<div className="col-md-1">
-								<span className="badge">{item.externalId}</span>
-							</div>							
-							<div className="col-md-2">
-								<div className="media-left media-middle">
-									{item.eventType}
+				<div className="events">
+					{this.state.items.map(item => {
+						return (
+							<div key={item.id} className="media">
+								<div className="media-left icon">
+									<i className={"fa " + item.displayIcon} />
+								</div>
+								<div className="media-body">
+									<div className="date">
+										<DateTime date={item.createdAt} />
+									</div>
+									<p title={item.eventType}><strong>{item.displayTitle}</strong> <span className="badge">{item.externalId}</span></p>
+									<code style={{wordBreak: "break-all"}}>{JSON.stringify(item.info)}</code>
 								</div>
 							</div>
-							<div className="col-md-6">
-								<code style={{wordBreak: 'break-all'}}>{JSON.stringify(item.info)}</code>
-							</div>
-							<div className="col-md-3">
-								<DateTime date={item.createdAt} />
-							</div>
-						</div>
-					);
-				})}
+						);
+					})}
+				</div>
 			</Panel>
 		);
 	}

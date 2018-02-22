@@ -9,10 +9,12 @@ namespace CMon.Services.RequestHandlers
 	public class GetDeviceEventsRequestHandler : IRequestHandler<GetDeviceEvents, GetDeviceEvents.Result>
 	{
 		private readonly IDeviceRepository _deviceRepository;
+		private readonly DeviceEventDisplayResolver _displayResolver;
 
-		public GetDeviceEventsRequestHandler(IDeviceRepository deviceRepository)
+		public GetDeviceEventsRequestHandler(IDeviceRepository deviceRepository, DeviceEventDisplayResolver displayResolver)
 		{
 			_deviceRepository = deviceRepository;
+			_displayResolver = displayResolver;
 		}
 
 		public Task<GetDeviceEvents.Result> Handle(GetDeviceEvents request, CancellationToken cancellationToken)
@@ -24,6 +26,11 @@ namespace CMon.Services.RequestHandlers
 			};
 
 			result.Items = _deviceRepository.LoadEvents(request.DeviceId, result.BeginDate, result.EndDate);
+
+			foreach (var item in result.Items)
+			{
+				_displayResolver.Resolve(item);
+			}
 
 			return Task.FromResult(result);
 		}

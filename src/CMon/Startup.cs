@@ -131,6 +131,11 @@ namespace CMon
 					options.Filters.Add(typeof(AutoValidateAntiforgeryTokenAuthorizationFilter));
 					// options.ModelMetadataDetailsProviders.Add(new CustomMetadataProvider());
 				})
+				.AddJsonOptions(options =>
+				{
+					options.SerializerSettings.Formatting = Formatting.None;
+					options.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+				})
 				.AddViewLocalization(LanguageViewLocationExpanderFormat.Suffix)
 				.AddDataAnnotationsLocalization();
 
@@ -173,6 +178,7 @@ namespace CMon
 			// todo: register by device type
 			services.AddSingleton<IDeviceManagerFactory, DefaultDeviceManagerFactory>();
 			services.AddTransient<CcuDeviceManager, CcuDeviceManager>();
+			services.AddTransient<DeviceEventDisplayResolver, DeviceEventDisplayResolver>();
 			services.AddTransient<DashboardNotifier, DashboardNotifier>();
 			
 			// Application services

@@ -132,9 +132,17 @@ namespace CMon.Services
 						// exception on insert - so update instead
 						// Npgsql.PostgresException: 42804: column "info" is of type json but expression is of type text
 
+						var serializerSettings = new JsonSerializerSettings
+						{
+							Formatting = Formatting.None,
+							NullValueHandling = NullValueHandling.Ignore
+						};
+
+						var info = JsonConvert.SerializeObject(@event.Info, serializerSettings);
+
 						db.GetTable<DbEvent>()
 							.Where(x => x.Id == dbEvent.Id)
-							.Set(x => x.Info, JsonConvert.SerializeObject(@event.Info))
+							.Set(x => x.Info, info)
 							.Update();
 
 						@event.Id = dbEvent.Id;
