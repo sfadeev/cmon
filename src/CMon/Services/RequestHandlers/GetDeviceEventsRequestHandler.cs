@@ -1,5 +1,8 @@
+using System;
 using System.Threading;
 using System.Threading.Tasks;
+using CMon.Models;
+using CMon.Models.Ccu;
 using CMon.Requests;
 using DaleNewman;
 using MediatR;
@@ -30,6 +33,21 @@ namespace CMon.Services.RequestHandlers
 			foreach (var item in result.Items)
 			{
 				_displayResolver.Resolve(item);
+			}
+
+			// test
+			foreach (var type in Enum.GetNames(typeof(EventType)))
+			{
+				var random = new Random();
+				var item = new DeviceEvent
+				{
+					Id = random.Next(1000000),
+					EventType = type,
+					ExternalId = random.Next(10000),
+					CreatedAt = DateTime.Now.Subtract(TimeSpan.FromHours(random.NextDouble()))
+				};
+				_displayResolver.Resolve(item);
+				result.Items.Add(item);
 			}
 
 			return Task.FromResult(result);
