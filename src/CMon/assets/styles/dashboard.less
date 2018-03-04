@@ -31,10 +31,29 @@ body.dashboard {
 		font-weight: bold;
 	}
 
-	.events {
-		.icon {
-			color: @gray-light;
+	.panel-events {
+
+		.panel-body {
+			padding: 0;
 		}
+
+		.list-group, .list-group-item {
+			border: 0;
+		}
+		
+		.list-group-item-icon {
+			color: @gray-light;
+			float: left;
+		}
+
+		.list-group-item-content {
+			padding-left: 36px;
+		}
+
+		.title {
+			font-weight: bolder;
+		}
+
 		.date {
 			float: right
 		}

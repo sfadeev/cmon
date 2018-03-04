@@ -5,7 +5,7 @@ module.exports = class Panel extends React.Component {
 		return (
 			<div className={ `col-md-${this.props.span}` }>
 
-				<div className="panel panel-default">
+				<div className={`panel panel-default ${this.props.className}`}>
 					<div className="panel-heading">{this.props.title}</div>
 					<div className="panel-body">
 						{this.props.children}

@@ -35,33 +35,32 @@ class BlockEvents extends React.Component {
 	}
 	render() {
 		return (
-			<Panel span="6" title={this.props.name}>
-				<div className="m-list">
+			<Panel span="5" title={this.props.name} className="panel-events">
+				<div className=" list-group">
 					{this.state.items.map(item => {
 						return (
-							<div key={item.id} className="row m-list-item">
-								<div className="col-sm-12">
-									<div className="m-list-item-icon">
-										<i className={`fa fa-fw fa-lg fa-${item.displayIcon}`}/>
-									</div>
-									<div className="m-list-item-content">
-										<div><strong>{item.displayTitle}</strong></div>
+							<a key={item.id} className="list-group-item">
+								<div className="list-group-item-icon">
+									<i className={`fa fa-fw fa-lg fa-${item.displayIcon}`} title={`${item.eventType} #${item.externalId}`} />
+								</div>
+								<div className="list-group-item-content">
+
+									<div className="date">
 										<DateTime date={item.createdAt}/>
-										{ item.displayParams && (
-											<div>
-												{ item.displayParams.map(x => `${x.name}: ${x.value}`).join(", ") }
-											</div>
-										)}
 									</div>
 
-									<p>
-										<code style={{wordBreak: "break-all"}}>
-											{item.eventType}#{item.externalId} - {JSON.stringify(item.info)}
-										</code>
-									</p>
+									<div className="title">
+										{item.displayTitle}
+									</div>
+
+									{ item.displayParams && (
+										<div>
+											{ item.displayParams.map(x => `${x.name}: ${x.value}`).join(", ") }
+										</div>
+									)}
 
 								</div>
-							</div>
+							</a>
 						);
 					})}
 				</div>
@@ -78,7 +77,7 @@ class DateTime extends React.Component {
 		return (
 			<time data-date={this.props.date}>
 				{new Date(this.props.date + "").toLocaleDateString(locale)}
-				<span> · </span>
+				<span> </span>
 				{new Date(this.props.date + "").toLocaleTimeString(locale)}
 			</time>
 	
