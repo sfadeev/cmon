@@ -81,7 +81,7 @@ namespace CMon.Services
 								// x.CreatedAt >= beginDate &&
 								x.CreatedAt <= endDate)
 					.OrderByDescending(x => x.CreatedAt)
-					.Take(10);
+					.Take(100);
 
 				foreach (var dbEvent in events)
 				{

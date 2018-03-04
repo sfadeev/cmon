@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace CMon.Models
 {
 	public class DeviceEvent : ModificationData
@@ -14,6 +16,13 @@ namespace CMon.Models
 
 		public string DisplayIcon { get; set; }
 
-		public string[] DisplayParams { get; set; }
+		public IList<DeviceEventInfoParam> DisplayParams { get; set; }
+	}
+
+	public class DeviceEventInfoParam
+	{
+		public string Name { get; set; }
+
+		public string Value { get; set; }
 	}
 }

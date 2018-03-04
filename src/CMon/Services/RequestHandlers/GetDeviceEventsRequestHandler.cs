@@ -44,7 +44,22 @@ namespace CMon.Services.RequestHandlers
 					Id = random.Next(1000000),
 					EventType = type,
 					ExternalId = random.Next(10000),
-					CreatedAt = DateTime.Now.Subtract(TimeSpan.FromHours(random.NextDouble()))
+					CreatedAt = DateTime.Now.Subtract(TimeSpan.FromHours(random.NextDouble())),
+					Info = new DeviceEventInformation
+					{
+						Partition = 1,
+						Partitions = new[] { 1, 2, 3, 4 },
+						Number = 2,
+						Source = new ArmSource
+						{
+							Type = ArmSourceType.Shell.ToString(),
+							Key = "1234567890",
+							KeyName = "key name",
+							Phone = "+79801234567"
+						},
+						ErrorCode = 9,
+						UserName = "user_name"
+					}
 				};
 				_displayResolver.Resolve(item);
 				result.Items.Add(item);

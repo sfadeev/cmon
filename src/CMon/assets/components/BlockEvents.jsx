@@ -11,9 +11,11 @@ class BlockEvents extends React.Component {
 		this.onApplyFilter = this.onApplyFilter.bind(this);
 	}
 	componentDidMount() {
+		console.log("BlockEvents.componentDidMount");
 		window.addEventListener("apply-filter", this.onApplyFilter);
 	}
 	componentWillUnmount() {
+		console.log("BlockEvents.componentWillUnmount");
 		window.removeEventListener("apply-filter", this.onApplyFilter);
 	}
 	onApplyFilter(e) {
@@ -34,18 +36,30 @@ class BlockEvents extends React.Component {
 	render() {
 		return (
 			<Panel span="6" title={this.props.name}>
-				<div className="events">
+				<div className="m-list">
 					{this.state.items.map(item => {
 						return (
-							<div key={item.id} className="row">
-								<div className="col-sm-3">
-									<DateTime date={item.createdAt} />
-								</div>
-								<div className="col-sm-9">
-									<i className={`fa fa-fw fa-lg fa-${item.displayIcon}`} />
-									<span title={item.eventType}><strong>{item.displayTitle}</strong></span>
-									<span className="badge">{item.externalId}</span>
-									<p style={{display: "none"}}><code style={{wordBreak: "break-all"}}>{JSON.stringify(item.info)}</code></p>
+							<div key={item.id} className="row m-list-item">
+								<div className="col-sm-12">
+									<div className="m-list-item-icon">
+										<i className={`fa fa-fw fa-lg fa-${item.displayIcon}`}/>
+									</div>
+									<div className="m-list-item-content">
+										<div><strong>{item.displayTitle}</strong></div>
+										<DateTime date={item.createdAt}/>
+										{ item.displayParams && (
+											<div>
+												{ item.displayParams.map(x => `${x.name}: ${x.value}`).join(", ") }
+											</div>
+										)}
+									</div>
+
+									<p>
+										<code style={{wordBreak: "break-all"}}>
+											{item.eventType}#{item.externalId} - {JSON.stringify(item.info)}
+										</code>
+									</p>
+
 								</div>
 							</div>
 						);
@@ -58,10 +72,16 @@ class BlockEvents extends React.Component {
 
 class DateTime extends React.Component {
 	render() {
+
+		const locale = "ru";
+
 		return (
 			<time data-date={this.props.date}>
-				{new Date(this.props.date + "").toLocaleString("ru")}
+				{new Date(this.props.date + "").toLocaleDateString(locale)}
+				<span> · </span>
+				{new Date(this.props.date + "").toLocaleTimeString(locale)}
 			</time>
+	
 		);
 	}
 }

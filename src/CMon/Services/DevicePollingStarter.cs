@@ -1,3 +1,4 @@
+using System.Linq;
 using Microsoft.Extensions.Logging;
 
 namespace CMon.Services
@@ -19,7 +20,7 @@ namespace CMon.Services
 		// todo: subscribe on events of add/remove devices
 		public void Start()
 		{
-			foreach (var device in _repository.GetDevices())
+			foreach (var device in _repository.GetDevices().Where(x => x.Id > 1))
 			{
 				_deviceManagerFactory.GetDeviceManager(device.Id).StartPolling();
 			}
@@ -27,7 +28,7 @@ namespace CMon.Services
 
 		public void Stop()
 		{
-			foreach (var device in _repository.GetDevices())
+			foreach (var device in _repository.GetDevices().Where(x => x.Id > 1))
 			{
 				_deviceManagerFactory.GetDeviceManager(device.Id).StopPolling();
 			}

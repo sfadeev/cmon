@@ -147,7 +147,7 @@ namespace CMon.Services
 						{
 							try
 							{
-								PollAsync(_deviceId).Wait();
+								PollAsync(_deviceId).GetAwaiter().GetResult();
 							}
 							catch (Exception ex)
 							{
