@@ -11,6 +11,7 @@ packages
 *.user
 *.sln.docstates
 .idea
+.vscode
 
 # Build results
 [Dd]ebug/

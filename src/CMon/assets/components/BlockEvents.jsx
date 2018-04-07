@@ -3,6 +3,7 @@
 import * as fetcher from "../fetcher";
 
 import Panel from "./Panel"
+import Pagination from "./Pagination"
 
 class BlockEvents extends React.Component {
 	constructor(props) {
@@ -11,11 +12,9 @@ class BlockEvents extends React.Component {
 		this.onApplyFilter = this.onApplyFilter.bind(this);
 	}
 	componentDidMount() {
-		console.log("BlockEvents.componentDidMount");
 		window.addEventListener("apply-filter", this.onApplyFilter);
 	}
 	componentWillUnmount() {
-		console.log("BlockEvents.componentWillUnmount");
 		window.removeEventListener("apply-filter", this.onApplyFilter);
 	}
 	onApplyFilter(e) {
@@ -36,7 +35,7 @@ class BlockEvents extends React.Component {
 	render() {
 		return (
 			<Panel span="5" title={this.props.name} className="panel-events">
-				<div className=" list-group">
+				<div className="list-group">
 					{this.state.items.map(item => {
 						return (
 							<a key={item.id} className="list-group-item">
@@ -64,6 +63,7 @@ class BlockEvents extends React.Component {
 						);
 					})}
 				</div>
+				<Pagination totalCount={ this.state.items.length } />
 			</Panel>
 		);
 	}

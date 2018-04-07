@@ -1,4 +1,4 @@
-using System;
+п»їusing System;
 using System.Collections.Generic;
 using CMon.Models;
 using CMon.Models.Ccu;
@@ -9,87 +9,87 @@ namespace CMon.Services
 	{
 		private static readonly Dictionary<EventType, DisplayOptions> EventTypes = new Dictionary<EventType, DisplayOptions>
 		{
-			{ EventType.InputPassive, new DisplayOptions { Title = "Вход пассивен", Icon = "toggle-off" } },
-			{ EventType.InputActive, new DisplayOptions { Title = "Вход активен", Icon = "toggle-on" } },
-			{ EventType.PowerRecovery, new DisplayOptions { Title = "Восстановление внешнего питания", Icon = "plug" } },
-			{ EventType.PowerFault, new DisplayOptions { Title = "Отключение внешнего питания", Icon = "power-off" } },
-			{ EventType.BatteryLow1, new DisplayOptions { Title = "Разряд батареи до 1 уровня", Icon = "battery-half" } },
-			{ EventType.BatteryLow2, new DisplayOptions { Title = "Разряд батареи до 2 уровня", Icon = "battery-quarter" } },
-			{ EventType.BalanceLow, new DisplayOptions { Title = "Баланс снизился до минимального значения", Icon = "money" } },
-			{ EventType.TempLow, new DisplayOptions { Title = "Температура платы упала до нижней границы", Icon = "thermometer-empty" } },
-			{ EventType.TempNormal, new DisplayOptions { Title = "Температура платы вернулась в допустимый диапазон", Icon = "thermometer-half" } },
-			{ EventType.TempHigh, new DisplayOptions { Title = "Температура платы поднялась до верхней границы", Icon = "thermometer-full" } },
-			{ EventType.CaseOpen, new DisplayOptions { Title = "Вскрытие корпуса контроллера", Icon = "folder-open-o" } },
-			{ EventType.Test, new DisplayOptions { Title = "Тестовое сообщение", Icon = "comment-o" } },
-			{ EventType.Info, new DisplayOptions { Title = "Информационное сообщение", Icon = "info" } },
-			{ EventType.Arm, new DisplayOptions { Title = "Переведен в режим ОХРАНА", Icon = "lock" } },
-			{ EventType.Disarm, new DisplayOptions { Title = "Переведен в режим НАБЛЮДЕНИЕ", Icon = "eye" } },
-			{ EventType.Protect, new DisplayOptions { Title = "Переведен в режим ЗАЩИТА", Icon = "unlock" } },
-			{ EventType.ProfileApplied, new DisplayOptions { Title = "Применен профиль", Icon = "check-circle" } },
-			{ EventType.DeviceOn, new DisplayOptions { Title = "Контроллер включен", Icon = "play" } },
-			{ EventType.DeviceRestart, new DisplayOptions { Title = "Контроллер перезапущен", Icon = "repeat" } },
-			{ EventType.FirmwareUpgrade, new DisplayOptions { Title = "Прошивка обновлена", Icon = "wrench"} },
-			{ EventType.ExtRuntimeError, new DisplayOptions { Title = "Ошибка выполнения программы EXT", Icon = "exclamation-triangle" } }
+			{ EventType.InputPassive, new DisplayOptions { Title = "Р’С…РѕРґ РїР°СЃСЃРёРІРµРЅ", Icon = "toggle-off" } },
+			{ EventType.InputActive, new DisplayOptions { Title = "Р’С…РѕРґ Р°РєС‚РёРІРµРЅ", Icon = "toggle-on" } },
+			{ EventType.PowerRecovery, new DisplayOptions { Title = "Р’РѕСЃСЃС‚Р°РЅРѕРІР»РµРЅРёРµ РІРЅРµС€РЅРµРіРѕ РїРёС‚Р°РЅРёСЏ", Icon = "plug" } },
+			{ EventType.PowerFault, new DisplayOptions { Title = "РћС‚РєР»СЋС‡РµРЅРёРµ РІРЅРµС€РЅРµРіРѕ РїРёС‚Р°РЅРёСЏ", Icon = "power-off" } },
+			{ EventType.BatteryLow1, new DisplayOptions { Title = "Р Р°Р·СЂСЏРґ Р±Р°С‚Р°СЂРµРё РґРѕ 1 СѓСЂРѕРІРЅСЏ", Icon = "battery-half" } },
+			{ EventType.BatteryLow2, new DisplayOptions { Title = "Р Р°Р·СЂСЏРґ Р±Р°С‚Р°СЂРµРё РґРѕ 2 СѓСЂРѕРІРЅСЏ", Icon = "battery-quarter" } },
+			{ EventType.BalanceLow, new DisplayOptions { Title = "Р‘Р°Р»Р°РЅСЃ СЃРЅРёР·РёР»СЃСЏ РґРѕ РјРёРЅРёРјР°Р»СЊРЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ", Icon = "money" } },
+			{ EventType.TempLow, new DisplayOptions { Title = "РўРµРјРїРµСЂР°С‚СѓСЂР° РїР»Р°С‚С‹ СѓРїР°Р»Р° РґРѕ РЅРёР¶РЅРµР№ РіСЂР°РЅРёС†С‹", Icon = "thermometer-empty" } },
+			{ EventType.TempNormal, new DisplayOptions { Title = "РўРµРјРїРµСЂР°С‚СѓСЂР° РїР»Р°С‚С‹ РІРµСЂРЅСѓР»Р°СЃСЊ РІ РґРѕРїСѓСЃС‚РёРјС‹Р№ РґРёР°РїР°Р·РѕРЅ", Icon = "thermometer-half" } },
+			{ EventType.TempHigh, new DisplayOptions { Title = "РўРµРјРїРµСЂР°С‚СѓСЂР° РїР»Р°С‚С‹ РїРѕРґРЅСЏР»Р°СЃСЊ РґРѕ РІРµСЂС…РЅРµР№ РіСЂР°РЅРёС†С‹", Icon = "thermometer-full" } },
+			{ EventType.CaseOpen, new DisplayOptions { Title = "Р’СЃРєСЂС‹С‚РёРµ РєРѕСЂРїСѓСЃР° РєРѕРЅС‚СЂРѕР»Р»РµСЂР°", Icon = "folder-open-o" } },
+			{ EventType.Test, new DisplayOptions { Title = "РўРµСЃС‚РѕРІРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ", Icon = "comment-o" } },
+			{ EventType.Info, new DisplayOptions { Title = "РРЅС„РѕСЂРјР°С†РёРѕРЅРЅРѕРµ СЃРѕРѕР±С‰РµРЅРёРµ", Icon = "info" } },
+			{ EventType.Arm, new DisplayOptions { Title = "РџРµСЂРµРІРµРґРµРЅ РІ СЂРµР¶РёРј РћРҐР РђРќРђ", Icon = "lock" } },
+			{ EventType.Disarm, new DisplayOptions { Title = "РџРµСЂРµРІРµРґРµРЅ РІ СЂРµР¶РёРј РќРђР‘Р›Р®Р”Р•РќРР•", Icon = "eye" } },
+			{ EventType.Protect, new DisplayOptions { Title = "РџРµСЂРµРІРµРґРµРЅ РІ СЂРµР¶РёРј Р—РђР©РРўРђ", Icon = "unlock" } },
+			{ EventType.ProfileApplied, new DisplayOptions { Title = "РџСЂРёРјРµРЅРµРЅ РїСЂРѕС„РёР»СЊ", Icon = "check-circle" } },
+			{ EventType.DeviceOn, new DisplayOptions { Title = "РљРѕРЅС‚СЂРѕР»Р»РµСЂ РІРєР»СЋС‡РµРЅ", Icon = "play" } },
+			{ EventType.DeviceRestart, new DisplayOptions { Title = "РљРѕРЅС‚СЂРѕР»Р»РµСЂ РїРµСЂРµР·Р°РїСѓС‰РµРЅ", Icon = "repeat" } },
+			{ EventType.FirmwareUpgrade, new DisplayOptions { Title = "РџСЂРѕС€РёРІРєР° РѕР±РЅРѕРІР»РµРЅР°", Icon = "wrench"} },
+			{ EventType.ExtRuntimeError, new DisplayOptions { Title = "РћС€РёР±РєР° РІС‹РїРѕР»РЅРµРЅРёСЏ РїСЂРѕРіСЂР°РјРјС‹ EXT", Icon = "exclamation-triangle" } }
 		};
 
 		private static readonly Dictionary<ArmSourceType, string> SourceTypes = new Dictionary<ArmSourceType, string>
 		{
-			{ ArmSourceType.Button, "Кнопка" },
-			{ ArmSourceType.Input, "Вход" },
-			{ ArmSourceType.Scheduler, "Планировщик задач" },
-			{ ArmSourceType.Modbus, "GuardTracker по сети Modbus" },
-			{ ArmSourceType.TouchMemory, "Ключ TouchMemory" },
-			{ ArmSourceType.DTMF, "Голосовое меню" },
-			{ ArmSourceType.SMS, "SMS команда" },
-			{ ArmSourceType.CSD, "CSD соединение" },
-			{ ArmSourceType.Call, "Вызов без соединения" },
-			{ ArmSourceType.GTNet, "GuardTracker по сети" },
-			{ ArmSourceType.uGuardNet, "uGuard по сети" },
+			{ ArmSourceType.Button, "РљРЅРѕРїРєР°" },
+			{ ArmSourceType.Input, "Р’С…РѕРґ" },
+			{ ArmSourceType.Scheduler, "РџР»Р°РЅРёСЂРѕРІС‰РёРє Р·Р°РґР°С‡" },
+			{ ArmSourceType.Modbus, "GuardTracker РїРѕ СЃРµС‚Рё Modbus" },
+			{ ArmSourceType.TouchMemory, "РљР»СЋС‡ TouchMemory" },
+			{ ArmSourceType.DTMF, "Р“РѕР»РѕСЃРѕРІРѕРµ РјРµРЅСЋ" },
+			{ ArmSourceType.SMS, "SMS РєРѕРјР°РЅРґР°" },
+			{ ArmSourceType.CSD, "CSD СЃРѕРµРґРёРЅРµРЅРёРµ" },
+			{ ArmSourceType.Call, "Р’С‹Р·РѕРІ Р±РµР· СЃРѕРµРґРёРЅРµРЅРёСЏ" },
+			{ ArmSourceType.GTNet, "GuardTracker РїРѕ СЃРµС‚Рё" },
+			{ ArmSourceType.uGuardNet, "uGuard РїРѕ СЃРµС‚Рё" },
 			{ ArmSourceType.Shell, "CCU shell" }
 		};
 
 		private static readonly Dictionary<int, string> ErrorCodes = new Dictionary<int, string>
 		{
-			{ 1, "Неверный код инструкции." },
-			{ 2, "Неверный код встроенной подпрограммы." },
-			{ 3, "Деление на ноль." },
-			{ 4, "Переполнение стека сверху." },
-			{ 5, "Переполнение стека снизу." },
-			{ 6, "Переполнение кода сверху." },
-			{ 7, "Переполнение кода снизу." },
-			{ 8, "Переполнение данных сверху." },
-			{ 9, "Переполнение данных снизу." },
-			{ 10, "Ошибка чтения флеш-памяти." },
-			{ 11, "Превышено максимально допустимое время обработки события." },
-			{ 1025, "Неверный параметр встроенной подпрограммы $get_input_state." },
-			{ 1026, "Неверный параметр встроенной подпрограммы $get_input_value." },
-			{ 1027, "Неверный параметр встроенной подпрограммы $get_sensor_value." },
-			{ 1028, "Неверный параметр встроенной подпрограммы $get_output_state." },
-			{ 1029, "Недопустимый вызов встроенной подпрограммы $get_arm_mode для данной модификации контроллера." },
-			{ 1030, "Неверный параметр встроенной подпрограммы $get_part_arm_mode или недопустимый вызов для данной модификации контроллера." },
-			{ 1041, "Неверный параметр встроенной подпрограммы $get_year." },
-			{ 1042, "Неверный параметр встроенной подпрограммы $get_month." },
-			{ 1043, "Неверный параметр встроенной подпрограммы $get_day." },
-			{ 1044, "Неверный параметр встроенной подпрограммы $get_day_of_week." },
-			{ 1045, "Неверный параметр встроенной подпрограммы $get_hour." },
-			{ 1046, "Неверный параметр встроенной подпрограммы $get_minute." },
-			{ 1047, "Неверный параметр встроенной подпрограммы $get_second." },
-			{ 1048, "Неверный параметр встроенной подпрограммы $set_output_state." },
-			{ 1049, "Неверный параметр встроенной подпрограммы $set_output_pulse." },
-			{ 1050, "Неверный параметр встроенной подпрограммы $set_arm_mode или недопустимый вызов для данной модификации контроллера." },
-			{ 1051, "Неверный параметр встроенной подпрограммы $set_part_arm_mode или недопустимый вызов для данной модификации контроллера." },
-			{ 1052, "Неверный параметр встроенной подпрограммы $apply_profile." },
-			{ 1053, "Неверный параметр встроенной подпрограммы $set_event_mask." },
-			{ 1054, "Неверный параметр встроенной подпрограммы $reset_event_mask." },
-			{ 1055, "Неверный параметр встроенной подпрограммы $set_timer." },
-			{ 1056, "Неверный параметр встроенной подпрограммы $reset_timer." },
-			{ 1057, "Неверный параметр встроенной подпрограммы $set_alarm." },
-			{ 1058, "Неверный параметр встроенной подпрограммы $reset_alarm." },
-			{ 1059, "Неверный параметр встроенной подпрограммы $raise_event." },
-			{ 1060, "Неверный параметр встроенной подпрограммы $get_input_low_limit." },
-			{ 1061, "Неверный параметр встроенной подпрограммы $get_input_high_limit." },
-			{ 1062, "Неверный параметр встроенной подпрограммы $get_sensor_low_limit." },
-			{ 1063, "Неверный параметр встроенной подпрограммы $get_sensor_high_limit." }
+			{ 1, "РќРµРІРµСЂРЅС‹Р№ РєРѕРґ РёРЅСЃС‚СЂСѓРєС†РёРё." },
+			{ 2, "РќРµРІРµСЂРЅС‹Р№ РєРѕРґ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹." },
+			{ 3, "Р”РµР»РµРЅРёРµ РЅР° РЅРѕР»СЊ." },
+			{ 4, "РџРµСЂРµРїРѕР»РЅРµРЅРёРµ СЃС‚РµРєР° СЃРІРµСЂС…Сѓ." },
+			{ 5, "РџРµСЂРµРїРѕР»РЅРµРЅРёРµ СЃС‚РµРєР° СЃРЅРёР·Сѓ." },
+			{ 6, "РџРµСЂРµРїРѕР»РЅРµРЅРёРµ РєРѕРґР° СЃРІРµСЂС…Сѓ." },
+			{ 7, "РџРµСЂРµРїРѕР»РЅРµРЅРёРµ РєРѕРґР° СЃРЅРёР·Сѓ." },
+			{ 8, "РџРµСЂРµРїРѕР»РЅРµРЅРёРµ РґР°РЅРЅС‹С… СЃРІРµСЂС…Сѓ." },
+			{ 9, "РџРµСЂРµРїРѕР»РЅРµРЅРёРµ РґР°РЅРЅС‹С… СЃРЅРёР·Сѓ." },
+			{ 10, "РћС€РёР±РєР° С‡С‚РµРЅРёСЏ С„Р»РµС€-РїР°РјСЏС‚Рё." },
+			{ 11, "РџСЂРµРІС‹С€РµРЅРѕ РјР°РєСЃРёРјР°Р»СЊРЅРѕ РґРѕРїСѓСЃС‚РёРјРѕРµ РІСЂРµРјСЏ РѕР±СЂР°Р±РѕС‚РєРё СЃРѕР±С‹С‚РёСЏ." },
+			{ 1025, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $get_input_state." },
+			{ 1026, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $get_input_value." },
+			{ 1027, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $get_sensor_value." },
+			{ 1028, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $get_output_state." },
+			{ 1029, "РќРµРґРѕРїСѓСЃС‚РёРјС‹Р№ РІС‹Р·РѕРІ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $get_arm_mode РґР»СЏ РґР°РЅРЅРѕР№ РјРѕРґРёС„РёРєР°С†РёРё РєРѕРЅС‚СЂРѕР»Р»РµСЂР°." },
+			{ 1030, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $get_part_arm_mode РёР»Рё РЅРµРґРѕРїСѓСЃС‚РёРјС‹Р№ РІС‹Р·РѕРІ РґР»СЏ РґР°РЅРЅРѕР№ РјРѕРґРёС„РёРєР°С†РёРё РєРѕРЅС‚СЂРѕР»Р»РµСЂР°." },
+			{ 1041, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $get_year." },
+			{ 1042, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $get_month." },
+			{ 1043, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $get_day." },
+			{ 1044, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $get_day_of_week." },
+			{ 1045, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $get_hour." },
+			{ 1046, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $get_minute." },
+			{ 1047, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $get_second." },
+			{ 1048, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $set_output_state." },
+			{ 1049, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $set_output_pulse." },
+			{ 1050, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $set_arm_mode РёР»Рё РЅРµРґРѕРїСѓСЃС‚РёРјС‹Р№ РІС‹Р·РѕРІ РґР»СЏ РґР°РЅРЅРѕР№ РјРѕРґРёС„РёРєР°С†РёРё РєРѕРЅС‚СЂРѕР»Р»РµСЂР°." },
+			{ 1051, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $set_part_arm_mode РёР»Рё РЅРµРґРѕРїСѓСЃС‚РёРјС‹Р№ РІС‹Р·РѕРІ РґР»СЏ РґР°РЅРЅРѕР№ РјРѕРґРёС„РёРєР°С†РёРё РєРѕРЅС‚СЂРѕР»Р»РµСЂР°." },
+			{ 1052, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $apply_profile." },
+			{ 1053, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $set_event_mask." },
+			{ 1054, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $reset_event_mask." },
+			{ 1055, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $set_timer." },
+			{ 1056, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $reset_timer." },
+			{ 1057, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $set_alarm." },
+			{ 1058, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $reset_alarm." },
+			{ 1059, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $raise_event." },
+			{ 1060, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $get_input_low_limit." },
+			{ 1061, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $get_input_high_limit." },
+			{ 1062, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $get_sensor_low_limit." },
+			{ 1063, "РќРµРІРµСЂРЅС‹Р№ РїР°СЂР°РјРµС‚СЂ РІСЃС‚СЂРѕРµРЅРЅРѕР№ РїРѕРґРїСЂРѕРіСЂР°РјРјС‹ $get_sensor_high_limit." }
 		};
 
 		public void Resolve(DeviceEvent @event)
@@ -118,59 +118,59 @@ namespace CMon.Services
 				if (eventType == EventType.InputActive || eventType == EventType.InputPassive)
 				{
 					// todo: resolve input name
-					result.Add(new DeviceEventInfoParam { Name = "Номер входа", Value = info.Number.ToString() });
+					result.Add(new DeviceEventInfoParam { Name = "РќРѕРјРµСЂ РІС…РѕРґР°", Value = info.Number.ToString() });
 				}
 				else if (eventType == EventType.ProfileApplied)
 				{
-					result.Add(new DeviceEventInfoParam { Name = "Номер профиля", Value = info.Number.ToString() });
+					result.Add(new DeviceEventInfoParam { Name = "РќРѕРјРµСЂ РїСЂРѕС„РёР»СЏ", Value = info.Number.ToString() });
 				}
 			}
 
 			if (info?.Partitions?.Length > 0)
 			{
 				// todo: resolve partitions names
-				result.Add(new DeviceEventInfoParam { Name = "Номера привязанных разделов", Value = string.Join(", ", info.Partitions) });
+				result.Add(new DeviceEventInfoParam { Name = "РќРѕРјРµСЂР° РїСЂРёРІСЏР·Р°РЅРЅС‹С… СЂР°Р·РґРµР»РѕРІ", Value = string.Join(", ", info.Partitions) });
 			}
 
 			if (info?.Partition != null)
 			{
-				result.Add(new DeviceEventInfoParam { Name = "Номер раздела", Value = info.Partition.ToString() });
+				result.Add(new DeviceEventInfoParam { Name = "РќРѕРјРµСЂ СЂР°Р·РґРµР»Р°", Value = info.Partition.ToString() });
 			}
 
 			if (info?.Source?.Type != null
 				&& Enum.TryParse<ArmSourceType>(info.Source.Type, out var sourceType)
 				&& SourceTypes.TryGetValue(sourceType, out var value))
 			{
-				result.Add(new DeviceEventInfoParam { Name = "Источник", Value = value });
+				result.Add(new DeviceEventInfoParam { Name = "РСЃС‚РѕС‡РЅРёРє", Value = value });
 			}
 
 			if (info?.Source?.Key != null)
 			{
-				result.Add(new DeviceEventInfoParam { Name = "Номер ключа", Value = info.Source.Key });
+				result.Add(new DeviceEventInfoParam { Name = "РќРѕРјРµСЂ РєР»СЋС‡Р°", Value = info.Source.Key });
 			}
 
 			if (info?.Source?.KeyName != null)
 			{
-				result.Add(new DeviceEventInfoParam { Name = "Имя ключа", Value = info.Source.KeyName });
+				result.Add(new DeviceEventInfoParam { Name = "РРјСЏ РєР»СЋС‡Р°", Value = info.Source.KeyName });
 			}
 
 			if (info?.Source?.Phone != null)
 			{
-				result.Add(new DeviceEventInfoParam { Name = "Номер телефона", Value = info.Source.Phone });
+				result.Add(new DeviceEventInfoParam { Name = "РќРѕРјРµСЂ С‚РµР»РµС„РѕРЅР°", Value = info.Source.Phone });
 			}
 
 			if (info?.UserName != null)
 			{
-				result.Add(new DeviceEventInfoParam { Name = "Имя пользователя", Value = info.UserName });
+				result.Add(new DeviceEventInfoParam { Name = "РРјСЏ РїРѕР»СЊР·РѕРІР°С‚РµР»СЏ", Value = info.UserName });
 			}
 
 			if (info?.ErrorCode != null)
 			{
-				result.Add(new DeviceEventInfoParam { Name = "Код ошибки", Value = info.ErrorCode.ToString() });
+				result.Add(new DeviceEventInfoParam { Name = "РљРѕРґ РѕС€РёР±РєРё", Value = info.ErrorCode.ToString() });
 
 				if (ErrorCodes.TryGetValue(info.ErrorCode.Value, out var error))
 				{
-					result.Add(new DeviceEventInfoParam { Name = "Ошибка", Value = error });
+					result.Add(new DeviceEventInfoParam { Name = "РћС€РёР±РєР°", Value = error });
 				}
 			}
 
