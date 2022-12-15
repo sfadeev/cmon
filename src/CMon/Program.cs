@@ -111,7 +111,7 @@ namespace CMon
 
 			var inputs = repository.GetInputs(deviceId);
 
-			var url = "https://ccu.sh/data.cgx?cmd={\"Command\":\"GetStateAndEvents\"}";
+			var url = "https://ccu.su/data.cgx?cmd={\"Command\":\"GetStateAndEvents\"}";
 
 			var json = await Get(device, url);
 
