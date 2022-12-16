@@ -1,6 +1,5 @@
 ﻿@{
 	var appName = "c°mon";
-	var version = Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application.ApplicationVersion;
 }
 <!DOCTYPE html>
 <html>
@@ -56,11 +55,7 @@
         @RenderBody()
         <hr />
         <footer>
-	        <p>&copy; @DateTime.Today.Year - 
-		        <a class="version" href="@(Url.Action("Index", "ChangeLog"))#@version">
-			        @version
-		        </a>
-			</p>
+	        <p>&copy; @DateTime.Today.Year</p>
         </footer>
     </div>
 

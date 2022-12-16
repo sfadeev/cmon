@@ -3,6 +3,7 @@
 
 **/.logs/*
 .vs/*
+.idea/*
 packages
 *.lock.json
 

@@ -6,10 +6,11 @@ using System.Threading;
 using CMon.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
-using Xunit;
+using NUnit.Framework;
 
 namespace CMon.Tests.Services
 {
+	[TestFixture]
 	public class DefaultInputValueProviderTests
     {
 		public IConfigurationRoot Configuration { get; set; }
@@ -24,7 +25,7 @@ namespace CMon.Tests.Services
 			Configuration = builder.Build();
 		}
 
-        [Fact]
+        [Test]
         public void Test1()
         {
 			// arrange
@@ -48,7 +49,7 @@ namespace CMon.Tests.Services
 			Assert.NotNull(stats);
         }
 
-		[Fact]
+		[Test]
 		public void MultiThreadTest()
 	    {
 			var timers = new List<Timer>();
@@ -74,7 +75,6 @@ namespace CMon.Tests.Services
 					}
 				}, i, TimeSpan.FromMilliseconds(100), TimeSpan.FromSeconds(15)));
 			}
-
 		    while (true)
 		    {
 		    }
