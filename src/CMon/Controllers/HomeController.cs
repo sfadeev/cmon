@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace CMon.Web.Controllers
+namespace CMon.Controllers
 {
 	public class HomeController : Controller
     {

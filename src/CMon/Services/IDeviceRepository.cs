@@ -1,56 +1,71 @@
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using CMon.Entities;
+using CMon.Models;
 using LinqToDB;
+using Microsoft.Extensions.Configuration;
 
 namespace CMon.Services
 {
 	public interface IDeviceRepository
 	{
-		DbDevice GetDevice(long deviceId);
+		Task<Device> GetDevice(long deviceId, CancellationToken token);
 
-		IList<DbInput> GetInputs(long deviceId);
-
-		void SaveToDb(long deviceId, short input, decimal value);
+		Task SaveToDb(long deviceId, short input, decimal value, CancellationToken token);
 	}
 
 	public class DefaultDeviceRepository : IDeviceRepository
 	{
-		private readonly string _connectionString;
+		private readonly IConfiguration _configuration;
 
-		public DefaultDeviceRepository(string connectionString)
+		public DefaultDeviceRepository(IConfiguration configuration)
 		{
-			_connectionString = connectionString;
+			_configuration = configuration;
 		}
 
-		public DbDevice GetDevice(long deviceId)
+		private DbConnection CreateConnection()
 		{
-			using (var db = new DbConnection(_connectionString))
+			return new DbConnection(_configuration.GetConnectionString("DefaultConnection"));
+		}
+		
+		public async Task<Device> GetDevice(long deviceId, CancellationToken token)
+		{
+			using (var db = CreateConnection())
 			{
-				return db.GetTable<DbDevice>().SingleOrDefault(x => x.Id == deviceId);
+				var device = await db.GetTable<DbDevice>()
+					.Where(x => x.Id == deviceId)
+					.Select(x => new Device
+					{
+						Id = x.Id,
+						Imei = x.Imei,
+						Username = x.Username,
+						Password = x.Password,
+					})
+					.SingleOrDefaultAsync(token);
+
+				if (device != null)
+				{
+					device.Inputs = await db.GetTable<DbInput>()
+						.Where(x => x.DeviceId == deviceId).ToListAsync(token);
+				}
+
+				return device;
 			}
 		}
-
-		public IList<DbInput> GetInputs(long deviceId)
+		
+		public async Task SaveToDb(long deviceId, short input, decimal value, CancellationToken token)
 		{
-			using (var db = new DbConnection(_connectionString))
+			using (var db = CreateConnection())
 			{
-				return db.GetTable<DbInput>().Where(x => x.DeviceId == deviceId).ToList();
-			}
-		}
-
-		public void SaveToDb(long deviceId, short input, decimal value)
-		{
-			using (var db = new DbConnection(_connectionString))
-			{
-				db.Insert(new DbInputValue
+				await db.InsertAsync(new DbInputValue
 				{
 					DeviceId = deviceId,
 					InputNum = input,
 					Value = value,
 					CreatedAt = DateTime.UtcNow
-				});
+				}, token: token);
 			}
 		}
 	}

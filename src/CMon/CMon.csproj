@@ -1,7 +1,9 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <UserSecretsId>cmon</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
@@ -9,10 +11,6 @@
         <PackageReference Include="DateMath" />
         <PackageReference Include="linq2db" />
         <PackageReference Include="Npgsql" />
-    </ItemGroup>
-    
-    <ItemGroup>
-        <FrameworkReference Include="Microsoft.AspNetCore.App" />
     </ItemGroup>
     
 </Project>

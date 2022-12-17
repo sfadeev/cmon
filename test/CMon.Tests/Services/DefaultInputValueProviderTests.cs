@@ -19,7 +19,7 @@ namespace CMon.Tests.Services
 		{
 			var builder = new ConfigurationBuilder()
 				.SetBasePath(Directory.GetCurrentDirectory())
-				.AddUserSecrets(UserSecret.Id)
+				// .AddUserSecrets(UserSecret.Id)
 				.AddEnvironmentVariables();
 
 			Configuration = builder.Build();

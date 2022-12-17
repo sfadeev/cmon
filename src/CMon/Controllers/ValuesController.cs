@@ -2,7 +2,7 @@
 using CMon.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace CMon.Web.Controllers
+namespace CMon.Controllers
 {
 	[Route("api/[controller]")]
 	public class ValuesController : Controller
