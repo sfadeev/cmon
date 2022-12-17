@@ -69,10 +69,14 @@ namespace CMon.Services
                 _logger.LogInformation(message);
             }
         }
-        
+
         private async Task<string> Get(DbDevice device, string url)
         {
-            using (var client = new HttpClient())
+            using (var client = new HttpClient(new HttpClientHandler
+                   {
+                       ServerCertificateCustomValidationCallback =
+                           HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+                   }))
             {
                 try
                 {
@@ -86,8 +90,8 @@ namespace CMon.Services
                     if (response.StatusCode != HttpStatusCode.OK)
                     {
                         _logger.LogError("Error response from device [{deviceId}] - {statusCode} ({status})",
-                            device.Id, (int)response.StatusCode, response.StatusCode);
-                        
+                            device.Id, (int) response.StatusCode, response.StatusCode);
+
                         return null;
                     }
 
