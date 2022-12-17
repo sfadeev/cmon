@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading;
 using CMon.Services;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging.Abstractions;
 using NUnit.Framework;
 
 namespace CMon.Tests.Services
@@ -28,7 +29,7 @@ namespace CMon.Tests.Services
         public void Test1()
         {
 			// arrange
-			var provider = new DefaultInputValueProvider(Configuration);
+			var provider = new DefaultInputValueProvider(NullLogger<DefaultInputValueProvider>.Instance, Configuration);
 
 			// act
 	        var stats = provider.GetValues(new InputValueRequest
@@ -36,7 +37,7 @@ namespace CMon.Tests.Services
 		        DeviceId = 0,
 		        BeginDate = "now-2y",
 		        EndDate = "now"
-	        });
+	        }, new CancellationToken());
 
 			// assert
 			Assert.NotNull(stats);
