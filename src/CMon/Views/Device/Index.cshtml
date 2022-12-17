@@ -21,6 +21,9 @@
 			</div>
 			<div class="btn-group btn-group-sm" role="group" style="margin-right: 5px;">
 				<button type="button" class="btn btn-default">1w</button>
+				<button type="button" class="btn btn-default">2w</button>
+				<button type="button" class="btn btn-default">3w</button>
+				<button type="button" class="btn btn-default">4w</button>
 			</div>
 			<div class="input-group input-group-sm col-sm-2">
 				<input type="text" class="form-control" id="from" value="now-1h">
@@ -83,6 +86,8 @@
 			};
 
 			var init = function() {
+				
+				getPeriod();
 
 				options.container.width = parseInt(chart.style('width'), 10);
 				options.container.height =
@@ -355,14 +360,34 @@
 			}, 60000);
 
 			$(".btn-group .btn").click(function () {
-				$("#from").val("now-" + $(this).text());
-				$("#to").val("now");
+				
+				setPeriod("now-" + $(this).text(), "now");
+				
 				loadData(true);
 			});
 
 			$(".input-group .btn").click(function () {
+				
+				setPeriod($("#from").val(), $("#to").val());	
+				
 				loadData(true);
 			});
+			
+			function getPeriod() {
+				var from = localStorage.getItem('date-from') || 'now-1h';
+				var to = localStorage.getItem('date-to') || 'now';
+				
+				$('#from').val(from);
+				$('#to').val(to);
+			}
+			
+			function setPeriod(from, to) {
+				$("#from").val(from);
+                $("#to").val(to);
+                				
+                localStorage.setItem('date-from', from);
+                localStorage.setItem('date-to', to);
+			}
 
 			$(window).resize(function () {
 				init();
