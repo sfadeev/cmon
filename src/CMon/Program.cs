@@ -1,3 +1,4 @@
+using CMon;
 using CMon.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -5,10 +6,8 @@ using Microsoft.Extensions.DependencyInjection;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// builder.WebHost.UseContentRoot(Directory.GetCurrentDirectory());
-    
 builder.Configuration
-    .AddUserSecrets(typeof(Program).Assembly)
+    .AddUserSecrets(typeof(AppSettings).Assembly)
     .AddEnvironmentVariables();
 
 var services = builder.Services;
@@ -31,13 +30,6 @@ app.UseHsts();
 // app.UseHttpsRedirection();
 
 app.UseStaticFiles();
-
-/*app.UseRouting()
-    .UseEndpoints(routes =>
-    {
-        
-    });*/
-// app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",

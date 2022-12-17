@@ -1,16 +1,18 @@
 ﻿using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using CMon.Entities;
 using CMon.Models;
 using DaleNewman;
 using LinqToDB;
-using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Configuration;
 
 namespace CMon.Services
 {
 	public interface IInputValueProvider
     {
-		DeviceStatistic GetValues(InputValueRequest request);
+	    Task<DeviceStatistic> GetValues(InputValueRequest request, CancellationToken token);
     }
 
 	public class InputValueOptions
@@ -35,14 +37,19 @@ namespace CMon.Services
 
 	public class DefaultInputValueProvider : IInputValueProvider
 	{
-		private readonly ConnectionStringOptions _connectionStrings;
+		private readonly IConfiguration _configuration;
 
-		public DefaultInputValueProvider(IOptions<ConnectionStringOptions> connectionStringOptions)
+		public DefaultInputValueProvider(IConfiguration configuration)
 		{
-			_connectionStrings = connectionStringOptions.Value;
+			_configuration = configuration;
 		}
 
-		public DeviceStatistic GetValues(InputValueRequest request)
+		private DbConnection CreateConnection()
+		{
+			return new DbConnection(_configuration.GetConnectionString("DefaultConnection"));
+		}
+		
+		public async Task<DeviceStatistic> GetValues(InputValueRequest request, CancellationToken token)
 		{
 			var options = new InputValueOptions();
 
@@ -54,10 +61,8 @@ namespace CMon.Services
 			groupByMinutes = Math.Max(Math.Min(
 					groupByMinutes, options.MaxGroupByMinutes), options.MinGroupByMinutes);
 
-			using (var db = new DbConnection(_connectionStrings.DefaultConnection))
+			using (var db = CreateConnection())
 			{
-				var dbInput = db.GetTable<DbInput>().Where(x => x.DeviceId == request.DeviceId).ToList();
-
 				var table = db.GetTable<DbInputValue>();
 
 				var q1 = from v in table
@@ -113,6 +118,8 @@ namespace CMon.Services
 
 				var lookup = q3.OrderBy(x => x.InputNum).ThenBy(x => x.Period).ToLookup(x => x.InputNum, x => x);
 
+				var dbInput = await db.GetTable<DbInput>().Where(x => x.DeviceId == request.DeviceId).ToListAsync(token);
+				
 				var inputs = lookup
 					.Select(i => new InputStatistic
 					{

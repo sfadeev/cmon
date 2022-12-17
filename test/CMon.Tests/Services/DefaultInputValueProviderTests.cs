@@ -5,7 +5,6 @@ using System.IO;
 using System.Threading;
 using CMon.Services;
 using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Options;
 using NUnit.Framework;
 
 namespace CMon.Tests.Services
@@ -13,13 +12,13 @@ namespace CMon.Tests.Services
 	[TestFixture]
 	public class DefaultInputValueProviderTests
     {
-		public IConfigurationRoot Configuration { get; set; }
+		public IConfigurationRoot Configuration { get; }
 
 		public DefaultInputValueProviderTests()
 		{
 			var builder = new ConfigurationBuilder()
 				.SetBasePath(Directory.GetCurrentDirectory())
-				// .AddUserSecrets(UserSecret.Id)
+				.AddUserSecrets(typeof(AppSettings).Assembly)
 				.AddEnvironmentVariables();
 
 			Configuration = builder.Build();
@@ -29,13 +28,7 @@ namespace CMon.Tests.Services
         public void Test1()
         {
 			// arrange
-	        var connectionString = new ConnectionStringOptions
-	        {
-		        DefaultConnection = Configuration.GetConnectionString("DefaultConnection")
-	        };
-	        var provider = new DefaultInputValueProvider(Options.Create(connectionString));
-
-			var now = DateTime.UtcNow;
+			var provider = new DefaultInputValueProvider(Configuration);
 
 			// act
 	        var stats = provider.GetValues(new InputValueRequest
