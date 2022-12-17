@@ -9,19 +9,9 @@
 	<meta name="google-site-verification" content="uTtk4l8cK8HfssECFR_daQ4TF_-PMiFVMCUPGlnelOE" />
 	<meta name="yandex-verification" content="12835df1d1494c86" />
     <title>@ViewData["Title"] | @appName</title>
-
-    <environment names="Development">
-        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
-        <link rel="stylesheet" href="~/css/site.css" />
-        <link rel="stylesheet" href="~/css/chart.css" />
-    </environment>
-    <environment names="Staging,Production">
-        <link rel="stylesheet" href="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.6/css/bootstrap.min.css"
-              asp-fallback-href="~/lib/bootstrap/dist/css/bootstrap.min.css"
-              asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
-        <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-        <link rel="stylesheet" href="~/css/chart.css" asp-append-version="true" />
-    </environment>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/css/chart.css" />
 </head>
 <body>
     <div class="navbar navbar-default navbar-static-top">
@@ -44,10 +34,7 @@
 							<li><a href="@Url.Action("Index", "Device", new { deviceId = 2 })">#2</a></li>
 						</ul>
 					</li>
-		            @*<li><a asp-area="" asp-controller="Home" asp-action="About">About</a></li>*@
-		            @*<li><a asp-area="" asp-controller="Home" asp-action="Contact">Contact</a></li>*@
 	            </ul>
-                @*@await Html.PartialAsync("_LoginPartial")*@
             </div>
         </div>
     </div>
@@ -59,24 +46,10 @@
         </footer>
     </div>
 
-    <environment names="Development">
-        <script src="~/lib/jquery/dist/jquery.js"></script>
-        <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
-        <script src="~/js/site.js" asp-append-version="true"></script>
-    </environment>
-    <environment names="Staging,Production">
-        <script src="https://ajax.aspnetcdn.com/ajax/jquery/jquery-2.2.0.min.js"
-                asp-fallback-src="~/lib/jquery/dist/jquery.min.js"
-                asp-fallback-test="window.jQuery">
-        </script>
-        <script src="https://ajax.aspnetcdn.com/ajax/bootstrap/3.3.6/bootstrap.min.js"
-                asp-fallback-src="~/lib/bootstrap/dist/js/bootstrap.min.js"
-                asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal">
-        </script>
-        <script src="~/js/site.min.js" asp-append-version="true"></script>
-    </environment>
+    <script src="~/lib/jquery/dist/jquery.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.js"></script>
 
-    @RenderSection("scripts", required: false)
+	@RenderSection("scripts", required: false)
 	
 	@await Html.PartialAsync("_GoogleAnalytics")
 	@await Html.PartialAsync("_YandexMetrika")

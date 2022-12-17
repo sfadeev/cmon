@@ -7,6 +7,7 @@ using CMon.Models;
 using DaleNewman;
 using LinqToDB;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace CMon.Services
 {
@@ -37,10 +38,12 @@ namespace CMon.Services
 
 	public class DefaultInputValueProvider : IInputValueProvider
 	{
+		private readonly ILogger<DefaultInputValueProvider> _logger;
 		private readonly IConfiguration _configuration;
 
-		public DefaultInputValueProvider(IConfiguration configuration)
+		public DefaultInputValueProvider(ILogger<DefaultInputValueProvider> logger, IConfiguration configuration)
 		{
+			_logger = logger;
 			_configuration = configuration;
 		}
 
@@ -61,12 +64,16 @@ namespace CMon.Services
 			groupByMinutes = Math.Max(Math.Min(
 					groupByMinutes, options.MaxGroupByMinutes), options.MinGroupByMinutes);
 
+			_logger.LogDebug("GetValues [{deviceId}] {beginDate} - {endDate}, (group by {groupByMinutes} min)",
+				request.DeviceId, beginDate, endDate, groupByMinutes);
+			
 			using (var db = CreateConnection())
 			{
 				var table = db.GetTable<DbInputValue>();
 
 				var q1 = from v in table
-					where v.DeviceId == request.DeviceId && v.CreatedAt > beginDate && v.CreatedAt <= endDate
+					where v.DeviceId == request.DeviceId
+					      && v.CreatedAt > beginDate && v.CreatedAt <= endDate
 					select new
 					{
 						v.InputNum,
