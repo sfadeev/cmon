@@ -1,4 +1,4 @@
-using CMon;
+﻿using CMon;
 using CMon.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -18,7 +18,7 @@ services.AddTransient<IDevicePoller, DefaultDevicePoller>();
 services.AddTransient<IDeviceRepository, DefaultDeviceRepository>();
 services.AddTransient<IInputValueProvider, DefaultInputValueProvider>();
 
-services.AddRazorPages();
+// services.AddRazorPages();
 services.AddControllersWithViews();
 services.AddRouting(options => options.LowercaseUrls = true);
 
