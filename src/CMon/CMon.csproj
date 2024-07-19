@@ -11,6 +11,9 @@
         <PackageReference Include="DateMath" />
         <PackageReference Include="linq2db" />
         <PackageReference Include="Npgsql" />
+        <PackageReference Include="Prometheus.Client" />
+        <PackageReference Include="Prometheus.Client.AspNetCore" />
+        <PackageReference Include="Prometheus.Client.DependencyInjection" />
     </ItemGroup>
     
 </Project>

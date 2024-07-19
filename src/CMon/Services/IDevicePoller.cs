@@ -53,7 +53,7 @@ namespace CMon.Services
 
                 var t = GetBoardTemperature(jo);
                 
-                await _repository.SaveToDb(device.Id, BoardTemp, t, cancellationToken);
+                await _repository.SaveToDb(device, BoardTemp, null, t, cancellationToken);
 
                 var message = $"[{device.Id}] {DateTime.Now:s} - {BoardTemp}:{t:N4}";
 
@@ -61,7 +61,7 @@ namespace CMon.Services
                 {
                     t = GetInputTemperature(jo, input.InputNo - 1);
                     
-                    await _repository.SaveToDb(device.Id, input.InputNo, t, cancellationToken);
+                    await _repository.SaveToDb(device, input.InputNo, input.Name, t, cancellationToken);
 
                     message += $" - {input.InputNo}:{t:N4}";
                 }

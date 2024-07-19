@@ -1,38 +1,52 @@
-﻿using CMon;
-using CMon.Services;
+﻿using CMon.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Prometheus.Client.AspNetCore;
+using Prometheus.Client.DependencyInjection;
 
-var builder = WebApplication.CreateBuilder(args);
+namespace CMon
+{
+    internal abstract class Program
+    {
+        public static void Main(string[] args)
+        {
+            var builder = WebApplication.CreateBuilder(args);
 
-builder.Configuration
-    .AddUserSecrets(typeof(AppSettings).Assembly)
-    .AddEnvironmentVariables();
+            builder.Configuration
+                .AddUserSecrets(typeof(AppSettings).Assembly)
+                .AddEnvironmentVariables();
 
-var services = builder.Services;
+            var services = builder.Services;
 
-services.AddHostedService<PollingWorker>();
+            services.AddHostedService<PollingWorker>();
 
-services.AddTransient<IDevicePoller, DefaultDevicePoller>();
-services.AddTransient<IDeviceRepository, DefaultDeviceRepository>();
-services.AddTransient<IInputValueProvider, DefaultInputValueProvider>();
+            services.AddTransient<IDevicePoller, DefaultDevicePoller>();
+            services.AddTransient<IDeviceRepository, DefaultDeviceRepository>();
+            services.AddTransient<IInputValueProvider, DefaultInputValueProvider>();
 
-// services.AddRazorPages();
-services.AddControllersWithViews();
-services.AddRouting(options => options.LowercaseUrls = true);
+            services.AddMetricFactory();
+        
+            // services.AddRazorPages();
+            services.AddControllersWithViews();
+            services.AddRouting(options => options.LowercaseUrls = true);
 
-var app = builder.Build();
+            var app = builder.Build();
 
-app.UseExceptionHandler("/Home/Error");
+            app.UseExceptionHandler("/Home/Error");
 
-app.UseHsts();
-// app.UseHttpsRedirection();
+            // app.UseHsts();
+            // app.UseHttpsRedirection();
 
-app.UseStaticFiles();
+            app.UseStaticFiles();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
-
-app.Run();
+            app.MapControllerRoute(
+                name: "default",
+                pattern: "{controller=Home}/{action=Index}/{id?}");
+            
+            app.UsePrometheusServer();
+        
+            app.Run();
+        }
+    }
+}

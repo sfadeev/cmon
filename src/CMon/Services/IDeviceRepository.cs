@@ -6,6 +6,8 @@ using CMon.Entities;
 using CMon.Models;
 using LinqToDB;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Prometheus.Client;
 
 namespace CMon.Services
 {
@@ -13,21 +15,30 @@ namespace CMon.Services
 	{
 		Task<Device> GetDevice(long deviceId, CancellationToken token);
 
-		Task SaveToDb(long deviceId, short input, decimal value, CancellationToken token);
+		Task SaveToDb(Device device, short input, string name, decimal value, CancellationToken token);
 	}
 
 	public class DefaultDeviceRepository : IDeviceRepository
 	{
+		private readonly ILogger<DefaultDeviceRepository> _logger;
 		private readonly IConfiguration _configuration;
+		private readonly IMetricFactory _metricFactory;
 
-		public DefaultDeviceRepository(IConfiguration configuration)
+		public DefaultDeviceRepository(ILogger<DefaultDeviceRepository> logger,
+			IConfiguration configuration, IMetricFactory metricFactory)
 		{
+			_logger = logger;
 			_configuration = configuration;
+			_metricFactory = metricFactory;
 		}
 
 		private DbConnection CreateConnection()
 		{
-			return new DbConnection(_configuration.GetConnectionString("DefaultConnection"));
+			var connectionString = _configuration.GetConnectionString("DefaultConnection");
+			
+			// _logger.LogInformation("Using connection string {cs}", connectionString);
+			
+			return new DbConnection(connectionString);
 		}
 		
 		public async Task<Device> GetDevice(long deviceId, CancellationToken token)
@@ -55,13 +66,19 @@ namespace CMon.Services
 			}
 		}
 		
-		public async Task SaveToDb(long deviceId, short input, decimal value, CancellationToken token)
+		public async Task SaveToDb(Device device, short input, string name, decimal value, CancellationToken token)
 		{
+			var metricName = $"in{input}_{name}";
+			
+			var metric = _metricFactory.CreateGauge(metricName, name);
+			
+			metric.Set((double)value);
+
 			using (var db = CreateConnection())
 			{
 				await db.InsertAsync(new DbInputValue
 				{
-					DeviceId = deviceId,
+					DeviceId = device.Id,
 					InputNum = input,
 					Value = value,
 					CreatedAt = DateTime.UtcNow
