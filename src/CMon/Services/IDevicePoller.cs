@@ -59,11 +59,16 @@ namespace CMon.Services
 
                 foreach (var input in device.Inputs)
                 {
-                    t = GetInputTemperature(jo, input.InputNo - 1);
-                    
-                    await _repository.SaveToDb(device, input.InputNo, input.Name, t, cancellationToken);
+                    if (input.Type == InputType.Rtd02 || input.Type == InputType.Rtd03 || input.Type == InputType.Rtd04)
+                    {
+                        var discrete = GetInputDiscrete(jo, input.InputNo - 1);
 
-                    message += $" - {input.InputNo}:{t:N4}";
+                        t = GetInputTemperature(input.Type, discrete);
+
+                        await _repository.SaveToDb(device, input.InputNo, input.Name, t, cancellationToken);
+
+                        message += $" - {input.InputNo}:{t:N4}";
+                    }
                 }
 
                 _logger.LogInformation(message);
@@ -105,10 +110,50 @@ namespace CMon.Services
 
             return null;
         }
+        
+        private static decimal GetInputTemperature(InputType inputType, long discrete)
+        {
+            const decimal maxRangeVal = 4095;
+            
+            var voltage = discrete * 10M / maxRangeVal;
 
+            decimal temp;
+
+            if (inputType == InputType.Rtd02)
+            {
+                temp = (voltage / 3M - 0.5M) / 0.01M;
+            }
+            else if (inputType == InputType.Rtd03)
+            {
+                temp = (voltage / 5M - 0.5M) / 0.01M;
+            }
+            else if (inputType == InputType.Rtd04)
+            {
+                temp = -3.03641M * (decimal)Math.Pow((double)voltage, 3) 
+                    + 25.5916M * (decimal)Math.Pow((double)voltage, 2) 
+                    - 87.9556M * voltage + 120.641M;
+
+                // temp = -40.3289M * (decimal)Math.Log(0.28738 * (double)voltage);
+            }
+            else
+            {
+                throw new InvalidOperationException($"Input type {inputType} is not supported.");
+            }
+
+            return temp;
+        }
+        
+        private static long GetInputDiscrete(JObject jo, int input)
+        {
+            var discrete = jo.SelectToken($"Inputs[{input}].Voltage")!.Value<long>();
+            
+            return discrete;
+        }
+        
         private static decimal GetInputTemperature(JObject jo, int input)
         {
-            var discrete = jo.SelectToken($"Inputs[{input}].Voltage").Value<long>();
+            var discrete = GetInputDiscrete(jo, input);
+            
             var voltage = discrete * 10M / 4095;
             var temp = (voltage / 5M - 0.5M) / 0.01M;
 
@@ -117,7 +162,7 @@ namespace CMon.Services
 
         private static decimal GetBoardTemperature(JObject jo)
         {
-            var temp = jo.SelectToken("Temp").Value<long>();
+            var temp = jo.SelectToken("Temp")!.Value<long>();
 
             return temp;
         }

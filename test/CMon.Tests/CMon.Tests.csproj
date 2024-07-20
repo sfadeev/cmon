@@ -2,10 +2,12 @@
 
     <PropertyGroup>
         <TargetFramework>net7.0</TargetFramework>
+        <UserSecretsId>5668051a-fd8e-4e52-8c08-0c8f8ec0057c</UserSecretsId>
     </PropertyGroup>
 
     <ItemGroup>
         <PackageReference Include="Microsoft.NET.Test.Sdk" />
+        <PackageReference Include="Moq" />
         <PackageReference Include="Npgsql" />
         <PackageReference Include="NUnit" />
         <PackageReference Include="NUnit3TestAdapter" />

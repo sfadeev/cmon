@@ -4,11 +4,12 @@ namespace CMon.Entities
 {
 	public enum InputType : byte
 	{
-		None = 0,
-		Discrete = 1,
-		Analog = 2,
-		Rtd02 = 3,
-		Rtd03 = 4
+		Discrete = 0,
+		Analog = 1,
+		Rtd02 = 2,
+		Rtd03 = 3,
+		Rtd04 = 4,
+		Rtd05 = 6 // ?
 	}
 
 	public enum RangeType : byte

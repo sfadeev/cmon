@@ -10,7 +10,7 @@ namespace CMon.Services
 {
     public class PollingWorker : BackgroundService
     {
-        private static readonly long[] Devices = { 1 , 2 };
+        private static readonly long[] Devices = { 1 };
     
         private readonly ILogger<PollingWorker> _logger;
         private readonly IServiceProvider _serviceProvider;
