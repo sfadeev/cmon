@@ -264,7 +264,7 @@ namespace CMon.Tests.Services
 			// arrange
 			var httpResponseMock = new Mock<IHttpResponse>();
 			httpResponseMock.Setup(x => x.StatusCode).Returns(HttpStatusCode.OK);
-			httpResponseMock.Setup(x => x.ReadContentAsync()).Returns(() => Task.FromResult(File.ReadAllText("../../../Data/GetStateAndEvents-1.json")));
+			httpResponseMock.Setup(x => x.ReadContentAsync(CancellationToken.None)).Returns(() => Task.FromResult(File.ReadAllText("../../../Data/GetStateAndEvents-1.json")));
 
 			var httpClientMock = new Mock<IHttpClient>();
 			httpClientMock.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<CancellationToken>())).Returns(() => Task.FromResult(httpResponseMock.Object));

@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,7 +14,7 @@ namespace CMon.Services
         private readonly ILogger<PollingWorker> _logger;
         private readonly IServiceProvider _serviceProvider;
         private readonly CcuSettings _settings;
-
+        
         public PollingWorker(
             ILogger<PollingWorker> logger, 
             IOptions<CcuSettings> settings, 
@@ -26,16 +27,19 @@ namespace CMon.Services
     
         protected override async Task ExecuteAsync(CancellationToken cancellationToken)
         {
-            var delay = TimeSpan.FromSeconds(_settings.PollSeconds);
+            var pollDelay = TimeSpan.FromSeconds(_settings.PollSeconds);
         
-            _logger.LogInformation("Service is starting, poll interval {delay}.", delay);
-        
+            _logger.LogInformation("Service starting, poll interval {delay}.", pollDelay);
+
             while (cancellationToken.IsCancellationRequested == false)
             {
-                var poller = _serviceProvider.GetRequiredService<IDevicePoller>();
-
+                var sw = new Stopwatch();
+                sw.Start();
+                
                 try
                 {
+                    var poller = _serviceProvider.GetRequiredService<IDevicePoller>();
+
                     await poller.Poll(cancellationToken);
                 }
                 catch (Exception ex)
@@ -43,10 +47,18 @@ namespace CMon.Services
                     _logger.LogError(ex, "Error polling");
                 }
 
-                await Task.Delay(delay, cancellationToken);
+                var sleepDelay = pollDelay - sw.Elapsed;
+
+                if (sleepDelay > TimeSpan.Zero)
+                {
+                    if (_logger.IsEnabled(LogLevel.Debug))
+                        _logger.LogDebug("Service sleeping for {delay}.", sleepDelay);
+                
+                    await Task.Delay(sleepDelay, cancellationToken);
+                }
             }
 
-            _logger.LogInformation("Service is stopping.");
+            _logger.LogInformation("Service stopping.");
         }
     }
 }

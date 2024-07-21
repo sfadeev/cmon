@@ -53,15 +53,19 @@ namespace CMon.Services
             });
             
             var controlPoll = await _gateway.GetControlPoll(auth, cancellationToken);
-            var stateAndEvents = await _gateway.GetStateAndEvents(auth, cancellationToken);
-
-            if (stateAndEvents.Status.Code == StatusCode.Ok)
+            
+            if (controlPoll?.Status.Code == StatusCode.Ok)
             {
                 _metricFactory.CreateGauge($"ccu_modem_status", "").Set(controlPoll.ControlPoll.ModemStatus);
                 _metricFactory.CreateGauge($"ccu_signal_dbm", "").Set(controlPoll.ControlPoll.Signal.dBm);
                 _metricFactory.CreateGauge($"ccu_signal_percent", "").Set(controlPoll.ControlPoll.Signal.Percent);
                 _metricFactory.CreateGauge($"ccu_signal_strength", "").Set(controlPoll.ControlPoll.Signal.Strength);
-                
+            }
+            
+            var stateAndEvents = await _gateway.GetStateAndEvents(auth, cancellationToken);
+            
+            if (stateAndEvents?.Status.Code == StatusCode.Ok)
+            {
                 _metricFactory.CreateGauge($"ccu_balance", "Баланс").Set(stateAndEvents.Balance);
                 _metricFactory.CreateGauge($"ccu_temp", "Температура основной платы").Set(stateAndEvents.Temp);
                 _metricFactory.CreateGauge($"ccu_case", "Датчик вскрытия корпуса").Set(stateAndEvents.Case);
@@ -74,8 +78,8 @@ namespace CMon.Services
                     var input = stateAndEvents.Inputs[i];
                     
                     var no = i + 1;
-                    var name = initial.InputsSchema[i];
-                    var type = initial.ProfilesInitial.Inputs[i].InputType;
+                    var name = initial?.InputsSchema?[i];
+                    var type = initial?.ProfilesInitial?.Inputs[i].InputType ?? InputType.Rtd03;
                     
                     ConvertInputDiscrete(type, input.Voltage, out decimal voltage, out var temp);
 
@@ -100,7 +104,7 @@ namespace CMon.Services
                     var output = stateAndEvents.Outputs[i];
                     
                     var outputNo = i + 1;
-                    var name = initial.OutputsSchema[i];
+                    var name = initial?.OutputsSchema?[i];
                     
                     _metricFactory.CreateGauge($"ccu_out{outputNo}_active", name + " active").Set(output);
                 }

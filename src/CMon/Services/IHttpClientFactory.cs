@@ -15,14 +15,14 @@ namespace CMon.Services
 	{
 		void AddHeader(string name, string value);
 
-		Task<IHttpResponse> GetAsync(string requestUri, CancellationToken cancellationToken = default);
+		Task<IHttpResponse> GetAsync(string requestUri, CancellationToken cancellationToken);
 	}
 
 	public interface IHttpResponse
 	{
 		HttpStatusCode StatusCode { get; }
 
-		Task<string> ReadContentAsync();
+		Task<string> ReadContentAsync(CancellationToken cancellationToken);
 	}
 
 	public class DefaultHttpClientFactory : IHttpClientFactory
@@ -34,12 +34,7 @@ namespace CMon.Services
 
 		private class HttpClientWrapper : IHttpClient
 		{
-			private readonly HttpClient _client;
-
-			public HttpClientWrapper()
-			{
-				_client = new HttpClient();
-			}
+			private readonly HttpClient _client = new();
 
 			public void AddHeader(string name, string value)
 			{
@@ -70,9 +65,9 @@ namespace CMon.Services
 
 			public HttpStatusCode StatusCode => _response.StatusCode;
 
-			public async Task<string> ReadContentAsync()
+			public async Task<string> ReadContentAsync(CancellationToken cancellationToken)
 			{
-				return await _response.Content.ReadAsStringAsync();
+				return await _response.Content.ReadAsStringAsync(cancellationToken);
 			}
 		}
 	}
