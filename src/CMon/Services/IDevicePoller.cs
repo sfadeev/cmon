@@ -1,4 +1,5 @@
 using System;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CMon.Models.Ccu;
@@ -63,6 +64,8 @@ namespace CMon.Services
             }
             
             var stateAndEvents = await _gateway.GetStateAndEvents(auth, cancellationToken);
+
+            
             
             if (stateAndEvents?.Status.Code == StatusCode.Ok)
             {
@@ -72,6 +75,8 @@ namespace CMon.Services
                 _metricFactory.CreateGauge($"ccu_battery_charge", "Уровень заряда батареи").Set(stateAndEvents.Battery.Charge ?? 0);
                 _metricFactory.CreateGauge($"ccu_battery_state", "Состояние батареи").Set((int)stateAndEvents.Battery.State);
                 _metricFactory.CreateGauge($"ccu_power", "Основное питание").Set(stateAndEvents.Power);
+                
+                var sb = _logger.IsEnabled(LogLevel.Debug) ? new StringBuilder() : null;
                 
                 for (var i = 0; i < stateAndEvents.Inputs.Length; i++)
                 {
@@ -83,10 +88,13 @@ namespace CMon.Services
                     
                     ConvertInputDiscrete(type, input.Voltage, out decimal voltage, out var temp);
 
-                    if (_logger.IsEnabled(LogLevel.Debug))
+                    if (_logger.IsEnabled(LogLevel.Debug) && sb != null)
                     {
-                        _logger.LogDebug("[{no}] {name} ({type}) - active:{active}, discrete:{discrete}, voltage:{voltage:N2}, temp:{temp:N2}",
-                            no, name, type, input.Active, input.Voltage, voltage, temp);    
+                        sb.Append($"[{no}] ({type}) {name} - discrete:{input.Voltage}, voltage:{voltage:N2}");
+
+                        if (temp.HasValue) sb.Append($", temp:{temp:N2}");
+                        
+                        sb.AppendLine();    
                     }
                     
                     _metricFactory.CreateGauge($"ccu_in{no}_active", name + " active").Set(input.Active);
@@ -98,6 +106,8 @@ namespace CMon.Services
                         _metricFactory.CreateGauge($"ccu_in{no}_temp", name + " temp").Set((double)temp);
                     }
                 }
+
+                if (_logger.IsEnabled(LogLevel.Debug) && sb != null) _logger.LogDebug(sb.ToString());
 
                 for (var i = 0; i < stateAndEvents.Outputs.Length; i++)
                 {
