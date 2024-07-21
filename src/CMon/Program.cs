@@ -18,11 +18,11 @@ namespace CMon
                 .AddEnvironmentVariables();
 
             builder.Services
+                .AddHttpClient()
                 .AddMemoryCache()
                 .Configure<CcuSettings>(builder.Configuration.GetSection("CMon"))
                 .AddHostedService<PollingWorker>()
                 .AddTransient<ICcuGateway, CcuGateway>()
-                .AddTransient<IHttpClientFactory, DefaultHttpClientFactory>()
                 .AddTransient<IDevicePoller, DefaultDevicePoller>()
                 .AddMetricFactory();
             

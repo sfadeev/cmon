@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Net;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -133,11 +134,12 @@ namespace CMon.Services
 					var authStr = $"{auth.Username}@{auth.Imei}:{auth.Password}";
 					var authBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(authStr));
 
-					client.AddHeader("Authorization", "Basic " + authBase64);
+					client.BaseAddress = new Uri(_settings.BaseUrl);
+					client.DefaultRequestHeaders.Add("Authorization", "Basic " + authBase64);
 
 					var stopwatch = new Stopwatch();
 					stopwatch.Start();
-
+					
 					var response = await client.GetAsync(url, cancellationToken);
 
 					TResult result;
@@ -147,7 +149,7 @@ namespace CMon.Services
 						_logger.LogDebug("{auth} - request {type} completed with code {statusCode}, elapsed {elapsed}",
 							auth.DebuggerDisplay, typeof(TResult).Name, response.StatusCode, stopwatch.Elapsed);
 
-						var content = await response.ReadContentAsync(cancellationToken);
+						var content = await response.Content.ReadAsStringAsync(cancellationToken);
 
 						try
 						{
@@ -187,7 +189,7 @@ namespace CMon.Services
 
 		private string GetCmdUrl(object cmd)
 		{
-			return $"{_settings.BaseUrl}?cmd=" + JsonConvert.SerializeObject(cmd);
+			return "?cmd=" + JsonConvert.SerializeObject(cmd);
 		}
 	}
 }
