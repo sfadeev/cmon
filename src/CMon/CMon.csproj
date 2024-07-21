@@ -8,12 +8,20 @@
 
     <ItemGroup>
         <PackageReference Include="Newtonsoft.Json" />
-        <PackageReference Include="DateMath" />
-        <PackageReference Include="linq2db" />
-        <PackageReference Include="Npgsql" />
         <PackageReference Include="Prometheus.Client" />
         <PackageReference Include="Prometheus.Client.AspNetCore" />
         <PackageReference Include="Prometheus.Client.DependencyInjection" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <_ContentIncludedByDefault Remove="Views\Home\Index.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Shared\Error.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Shared\_GoogleAnalytics.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Shared\_Layout.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Shared\_ValidationScriptsPartial.cshtml" />
+      <_ContentIncludedByDefault Remove="Views\Shared\_YandexMetrika.cshtml" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\chart.css" />
+      <_ContentIncludedByDefault Remove="wwwroot\css\site.css" />
     </ItemGroup>
     
 </Project>

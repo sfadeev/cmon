@@ -1,7 +1,6 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using CMon.Entities;
 using CMon.Models.Ccu;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;

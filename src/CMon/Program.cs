@@ -17,36 +17,16 @@ namespace CMon
                 .AddUserSecrets(typeof(Program).Assembly)
                 .AddEnvironmentVariables();
 
-            var services = builder.Services;
-
-            services.AddHostedService<PollingWorker>();
-
-            services.AddTransient<ICcuGateway, CcuGateway>();
-            services.AddTransient<IHttpClientFactory, DefaultHttpClientFactory>();
-            services.AddTransient<IDevicePoller, DefaultDevicePoller>();
-            services.AddTransient<IDeviceRepository, DefaultDeviceRepository>();
-            services.AddTransient<IInputValueProvider, DefaultInputValueProvider>();
-
-            services.AddMetricFactory();
-        
-            // services.AddRazorPages();
-            services.AddControllersWithViews();
-            services.AddRouting(options => options.LowercaseUrls = true);
-
-            builder.Services.Configure<CcuSettings>(builder.Configuration.GetSection("CMon"));
-                
+            builder.Services
+                .AddMemoryCache()
+                .Configure<CcuSettings>(builder.Configuration.GetSection("CMon"))
+                .AddHostedService<PollingWorker>()
+                .AddTransient<ICcuGateway, CcuGateway>()
+                .AddTransient<IHttpClientFactory, DefaultHttpClientFactory>()
+                .AddTransient<IDevicePoller, DefaultDevicePoller>()
+                .AddMetricFactory();
+            
             var app = builder.Build();
-
-            app.UseExceptionHandler("/Home/Error");
-
-            // app.UseHsts();
-            // app.UseHttpsRedirection();
-
-            app.UseStaticFiles();
-
-            app.MapControllerRoute(
-                name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
             
             app.UsePrometheusServer();
         

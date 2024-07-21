@@ -33,19 +33,14 @@ namespace CMon.Services
             while (cancellationToken.IsCancellationRequested == false)
             {
                 var poller = _serviceProvider.GetRequiredService<IDevicePoller>();
-            
-                // foreach (var deviceId in Devices)
+
+                try
                 {
-                    try
-                    {
-                        // _logger.LogDebug("Starting polling device id {deviceId}.", deviceId);
-                    
-                        await poller.Poll(cancellationToken);
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Error polling");
-                    }
+                    await poller.Poll(cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error polling");
                 }
 
                 await Task.Delay(delay, cancellationToken);

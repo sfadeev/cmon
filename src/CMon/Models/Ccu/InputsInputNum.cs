@@ -1,5 +1,3 @@
-using CMon.Entities;
-
 namespace CMon.Models.Ccu
 {
 	public class InputsInputNum
