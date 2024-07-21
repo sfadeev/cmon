@@ -1,14 +1,17 @@
 using System.Diagnostics;
+using CMon.Entities;
 
 namespace CMon.Models.Ccu
 {
 	[DebuggerDisplay("{DebuggerDisplay,nq}")]
 	public class ProfileInput
 	{
-		public int InputType { get; set; }
+		public InputType InputType { get; set; }
 
 		public int RangeType { get; set; }
 
+		public int MaxVoltage { get; set; }
+		
 		public float UserMinVal { get; set; }
 
 		public float UserMaxVal { get; set; }

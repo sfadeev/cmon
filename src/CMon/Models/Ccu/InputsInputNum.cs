@@ -1,3 +1,5 @@
+using CMon.Entities;
+
 namespace CMon.Models.Ccu
 {
 	public class InputsInputNum
@@ -8,7 +10,7 @@ namespace CMon.Models.Ccu
 
 		public bool Enable { get; set; }
 
-		public int InputType { get; set; }
+		public InputType InputType { get; set; }
 
 		public string InputName { get; set; }
 

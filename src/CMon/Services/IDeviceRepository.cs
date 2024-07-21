@@ -68,12 +68,6 @@ namespace CMon.Services
 		
 		public async Task SaveToDb(Device device, short input, string name, decimal value, CancellationToken token)
 		{
-			var metricName = $"in{input}_{name}";
-			
-			var metric = _metricFactory.CreateGauge(metricName, name);
-			
-			metric.Set((double)value);
-
 			using (var db = CreateConnection())
 			{
 				await db.InsertAsync(new DbInputValue

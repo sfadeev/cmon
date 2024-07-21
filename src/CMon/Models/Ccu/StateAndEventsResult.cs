@@ -12,7 +12,7 @@
 
 		public byte Case { get; set; }
 
-		public string Power { get; set; }
+		public float Power { get; set; }
 
 		public long Temp { get; set; }
 

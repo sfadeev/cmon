@@ -11,5 +11,7 @@ namespace CMon.Models.Ccu
 		public int RelayCount { get; set; }
 
 		public int[] Rtd04Limits { get; set; }
+		
+		public int[] Rtd05Limits { get; set; }
 	}
 }

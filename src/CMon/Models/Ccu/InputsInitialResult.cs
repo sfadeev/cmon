@@ -2,10 +2,14 @@ namespace CMon.Models.Ccu
 {
 	public class InputsInitialResult : CommandResult
 	{
-		public CurrentUser CurrentUser { get; set; }
+		public TopLine TopLine { get; set; }
 
 		public DeviceInitial DeviceInitial { get; set; }
+		
+		public string[] InputsSchema { get; set; }
 
+		public string[] OutputsSchema { get; set; }
+		
 		public InputsInitial InputsInitial { get; set; }
 
 		public InputsInputNum InputsInputNum { get; set; }

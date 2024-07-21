@@ -1,6 +1,7 @@
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace CMon.Services
@@ -14,7 +15,7 @@ namespace CMon.Services
 	{
 		void AddHeader(string name, string value);
 
-		Task<IHttpResponse> GetAsync(string requestUri);
+		Task<IHttpResponse> GetAsync(string requestUri, CancellationToken cancellationToken = default);
 	}
 
 	public interface IHttpResponse
@@ -45,9 +46,9 @@ namespace CMon.Services
 				_client.DefaultRequestHeaders.Add(name, value);
 			}
 
-			public async Task<IHttpResponse> GetAsync(string requestUri)
+			public async Task<IHttpResponse> GetAsync(string requestUri, CancellationToken cancellationToken)
 			{
-				var response = await _client.GetAsync(requestUri);
+				var response = await _client.GetAsync(requestUri, cancellationToken);
 
 				return new HttpResponseWrapper(response);
 			}

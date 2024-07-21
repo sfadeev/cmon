@@ -2,7 +2,7 @@ namespace CMon.Models.Ccu
 {
 	public class IndexInitialResult : CommandResult
 	{
-		public CurrentUser CurrentUser { get; set; }
+		public TopLine TopLine { get; set; }
 
 		public DeviceInitial DeviceInitial { get; set; }
 

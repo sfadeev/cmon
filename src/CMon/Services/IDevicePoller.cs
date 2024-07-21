@@ -1,123 +1,119 @@
 using System;
-using System.Net;
-using System.Net.Http;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using CMon.Entities;
+using CMon.Models.Ccu;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using Newtonsoft.Json.Linq;
+using Prometheus.Client;
 
 namespace CMon.Services
 {
     public interface IDevicePoller
     {
-        Task Poll(long deviceId, CancellationToken cancellationToken);
+        Task Poll(CancellationToken cancellationToken);
     }
 
     public class DefaultDevicePoller : IDevicePoller
     {
-        private const short BoardTemp = 0xFF;
-        
         private readonly ILogger<DefaultDevicePoller> _logger;
-        private readonly AppSettings _settings;
-        private readonly IDeviceRepository _repository;
+        private readonly IMemoryCache _memoryCache;
+        private readonly ICcuGateway _gateway;
+        private readonly IMetricFactory _metricFactory;
+        private readonly CcuSettings _settings;
 
         public DefaultDevicePoller(
             ILogger<DefaultDevicePoller> logger,
-            IOptions<AppSettings> settings,
-            IDeviceRepository repository)
+            IOptions<CcuSettings> settings,
+            IMemoryCache memoryCache,
+            ICcuGateway gateway,
+            IMetricFactory metricFactory)
         {
             _logger = logger;
+            _memoryCache = memoryCache;
+            _gateway = gateway;
+            _metricFactory = metricFactory;
             _settings = settings.Value;
-            _repository = repository;
         }
-        
-        public async Task Poll(long deviceId, CancellationToken cancellationToken)
+
+        public async Task Poll(CancellationToken cancellationToken)
         {
-            var device = await _repository.GetDevice(deviceId, cancellationToken);
-
-            var url = _settings.BaseUrl + "/data.cgx?cmd={\"Command\":\"GetStateAndEvents\"}";
-
-            var json = await Get(device, url);
-
-            if (json != null)
+            var auth = new Auth
             {
-                var jo = JObject.Parse(json);
+                Imei = _settings.Imei,
+                Username = _settings.Username,
+                Password = _settings.Password 
+            };
+
+            var initial = await _memoryCache.GetOrCreateAsync(nameof(ProfilesInitial), async ce =>
+            {
+                ce.SlidingExpiration = TimeSpan.FromMinutes(_settings.CacheMinutes);
+
+                return await _gateway.GetProfilesInitial(auth, cancellationToken);
+            });
+            
+            var controlPoll = await _gateway.GetControlPoll(auth, cancellationToken);
+            var stateAndEvents = await _gateway.GetStateAndEvents(auth, cancellationToken);
+
+            if (stateAndEvents.Status.Code == StatusCode.Ok)
+            {
+                _metricFactory.CreateGauge($"ccu_modem_status", "").Set(controlPoll.ControlPoll.ModemStatus);
+                _metricFactory.CreateGauge($"ccu_signal_dbm", "").Set(controlPoll.ControlPoll.Signal.dBm);
+                _metricFactory.CreateGauge($"ccu_signal_percent", "").Set(controlPoll.ControlPoll.Signal.Percent);
+                _metricFactory.CreateGauge($"ccu_signal_strength", "").Set(controlPoll.ControlPoll.Signal.Strength);
                 
-                if (json.Length >= 609)
-                {
-                    _logger.LogDebug("{url}\n{json}", url, json);
-                }
-
-                var t = GetBoardTemperature(jo);
+                _metricFactory.CreateGauge($"ccu_balance", "Баланс").Set(stateAndEvents.Balance);
+                _metricFactory.CreateGauge($"ccu_temp", "Температура основной платы").Set(stateAndEvents.Temp);
+                _metricFactory.CreateGauge($"ccu_case", "Датчик вскрытия корпуса").Set(stateAndEvents.Case);
+                _metricFactory.CreateGauge($"ccu_battery_charge", "Уровень заряда батареи").Set(stateAndEvents.Battery.Charge ?? 0);
+                _metricFactory.CreateGauge($"ccu_battery_state", "Состояние батареи").Set((int)stateAndEvents.Battery.State);
+                _metricFactory.CreateGauge($"ccu_power", "Основное питание").Set(stateAndEvents.Power);
                 
-                await _repository.SaveToDb(device, BoardTemp, null, t, cancellationToken);
-
-                var message = $"[{device.Id}] {DateTime.Now:s} - {BoardTemp}:{t:N4}";
-
-                foreach (var input in device.Inputs)
+                for (var i = 0; i < stateAndEvents.Inputs.Length; i++)
                 {
-                    if (input.Type == InputType.Rtd02 || input.Type == InputType.Rtd03 || input.Type == InputType.Rtd04)
+                    var input = stateAndEvents.Inputs[i];
+                    
+                    var no = i + 1;
+                    var name = initial.InputsSchema[i];
+                    var type = initial.ProfilesInitial.Inputs[i].InputType;
+                    
+                    ConvertInputDiscrete(type, input.Voltage, out decimal voltage, out var temp);
+
+                    if (_logger.IsEnabled(LogLevel.Debug))
                     {
-                        var discrete = GetInputDiscrete(jo, input.InputNo - 1);
-
-                        t = GetInputTemperature(input.Type, discrete);
-
-                        await _repository.SaveToDb(device, input.InputNo, input.Name, t, cancellationToken);
-
-                        message += $" - {input.InputNo}:{t:N4}";
+                        _logger.LogDebug("[{no}] {name} ({type}) - active:{active}, discrete:{discrete}, voltage:{voltage:N2}, temp:{temp:N2}",
+                            no, name, type, input.Active, input.Voltage, voltage, temp);    
+                    }
+                    
+                    _metricFactory.CreateGauge($"ccu_in{no}_active", name + " active").Set(input.Active);
+                    _metricFactory.CreateGauge($"ccu_in{no}_discrete", name + " discrete").Set(input.Voltage);
+                    _metricFactory.CreateGauge($"ccu_in{no}_voltage", name + " voltage").Set((double)voltage);
+                    
+                    if (temp.HasValue)
+                    {
+                        _metricFactory.CreateGauge($"ccu_in{no}_temp", name + " temp").Set((double)temp);
                     }
                 }
 
-                _logger.LogInformation(message);
-            }
-        }
-
-        private async Task<string> Get(DbDevice device, string url)
-        {
-            using (var client = new HttpClient(new HttpClientHandler
-                   {
-                       ServerCertificateCustomValidationCallback =
-                           HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-                   }))
-            {
-                try
+                for (var i = 0; i < stateAndEvents.Outputs.Length; i++)
                 {
-                    var auth = $"{device.Username}@{device.Imei}:{device.Password}";
-                    var authBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(auth));
-
-                    client.DefaultRequestHeaders.Add("Authorization", "Basic " + authBase64);
-
-                    var response = await client.GetAsync(url);
-
-                    if (response.StatusCode != HttpStatusCode.OK)
-                    {
-                        _logger.LogError("Error response from device [{deviceId}] - {statusCode} ({status})",
-                            device.Id, (int) response.StatusCode, response.StatusCode);
-
-                        return null;
-                    }
-
-                    return await response.Content.ReadAsStringAsync();
-                }
-                catch (HttpRequestException ex)
-                {
-                    _logger.LogError(ex, "Get(url) exception.");
+                    var output = stateAndEvents.Outputs[i];
+                    
+                    var outputNo = i + 1;
+                    var name = initial.OutputsSchema[i];
+                    
+                    _metricFactory.CreateGauge($"ccu_out{outputNo}_active", name + " active").Set(output);
                 }
             }
-
-            return null;
         }
         
-        private static decimal GetInputTemperature(InputType inputType, long discrete)
+        private static void ConvertInputDiscrete(InputType inputType, long discrete, out decimal voltage, out decimal? temp)
         {
             const decimal maxRangeVal = 4095;
             
-            var voltage = discrete * 10M / maxRangeVal;
-
-            decimal temp;
+            voltage = discrete * 10M / maxRangeVal;
+            temp = null;
 
             if (inputType == InputType.Rtd02)
             {
@@ -129,42 +125,12 @@ namespace CMon.Services
             }
             else if (inputType == InputType.Rtd04)
             {
-                temp = -3.03641M * (decimal)Math.Pow((double)voltage, 3) 
+                /*temp = -3.03641M * (decimal)Math.Pow((double)voltage, 3) 
                     + 25.5916M * (decimal)Math.Pow((double)voltage, 2) 
-                    - 87.9556M * voltage + 120.641M;
+                    - 87.9556M * voltage + 120.641M;*/
 
-                // temp = -40.3289M * (decimal)Math.Log(0.28738 * (double)voltage);
+                temp = -40.3289M * (decimal)Math.Log(0.28738 * (double)voltage);
             }
-            else
-            {
-                throw new InvalidOperationException($"Input type {inputType} is not supported.");
-            }
-
-            return temp;
-        }
-        
-        private static long GetInputDiscrete(JObject jo, int input)
-        {
-            var discrete = jo.SelectToken($"Inputs[{input}].Voltage")!.Value<long>();
-            
-            return discrete;
-        }
-        
-        private static decimal GetInputTemperature(JObject jo, int input)
-        {
-            var discrete = GetInputDiscrete(jo, input);
-            
-            var voltage = discrete * 10M / 4095;
-            var temp = (voltage / 5M - 0.5M) / 0.01M;
-
-            return temp;
-        }
-
-        private static decimal GetBoardTemperature(JObject jo)
-        {
-            var temp = jo.SelectToken("Temp")!.Value<long>();
-
-            return temp;
         }
     }
 }

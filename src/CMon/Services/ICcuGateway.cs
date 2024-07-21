@@ -2,116 +2,118 @@
 using System.Diagnostics;
 using System.Net;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using CMon.Models.Ccu;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 
 namespace CMon.Services
 {
 	public interface ICcuGateway
 	{
-		Task<IndexInitialResult> GetIndexInitial(Auth auth);
+		Task<IndexInitialResult> GetIndexInitial(Auth auth, CancellationToken cancellationToken = default);
 
-		Task<ControlInitialResult> GetControlInitial(Auth auth);
+		Task<ControlInitialResult> GetControlInitial(Auth auth, CancellationToken cancellationToken = default);
 
-		Task<ControlPollResult> GetControlPoll(Auth auth);
+		Task<ControlPollResult> GetControlPoll(Auth auth, CancellationToken cancellationToken = default);
 
-		Task<InputsInitialResult> GetInputsInitial(Auth auth);
+		Task<InputsInitialResult> GetInputsInitial(Auth auth, CancellationToken cancellationToken = default);
 
-		Task<InputsPollResult> GetInputsPoll(Auth auth, int inputNum);
+		Task<InputsPollResult> GetInputsPoll(Auth auth, int inputNum, CancellationToken cancellationToken = default);
 
-		Task<InputsInputNumResult> GetInputsInputNum(Auth auth, int inputNum);
+		Task<InputsInputNumResult> GetInputsInputNum(Auth auth, int inputNum, CancellationToken cancellationToken = default);
 
-		Task<ProfilesInitialResult> GetProfilesInitial(Auth auth);
+		Task<ProfilesInitialResult> GetProfilesInitial(Auth auth, CancellationToken cancellationToken = default);
 
-		Task<ProfilesProfNumResult> GetProfilesProfNum(Auth auth, int profNum);
+		Task<ProfilesProfNumResult> GetProfilesProfNum(Auth auth, int profNum, CancellationToken cancellationToken = default);
 
-		Task<SystemInitialResult> GetSystemInitial(Auth auth);
+		Task<SystemInitialResult> GetSystemInitial(Auth auth, CancellationToken cancellationToken = default);
 
-		Task<SystemPollResult> GetSystemPoll(Auth auth);
+		Task<SystemPollResult> GetSystemPoll(Auth auth, CancellationToken cancellationToken = default);
 
-		Task<DeviceInfo> GetDeviceInfo(Auth auth);
+		Task<DeviceInfo> GetDeviceInfo(Auth auth, CancellationToken cancellationToken = default);
 
-		Task<StateAndEventsResult> GetStateAndEvents(Auth auth);
+		Task<StateAndEventsResult> GetStateAndEvents(Auth auth, CancellationToken cancellationToken = default);
 
-		Task<AckEventsResult> AckEvents(Auth auth, long[] ids);
+		Task<AckEventsResult> AckEvents(Auth auth, long[] ids, CancellationToken cancellationToken = default);
 	}
 
 	public class CcuGateway : ICcuGateway
 	{
-		private const string BaseUrl = "https://ccu.su/data.cgx";
-
 		private readonly ILogger<CcuGateway> _logger;
+		private readonly CcuSettings _settings;
 		private readonly IHttpClientFactory _httpClientFactory;
 
-		public CcuGateway(ILogger<CcuGateway> logger, IHttpClientFactory httpClientFactory)
+		public CcuGateway(ILogger<CcuGateway> logger, IOptions<CcuSettings> settings, IHttpClientFactory httpClientFactory)
 		{
 			_logger = logger;
+			_settings = settings.Value;
 			_httpClientFactory = httpClientFactory;
 		}
 
-		public async Task<IndexInitialResult> GetIndexInitial(Auth auth)
+		public async Task<IndexInitialResult> GetIndexInitial(Auth auth, CancellationToken cancellationToken = default)
 		{
 			return await Get<IndexInitialResult>(auth, GetCmdUrl(new { DataType = "IndexInitial" }));
 		}
 
-		public async Task<ControlInitialResult> GetControlInitial(Auth auth)
+		public async Task<ControlInitialResult> GetControlInitial(Auth auth, CancellationToken cancellationToken = default)
 		{
 			return await Get<ControlInitialResult>(auth, GetCmdUrl(new { DataType = "ControlInitial" }));
 		}
 
-		public async Task<ControlPollResult> GetControlPoll(Auth auth)
+		public async Task<ControlPollResult> GetControlPoll(Auth auth, CancellationToken cancellationToken = default)
 		{
 			return await Get<ControlPollResult>(auth, GetCmdUrl(new { DataType = "ControlPoll" }));
 		}
 
-		public async Task<InputsInitialResult> GetInputsInitial(Auth auth)
+		public async Task<InputsInitialResult> GetInputsInitial(Auth auth, CancellationToken cancellationToken = default)
 		{
 			return await Get<InputsInitialResult>(auth, GetCmdUrl(new { DataType = "InputsInitial" }));
 		}
 
-		public async Task<InputsPollResult> GetInputsPoll(Auth auth, int inputNum)
+		public async Task<InputsPollResult> GetInputsPoll(Auth auth, int inputNum, CancellationToken cancellationToken = default)
 		{
 			return await Get<InputsPollResult>(auth, GetCmdUrl(new { DataType = "InputsPoll", InputNum = inputNum }));
 		}
 
-		public async Task<InputsInputNumResult> GetInputsInputNum(Auth auth, int inputNum)
+		public async Task<InputsInputNumResult> GetInputsInputNum(Auth auth, int inputNum, CancellationToken cancellationToken = default)
 		{
 			return await Get<InputsInputNumResult>(auth, GetCmdUrl(new { DataType = "InputsInputNum", InputNum = inputNum }));
 		}
 
-		public async Task<ProfilesInitialResult> GetProfilesInitial(Auth auth)
+		public async Task<ProfilesInitialResult> GetProfilesInitial(Auth auth, CancellationToken cancellationToken = default)
 		{
 			return await Get<ProfilesInitialResult>(auth, GetCmdUrl(new { DataType = "ProfilesInitial" }));
 		}
 
-		public async Task<ProfilesProfNumResult> GetProfilesProfNum(Auth auth, int profNum)
+		public async Task<ProfilesProfNumResult> GetProfilesProfNum(Auth auth, int profNum, CancellationToken cancellationToken = default)
 		{
 			return await Get<ProfilesProfNumResult>(auth, GetCmdUrl(new { DataType = "ProfilesProfNum", ProfNum = profNum }));
 		}
 
-		public async Task<SystemInitialResult> GetSystemInitial(Auth auth)
+		public async Task<SystemInitialResult> GetSystemInitial(Auth auth, CancellationToken cancellationToken = default)
 		{
 			return await Get<SystemInitialResult>(auth, GetCmdUrl(new { DataType = "SystemInitial" }));
 		}
 
-		public async Task<SystemPollResult> GetSystemPoll(Auth auth)
+		public async Task<SystemPollResult> GetSystemPoll(Auth auth, CancellationToken cancellationToken = default)
 		{
 			return await Get<SystemPollResult>(auth, GetCmdUrl(new { DataType = "SystemPoll" }));
 		}
 
-		public async Task<DeviceInfo> GetDeviceInfo(Auth auth)
+		public async Task<DeviceInfo> GetDeviceInfo(Auth auth, CancellationToken cancellationToken = default)
 		{
 			return await Get<DeviceInfo>(auth, GetCmdUrl(new { Command = "GetDeviceInfo" }));
 		}
 
-		public async Task<StateAndEventsResult> GetStateAndEvents(Auth auth)
+		public async Task<StateAndEventsResult> GetStateAndEvents(Auth auth, CancellationToken cancellationToken = default)
 		{
 			return await Get<StateAndEventsResult>(auth, GetCmdUrl(new { Command = "GetStateAndEvents" }));
 		}
 
-		public async Task<AckEventsResult> AckEvents(Auth auth, long[] ids)
+		public async Task<AckEventsResult> AckEvents(Auth auth, long[] ids, CancellationToken cancellationToken = default)
 		{
 			return await Get<AckEventsResult>(auth, GetCmdUrl(new { Command = "AckEvents", IDs = ids }));
 		}
@@ -120,6 +122,10 @@ namespace CMon.Services
 
 		private async Task<TResult> Get<TResult>(Auth auth, string url) where TResult : CommandResult, new()
 		{
+			if (auth.Imei == null) throw new ArgumentNullException(nameof(auth.Imei));
+			if (auth.Username == null) throw new ArgumentNullException(nameof(auth.Username));
+			if (auth.Password == null) throw new ArgumentNullException(nameof(auth.Password));
+			
 			// var awaiter = _locks.GetOrAdd(auth.Imei, x => new AsyncLock());
 
 			// using (await awaiter.LockAsync())
@@ -133,7 +139,7 @@ namespace CMon.Services
 
 						client.AddHeader("Authorization", "Basic " + authBase64);
 
-						_logger.LogDebug("{0} - requesting {1}", auth.DebuggerDisplay, typeof(TResult).Name);
+						_logger.LogDebug("{auth} - requesting {type}", auth.DebuggerDisplay, typeof(TResult).Name);
 
 						var stopwatch = new Stopwatch();
 						stopwatch.Start();
@@ -142,11 +148,9 @@ namespace CMon.Services
 
 						TResult result;
 
-						var test = await response.ReadContentAsync();
-						
 						if (response.StatusCode == HttpStatusCode.OK)
 						{
-							_logger.LogDebug("{0} - request {1} completed with code {2}, elapsed {3}", auth.DebuggerDisplay, typeof(TResult).Name, response.StatusCode, stopwatch.Elapsed);
+							_logger.LogDebug("{auth} - request {type} completed with code {statusCode}, elapsed {elapsed}", auth.DebuggerDisplay, typeof(TResult).Name, response.StatusCode, stopwatch.Elapsed);
 
 							var content = await response.ReadContentAsync();
 
@@ -158,14 +162,14 @@ namespace CMon.Services
 							}
 							catch (Exception ex)
 							{
-								_logger.LogError(0, ex, "{0} - failed to deserialize {1} content: \n {2}", auth.DebuggerDisplay, typeof(TResult).Name, content);
+								_logger.LogError(ex, "{auth} - failed to deserialize {type} content: \n {content}", auth.DebuggerDisplay, typeof(TResult).Name, content);
 
 								throw;
 							}
 						}
 						else
 						{
-							_logger.LogInformation("{0} - request {1} failed with code {2}, elapsed {3}", auth.DebuggerDisplay, typeof(TResult).Name, response.StatusCode, stopwatch.Elapsed);
+							_logger.LogInformation("{auth} - request {type} failed with code {statusCode}, elapsed {elapsed}", auth.DebuggerDisplay, typeof(TResult).Name, response.StatusCode, stopwatch.Elapsed);
 							
 							result = new TResult();
 						}
@@ -177,16 +181,16 @@ namespace CMon.Services
 				}
 				catch (Exception ex)
 				{
-					_logger.LogError(0, ex, "{0} - failed to load {1} for {2} from {3}", auth.DebuggerDisplay, typeof(TResult).Name, auth.DebuggerDisplay, url);
+					_logger.LogError(ex, "{auth} - failed to load {type} from {url}", auth.DebuggerDisplay, typeof(TResult).Name, url);
 				}
 
 				return default(TResult);
 			}
 		}
 
-		private static string GetCmdUrl(object cmd)
+		private string GetCmdUrl(object cmd)
 		{
-			return $"{BaseUrl}?cmd=" + JsonConvert.SerializeObject(cmd);
+			return $"{_settings.BaseUrl}?cmd=" + JsonConvert.SerializeObject(cmd);
 		}
 	}
 }

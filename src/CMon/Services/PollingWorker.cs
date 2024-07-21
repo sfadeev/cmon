@@ -10,15 +10,13 @@ namespace CMon.Services
 {
     public class PollingWorker : BackgroundService
     {
-        private static readonly long[] Devices = { 1 };
-    
         private readonly ILogger<PollingWorker> _logger;
         private readonly IServiceProvider _serviceProvider;
-        private readonly AppSettings _settings;
+        private readonly CcuSettings _settings;
 
         public PollingWorker(
             ILogger<PollingWorker> logger, 
-            IOptions<AppSettings> settings, 
+            IOptions<CcuSettings> settings, 
             IServiceProvider serviceProvider)
         {
             _logger = logger;
@@ -36,17 +34,17 @@ namespace CMon.Services
             {
                 var poller = _serviceProvider.GetRequiredService<IDevicePoller>();
             
-                foreach (var deviceId in Devices)
+                // foreach (var deviceId in Devices)
                 {
                     try
                     {
-                        _logger.LogDebug("Starting polling device id {deviceId}.", deviceId);
+                        // _logger.LogDebug("Starting polling device id {deviceId}.", deviceId);
                     
-                        await poller.Poll(deviceId, cancellationToken);
+                        await poller.Poll(cancellationToken);
                     }
                     catch (Exception ex)
                     {
-                        _logger.LogError(ex, "Error polling device id {deviceId}.", deviceId);
+                        _logger.LogError(ex, "Error polling");
                     }
                 }
 

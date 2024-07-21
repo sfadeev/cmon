@@ -7,20 +7,22 @@ using Prometheus.Client.DependencyInjection;
 
 namespace CMon
 {
-    internal abstract class Program
+    public abstract class Program
     {
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
             builder.Configuration
-                .AddUserSecrets(typeof(AppSettings).Assembly)
+                .AddUserSecrets(typeof(Program).Assembly)
                 .AddEnvironmentVariables();
 
             var services = builder.Services;
 
             services.AddHostedService<PollingWorker>();
 
+            services.AddTransient<ICcuGateway, CcuGateway>();
+            services.AddTransient<IHttpClientFactory, DefaultHttpClientFactory>();
             services.AddTransient<IDevicePoller, DefaultDevicePoller>();
             services.AddTransient<IDeviceRepository, DefaultDeviceRepository>();
             services.AddTransient<IInputValueProvider, DefaultInputValueProvider>();
@@ -31,6 +33,8 @@ namespace CMon
             services.AddControllersWithViews();
             services.AddRouting(options => options.LowercaseUrls = true);
 
+            builder.Services.Configure<CcuSettings>(builder.Configuration.GetSection("CMon"));
+                
             var app = builder.Build();
 
             app.UseExceptionHandler("/Home/Error");
