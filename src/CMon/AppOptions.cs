@@ -1,6 +1,6 @@
 namespace CMon
 {
-    public class CcuSettings
+    public class AppOptions
     {
         public int CacheMinutes { get; set; } = 60;
         

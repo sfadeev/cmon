@@ -20,7 +20,7 @@ namespace CMon
             builder.Services
                 .AddHttpClient()
                 .AddMemoryCache()
-                .Configure<CcuSettings>(builder.Configuration.GetSection("CMon"))
+                .Configure<AppOptions>(builder.Configuration.GetSection("Ccu"))
                 .AddHostedService<PollingWorker>()
                 .AddTransient<ICcuGateway, CcuGateway>()
                 .AddTransient<IDevicePoller, DefaultDevicePoller>()

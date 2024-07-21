@@ -34,13 +34,13 @@ namespace CMon.Tests.Services
 
 		private Auth AdmAuth => Configuration.GetSection("AdmAuth").Get<Auth>();
 		
-		private CcuSettings CcuSettings => Configuration.Get<CcuSettings>();
+		private AppOptions AppOptions => Configuration.Get<AppOptions>();
 
 		[Test]
 		public async Task GetDeviceInfo_WithInvalidAuth_ShouldReturnError()
 		{
 			// arrange
-			var gateway = new CcuGateway(Logger, Options.Create(CcuSettings), CreateHttpClientFactoryMock());
+			var gateway = new CcuGateway(Logger, Options.Create(AppOptions), CreateHttpClientFactoryMock());
 			var invalidAuth = new Auth
 			{
 				Username = "user",
@@ -59,7 +59,7 @@ namespace CMon.Tests.Services
 		public async Task GetIndexInitial_AsAdmin()
 		{
 			// arrange
-			var gateway = new CcuGateway(Logger, Options.Create(CcuSettings), CreateHttpClientFactoryMock());
+			var gateway = new CcuGateway(Logger, Options.Create(AppOptions), CreateHttpClientFactoryMock());
 
 			// act
 			var result = await gateway.GetIndexInitial(AdmAuth);
@@ -75,7 +75,7 @@ namespace CMon.Tests.Services
 		public async Task GetControlInitial_AsAdmin()
 		{
 			// arrange
-			var gateway = new CcuGateway(Logger, Options.Create(CcuSettings), CreateHttpClientFactoryMock());
+			var gateway = new CcuGateway(Logger, Options.Create(AppOptions), CreateHttpClientFactoryMock());
 
 			// act
 			var result = await gateway.GetControlInitial(AdmAuth);
@@ -89,7 +89,7 @@ namespace CMon.Tests.Services
 		public async Task GetControlInitial_AsUser_ShouldReturnError()
 		{
 			// arrange
-			var gateway = new CcuGateway(Logger, Options.Create(CcuSettings), CreateHttpClientFactoryMock());
+			var gateway = new CcuGateway(Logger, Options.Create(AppOptions), CreateHttpClientFactoryMock());
 
 			// act
 			var result = await gateway.GetControlInitial(UsrAuth);
@@ -103,7 +103,7 @@ namespace CMon.Tests.Services
 		public async Task GetControlPoll_AsAdmin()
 		{
 			// arrange
-			var gateway = new CcuGateway(Logger, Options.Create(CcuSettings), CreateHttpClientFactoryMock());
+			var gateway = new CcuGateway(Logger, Options.Create(AppOptions), CreateHttpClientFactoryMock());
 
 			// act
 			var result = await gateway.GetControlPoll(AdmAuth);
@@ -121,7 +121,7 @@ namespace CMon.Tests.Services
 		public async Task GetControlPoll_AsUser_ShouldReturnError()
 		{
 			// arrange
-			var gateway = new CcuGateway(Logger, Options.Create(CcuSettings), CreateHttpClientFactoryMock());
+			var gateway = new CcuGateway(Logger, Options.Create(AppOptions), CreateHttpClientFactoryMock());
 
 			// act
 			var result = await gateway.GetControlPoll(UsrAuth);
@@ -135,7 +135,7 @@ namespace CMon.Tests.Services
 		public async Task GetInputsInitial_AsAdmin()
 		{
 			// arrange
-			var gateway = new CcuGateway(Logger, Options.Create(CcuSettings), CreateHttpClientFactoryMock());
+			var gateway = new CcuGateway(Logger, Options.Create(AppOptions), CreateHttpClientFactoryMock());
 
 			// act
 			var result = await gateway.GetInputsInitial(AdmAuth);
@@ -149,7 +149,7 @@ namespace CMon.Tests.Services
 		public async Task GetInputsPoll_AsAdmin()
 		{
 			// arrange
-			var gateway = new CcuGateway(Logger, Options.Create(CcuSettings), CreateHttpClientFactoryMock());
+			var gateway = new CcuGateway(Logger, Options.Create(AppOptions), CreateHttpClientFactoryMock());
 
 			// act
 			var result = await gateway.GetInputsPoll(AdmAuth, 0);
@@ -163,7 +163,7 @@ namespace CMon.Tests.Services
 		public async Task GetInputsInputNum_AsAdmin()
 		{
 			// arrange
-			var gateway = new CcuGateway(Logger, Options.Create(CcuSettings), CreateHttpClientFactoryMock());
+			var gateway = new CcuGateway(Logger, Options.Create(AppOptions), CreateHttpClientFactoryMock());
 
 			// act
 			var result = await gateway.GetInputsInputNum(AdmAuth, 0);
@@ -177,7 +177,7 @@ namespace CMon.Tests.Services
 		public async Task GetProfilesInitial_AsAdmin()
 		{
 			// arrange
-			var gateway = new CcuGateway(Logger, Options.Create(CcuSettings), CreateHttpClientFactoryMock());
+			var gateway = new CcuGateway(Logger, Options.Create(AppOptions), CreateHttpClientFactoryMock());
 
 			// act
 			var result = await gateway.GetProfilesInitial(AdmAuth);
@@ -191,7 +191,7 @@ namespace CMon.Tests.Services
 		public async Task GetProfilesProfNum_AsAdmin()
 		{
 			// arrange
-			var gateway = new CcuGateway(Logger, Options.Create(CcuSettings), CreateHttpClientFactoryMock());
+			var gateway = new CcuGateway(Logger, Options.Create(AppOptions), CreateHttpClientFactoryMock());
 
 			// act
 			var result = await gateway.GetProfilesProfNum(AdmAuth, 0);
@@ -205,7 +205,7 @@ namespace CMon.Tests.Services
 		public async Task GetSystemInitial_AsAdmin()
 		{
 			// arrange
-			var gateway = new CcuGateway(Logger, Options.Create(CcuSettings), CreateHttpClientFactoryMock());
+			var gateway = new CcuGateway(Logger, Options.Create(AppOptions), CreateHttpClientFactoryMock());
 
 			// act
 			var result = await gateway.GetSystemInitial(AdmAuth);
@@ -219,7 +219,7 @@ namespace CMon.Tests.Services
 		public async Task GetSystemPoll_AsAdmin()
 		{
 			// arrange
-			var gateway = new CcuGateway(Logger, Options.Create(CcuSettings), CreateHttpClientFactoryMock());
+			var gateway = new CcuGateway(Logger, Options.Create(AppOptions), CreateHttpClientFactoryMock());
 
 			// act
 			var result = await gateway.GetSystemPoll(AdmAuth);
@@ -233,7 +233,7 @@ namespace CMon.Tests.Services
 		public async Task GetDeviceInfo()
 		{
 			// arrange
-			var gateway = new CcuGateway(Logger, Options.Create(CcuSettings), CreateHttpClientFactoryMock());
+			var gateway = new CcuGateway(Logger, Options.Create(AppOptions), CreateHttpClientFactoryMock());
 
 			// act
 			var result = await gateway.GetDeviceInfo(UsrAuth);
@@ -247,7 +247,7 @@ namespace CMon.Tests.Services
 		public async Task GetStateAndEvents()
 		{
 			// arrange
-			var gateway = new CcuGateway(Logger, Options.Create(CcuSettings), CreateHttpClientFactoryMock());
+			var gateway = new CcuGateway(Logger, Options.Create(AppOptions), CreateHttpClientFactoryMock());
 
 			// act
 			var result = await gateway.GetStateAndEvents(UsrAuth);

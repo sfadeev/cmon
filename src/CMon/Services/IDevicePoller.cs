@@ -21,11 +21,11 @@ namespace CMon.Services
         private readonly IMemoryCache _memoryCache;
         private readonly ICcuGateway _gateway;
         private readonly IMetricFactory _metricFactory;
-        private readonly CcuSettings _settings;
+        private readonly AppOptions _settings;
 
         public DefaultDevicePoller(
             ILogger<DefaultDevicePoller> logger,
-            IOptions<CcuSettings> settings,
+            IOptions<AppOptions> settings,
             IMemoryCache memoryCache,
             ICcuGateway gateway,
             IMetricFactory metricFactory)
@@ -57,24 +57,22 @@ namespace CMon.Services
             
             if (controlPoll?.Status.Code == StatusCode.Ok)
             {
-                _metricFactory.CreateGauge($"ccu_modem_status", "").Set(controlPoll.ControlPoll.ModemStatus);
-                _metricFactory.CreateGauge($"ccu_signal_dbm", "").Set(controlPoll.ControlPoll.Signal.dBm);
-                _metricFactory.CreateGauge($"ccu_signal_percent", "").Set(controlPoll.ControlPoll.Signal.Percent);
-                _metricFactory.CreateGauge($"ccu_signal_strength", "").Set(controlPoll.ControlPoll.Signal.Strength);
+                _metricFactory.CreateGauge("ccu_modem_status", "").Set(controlPoll.ControlPoll.ModemStatus);
+                _metricFactory.CreateGauge("ccu_signal_dbm", "").Set(controlPoll.ControlPoll.Signal.dBm);
+                _metricFactory.CreateGauge("ccu_signal_percent", "").Set(controlPoll.ControlPoll.Signal.Percent);
+                _metricFactory.CreateGauge("ccu_signal_strength", "").Set(controlPoll.ControlPoll.Signal.Strength);
             }
             
             var stateAndEvents = await _gateway.GetStateAndEvents(auth, cancellationToken);
-
-            
             
             if (stateAndEvents?.Status.Code == StatusCode.Ok)
             {
-                _metricFactory.CreateGauge($"ccu_balance", "Баланс").Set(stateAndEvents.Balance);
-                _metricFactory.CreateGauge($"ccu_temp", "Температура основной платы").Set(stateAndEvents.Temp);
-                _metricFactory.CreateGauge($"ccu_case", "Датчик вскрытия корпуса").Set(stateAndEvents.Case);
-                _metricFactory.CreateGauge($"ccu_battery_charge", "Уровень заряда батареи").Set(stateAndEvents.Battery.Charge ?? 0);
-                _metricFactory.CreateGauge($"ccu_battery_state", "Состояние батареи").Set((int)stateAndEvents.Battery.State);
-                _metricFactory.CreateGauge($"ccu_power", "Основное питание").Set(stateAndEvents.Power);
+                _metricFactory.CreateGauge("ccu_balance", "Баланс").Set(stateAndEvents.Balance);
+                _metricFactory.CreateGauge("ccu_temp", "Температура основной платы").Set(stateAndEvents.Temp);
+                _metricFactory.CreateGauge("ccu_case", "Датчик вскрытия корпуса").Set(stateAndEvents.Case);
+                _metricFactory.CreateGauge("ccu_battery_charge", "Уровень заряда батареи").Set(stateAndEvents.Battery.Charge ?? 0);
+                _metricFactory.CreateGauge("ccu_battery_state", "Состояние батареи").Set((int)stateAndEvents.Battery.State);
+                _metricFactory.CreateGauge("ccu_power", "Основное питание").Set(stateAndEvents.Power);
                 
                 var sb = _logger.IsEnabled(LogLevel.Debug) ? new StringBuilder() : null;
                 
@@ -82,7 +80,7 @@ namespace CMon.Services
                 {
                     var input = stateAndEvents.Inputs[i];
                     
-                    var no = i + 1;
+                    var num = i + 1;
                     var name = initial?.InputsSchema?[i];
                     var type = initial?.ProfilesInitial?.Inputs[i].InputType ?? InputType.Rtd03;
                     
@@ -90,20 +88,20 @@ namespace CMon.Services
 
                     if (_logger.IsEnabled(LogLevel.Debug) && sb != null)
                     {
-                        sb.Append($"[{no}] ({type}) {name} - discrete:{input.Voltage}, voltage:{voltage:N2}");
+                        sb.Append($"[{num}] ({type}) {name} - discrete:{input.Voltage}, voltage:{voltage:N2}");
 
                         if (temp.HasValue) sb.Append($", temp:{temp:N2}");
                         
                         sb.AppendLine();    
                     }
                     
-                    _metricFactory.CreateGauge($"ccu_in{no}_active", name + " active").Set(input.Active);
-                    _metricFactory.CreateGauge($"ccu_in{no}_discrete", name + " discrete").Set(input.Voltage);
-                    _metricFactory.CreateGauge($"ccu_in{no}_voltage", name + " voltage").Set((double)voltage);
+                    _metricFactory.CreateGauge($"ccu_in{num}_active", name + " active").Set(input.Active);
+                    _metricFactory.CreateGauge($"ccu_in{num}_discrete", name + " discrete").Set(input.Voltage);
+                    _metricFactory.CreateGauge($"ccu_in{num}_voltage", name + " voltage").Set((double)voltage);
                     
                     if (temp.HasValue)
                     {
-                        _metricFactory.CreateGauge($"ccu_in{no}_temp", name + " temp").Set((double)temp);
+                        _metricFactory.CreateGauge($"ccu_in{num}_temp", name + " temp").Set((double)temp);
                     }
                 }
 
@@ -113,10 +111,10 @@ namespace CMon.Services
                 {
                     var output = stateAndEvents.Outputs[i];
                     
-                    var outputNo = i + 1;
+                    var num = i + 1;
                     var name = initial?.OutputsSchema?[i];
                     
-                    _metricFactory.CreateGauge($"ccu_out{outputNo}_active", name + " active").Set(output);
+                    _metricFactory.CreateGauge($"ccu_out{num}_active", name + " active").Set(output);
                 }
             }
         }

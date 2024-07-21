@@ -13,11 +13,11 @@ namespace CMon.Services
     {
         private readonly ILogger<PollingWorker> _logger;
         private readonly IServiceProvider _serviceProvider;
-        private readonly CcuSettings _settings;
+        private readonly AppOptions _settings;
         
         public PollingWorker(
             ILogger<PollingWorker> logger, 
-            IOptions<CcuSettings> settings, 
+            IOptions<AppOptions> settings, 
             IServiceProvider serviceProvider)
         {
             _logger = logger;

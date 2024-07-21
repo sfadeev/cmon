@@ -44,10 +44,10 @@ namespace CMon.Services
 	public class CcuGateway : ICcuGateway
 	{
 		private readonly ILogger<CcuGateway> _logger;
-		private readonly CcuSettings _settings;
+		private readonly AppOptions _settings;
 		private readonly IHttpClientFactory _httpClientFactory;
 
-		public CcuGateway(ILogger<CcuGateway> logger, IOptions<CcuSettings> settings, IHttpClientFactory httpClientFactory)
+		public CcuGateway(ILogger<CcuGateway> logger, IOptions<AppOptions> settings, IHttpClientFactory httpClientFactory)
 		{
 			_logger = logger;
 			_settings = settings.Value;
