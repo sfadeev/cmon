@@ -12,11 +12,14 @@
 
 		public byte Case { get; set; }
 
-		public float Power { get; set; }
+		/// <summary>
+		/// On | Off
+		/// </summary>
+		public string Power { get; set; }
 
 		public long Temp { get; set; }
 
-		public float Balance { get; set; }
+		public string Balance { get; set; }
 
 		public Event[] Events { get; set; }
 	}

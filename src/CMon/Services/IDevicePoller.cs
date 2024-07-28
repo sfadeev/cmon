@@ -1,4 +1,5 @@
 using System;
+using System.Globalization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -67,12 +68,16 @@ namespace CMon.Services
             
             if (stateAndEvents?.Status.Code == StatusCode.Ok)
             {
-                _metricFactory.CreateGauge("ccu_balance", string.Empty).Set(stateAndEvents.Balance);
+                if (double.TryParse(stateAndEvents.Balance, CultureInfo.InvariantCulture, out var balance))
+                {
+                    _metricFactory.CreateGauge("ccu_balance", string.Empty).Set(balance);     
+                }
+                
                 _metricFactory.CreateGauge("ccu_temp", string.Empty).Set(stateAndEvents.Temp);
                 _metricFactory.CreateGauge("ccu_case", string.Empty).Set(stateAndEvents.Case);
                 _metricFactory.CreateGauge("ccu_battery_charge", string.Empty).Set(stateAndEvents.Battery.Charge ?? 0);
                 _metricFactory.CreateGauge("ccu_battery_state", string.Empty).Set((int)stateAndEvents.Battery.State);
-                _metricFactory.CreateGauge("ccu_power", string.Empty).Set(stateAndEvents.Power);
+                _metricFactory.CreateGauge("ccu_power", string.Empty).Set(stateAndEvents.Power is "On" or "1" ? 1 : 0);
                 
                 var sb = _logger.IsEnabled(LogLevel.Debug) ? new StringBuilder() : null;
                 
