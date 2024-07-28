@@ -68,6 +68,16 @@ namespace CMon.Services
             
             if (stateAndEvents?.Status.Code == StatusCode.Ok)
             {
+                if (double.TryParse(stateAndEvents.Power, CultureInfo.InvariantCulture, out var power))
+                {
+                    _metricFactory.CreateGauge("ccu_power_active", string.Empty).Set(1);
+                    _metricFactory.CreateGauge("ccu_power_voltage", string.Empty).Set(power);
+                }
+                else
+                {
+                    _metricFactory.CreateGauge("ccu_power_active", string.Empty).Set(0);
+                }
+                
                 if (double.TryParse(stateAndEvents.Balance, CultureInfo.InvariantCulture, out var balance))
                 {
                     _metricFactory.CreateGauge("ccu_balance", string.Empty).Set(balance);     
@@ -77,7 +87,6 @@ namespace CMon.Services
                 _metricFactory.CreateGauge("ccu_case", string.Empty).Set(stateAndEvents.Case);
                 _metricFactory.CreateGauge("ccu_battery_charge", string.Empty).Set(stateAndEvents.Battery.Charge ?? 0);
                 _metricFactory.CreateGauge("ccu_battery_state", string.Empty).Set((int)stateAndEvents.Battery.State);
-                _metricFactory.CreateGauge("ccu_power", string.Empty).Set(stateAndEvents.Power is "On" or "1" ? 1 : 0);
                 
                 var sb = _logger.IsEnabled(LogLevel.Debug) ? new StringBuilder() : null;
                 
