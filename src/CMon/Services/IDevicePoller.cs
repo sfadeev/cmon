@@ -49,7 +49,7 @@ namespace CMon.Services
 
             var initial = await _memoryCache.GetOrCreateAsync(nameof(ProfilesInitial), async ce =>
             {
-                ce.SlidingExpiration = TimeSpan.FromMinutes(_settings.CacheMinutes);
+                ce.AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(_settings.CacheMinutes);
 
                 return await _gateway.GetProfilesInitial(auth, cancellationToken);
             });

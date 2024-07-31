@@ -1,5 +1,3 @@
-using System.Linq;
-
 namespace CMon.Models.Ccu
 {
 	public class ControlPoll
@@ -12,7 +10,7 @@ namespace CMon.Models.Ccu
 
 		public int CellMode { get; set; }
 
-		public float[,] In { get; set; }
+		public float[][] In { get; set; }
 
 		public int[] Out { get; set; }
 
@@ -26,12 +24,12 @@ namespace CMon.Models.Ccu
 			{
 				result[i] = new ControlPollInput
 				{
-					InputType = (InputType)In[i, 0],
-					MaxVoltage = (int)In[i, 1],
-					UserMinVal = In[i, 2],
-					UserMaxVal = In[i, 3],
-					RangeType = (int)In[i, 4],
-					Voltage = (int)In[i, 5]
+					InputType = (InputType)In[i][0],
+					MaxVoltage = (int)In[i][1],
+					UserMinVal = In[i][2],
+					UserMaxVal = In[i][3],
+					RangeType = (int)In[i][4],
+					Voltage = (int)In[i][5]
 				};
 			}
 

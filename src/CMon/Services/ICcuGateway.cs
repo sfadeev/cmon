@@ -182,9 +182,9 @@ namespace CMon.Services
 			catch (Exception ex)
 			{
 				_logger.LogError(ex, "{auth} - failed to load {type} from {url}", auth.DebuggerDisplay, typeof(TResult).Name, url);
-			}
 
-			return default;
+				throw;
+			}
 		}
 
 		private string GetCmdUrl(object cmd)

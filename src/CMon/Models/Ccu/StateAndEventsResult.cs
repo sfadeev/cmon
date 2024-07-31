@@ -4,7 +4,7 @@
 	{
 		public Input[] Inputs { get; set; }
 
-		public byte[] Outputs { get; set; }
+		public int[] Outputs { get; set; }
 
 		public string[] Partitions { get; set; }
 

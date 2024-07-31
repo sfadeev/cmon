@@ -26,6 +26,6 @@ namespace CMon.Models.Ccu
 
 		public string ExtBoard { get; set; }
 
-		public string uGuardVerCode { get; set; }
+		public int uGuardVerCode { get; set; }
 	}
 }

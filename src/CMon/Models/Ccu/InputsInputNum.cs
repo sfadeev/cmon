@@ -6,7 +6,7 @@ namespace CMon.Models.Ccu
 
 		public short InputNum { get; set; }
 
-		public bool Enable { get; set; }
+		public int Enable { get; set; }
 
 		public InputType InputType { get; set; }
 
@@ -32,7 +32,7 @@ namespace CMon.Models.Ccu
 
 		public int AlarmsLimitInArmSession { get; set; }
 
-		public bool NoArmWhenActive { get; set; }
+		public int NoArmWhenActive { get; set; }
 
 		public int VoiceCommOnAlarmConn { get; set; }
 
