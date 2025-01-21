@@ -1,4 +1,4 @@
-FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS build
+FROM --platform=$BUILDPLATFORM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
 ARG TARGETARCH
 WORKDIR /source
 
@@ -8,10 +8,10 @@ RUN dotnet restore -a $TARGETARCH
 COPY src/CMon/. .
 RUN dotnet publish --no-restore -a $TARGETARCH -o /app
 
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine
 EXPOSE 8080
 WORKDIR /app
 COPY --from=build /app .
 # Uncomment to enable non-root user
 # USER $APP_UID
-ENTRYPOINT [ "./CMon" ]
+ENTRYPOINT [ "./cmon" ]

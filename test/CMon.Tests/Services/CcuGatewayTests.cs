@@ -20,6 +20,8 @@ namespace CMon.Tests.Services
 		{
 			var builder = new ConfigurationBuilder()
 				.SetBasePath(Directory.GetCurrentDirectory())
+				// ccu passwords for tests stored in user secrets
+				// todo: move to env
 				.AddUserSecrets(typeof(Program).Assembly)
 				.AddEnvironmentVariables();
 
@@ -52,7 +54,7 @@ namespace CMon.Tests.Services
 			var result = await gateway.GetDeviceInfo(invalidAuth);
 
 			// assert
-			Assert.AreEqual(HttpStatusCode.BadRequest, result.HttpStatusCode);
+			Assert.That(HttpStatusCode.BadRequest, Is.EqualTo(result.HttpStatusCode));
 		}
 		
 		[Test]
@@ -65,8 +67,8 @@ namespace CMon.Tests.Services
 			var result = await gateway.GetIndexInitial(AdmAuth);
 
 			// assert
-			Assert.AreEqual(HttpStatusCode.OK, result.HttpStatusCode);
-			Assert.AreEqual(StatusCode.Ok, result.Status.Code);
+			Assert.That(HttpStatusCode.OK, Is.EqualTo(result.HttpStatusCode));
+			Assert.That(StatusCode.Ok, Is.EqualTo(result.Status.Code));
 
 			Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
 		}
@@ -81,8 +83,8 @@ namespace CMon.Tests.Services
 			var result = await gateway.GetControlInitial(AdmAuth);
 
 			// assert
-			Assert.AreEqual(HttpStatusCode.OK, result.HttpStatusCode);
-			Assert.AreEqual(StatusCode.Ok, result.Status.Code);
+			Assert.That(HttpStatusCode.OK, Is.EqualTo(result.HttpStatusCode));
+			Assert.That(StatusCode.Ok, Is.EqualTo(result.Status.Code));
 		}
 
 		[Test]
@@ -95,8 +97,8 @@ namespace CMon.Tests.Services
 			var result = await gateway.GetControlInitial(UsrAuth);
 
 			// assert
-			Assert.AreEqual(HttpStatusCode.OK, result.HttpStatusCode);
-			Assert.AreEqual(StatusCode.InsufficientRights, result.Status.Code);
+			Assert.That(HttpStatusCode.OK, Is.EqualTo(result.HttpStatusCode));
+			Assert.That(StatusCode.InsufficientRights, Is.EqualTo(result.Status.Code));
 		}
 
 		[Test]
@@ -109,12 +111,12 @@ namespace CMon.Tests.Services
 			var result = await gateway.GetControlPoll(AdmAuth);
 
 			// assert
-			Assert.AreEqual(HttpStatusCode.OK, result.HttpStatusCode);
-			Assert.AreEqual(StatusCode.Ok, result.Status.Code);
+			Assert.That(HttpStatusCode.OK, Is.EqualTo(result.HttpStatusCode));
+			Assert.That(StatusCode.Ok, Is.EqualTo(result.Status.Code));
 
 			var inArray = result.ControlPoll.ConvertInArray();
 			
-			Assert.AreEqual(result.ControlPoll.In.GetLength(0), inArray.Length);
+			Assert.That(result.ControlPoll.In.GetLength(0), Is.EqualTo(inArray.Length));
 		}
 
 		[Test]
@@ -127,8 +129,8 @@ namespace CMon.Tests.Services
 			var result = await gateway.GetControlPoll(UsrAuth);
 
 			// assert
-			Assert.AreEqual(HttpStatusCode.OK, result.HttpStatusCode);
-			Assert.AreEqual(StatusCode.InsufficientRights, result.Status.Code);
+			Assert.That(HttpStatusCode.OK, Is.EqualTo(result.HttpStatusCode));
+			Assert.That(StatusCode.InsufficientRights, Is.EqualTo(result.Status.Code));
 		}
 
 		[Test]
@@ -141,8 +143,8 @@ namespace CMon.Tests.Services
 			var result = await gateway.GetInputsInitial(AdmAuth);
 
 			// assert
-			Assert.AreEqual(HttpStatusCode.OK, result.HttpStatusCode);
-			Assert.AreEqual(StatusCode.Ok, result.Status.Code);
+			Assert.That(HttpStatusCode.OK, Is.EqualTo(result.HttpStatusCode));
+			Assert.That(StatusCode.Ok, Is.EqualTo(result.Status.Code));
 		}
 
 		[Test]
@@ -155,8 +157,8 @@ namespace CMon.Tests.Services
 			var result = await gateway.GetInputsPoll(AdmAuth, 0);
 
 			// assert
-			Assert.AreEqual(HttpStatusCode.OK, result.HttpStatusCode);
-			Assert.AreEqual(StatusCode.Ok, result.Status.Code);
+			Assert.That(HttpStatusCode.OK, Is.EqualTo(result.HttpStatusCode));
+			Assert.That(StatusCode.Ok, Is.EqualTo(result.Status.Code));
 		}
 
 		[Test]
@@ -169,8 +171,8 @@ namespace CMon.Tests.Services
 			var result = await gateway.GetInputsInputNum(AdmAuth, 0);
 
 			// assert
-			Assert.AreEqual(HttpStatusCode.OK, result.HttpStatusCode);
-			Assert.AreEqual(StatusCode.Ok, result.Status.Code);
+			Assert.That(HttpStatusCode.OK, Is.EqualTo(result.HttpStatusCode));
+			Assert.That(StatusCode.Ok, Is.EqualTo(result.Status.Code));
 		}
 
 		[Test]
@@ -183,8 +185,8 @@ namespace CMon.Tests.Services
 			var result = await gateway.GetProfilesInitial(AdmAuth);
 
 			// assert
-			Assert.AreEqual(HttpStatusCode.OK, result.HttpStatusCode);
-			Assert.AreEqual(StatusCode.Ok, result.Status.Code);
+			Assert.That(HttpStatusCode.OK, Is.EqualTo(result.HttpStatusCode));
+			Assert.That(StatusCode.Ok, Is.EqualTo(result.Status.Code));
 		}
 
 		[Test]
@@ -197,8 +199,8 @@ namespace CMon.Tests.Services
 			var result = await gateway.GetProfilesProfNum(AdmAuth, 0);
 
 			// assert
-			Assert.AreEqual(HttpStatusCode.OK, result.HttpStatusCode);
-			Assert.AreEqual(StatusCode.Ok, result.Status.Code);
+			Assert.That(HttpStatusCode.OK, Is.EqualTo(result.HttpStatusCode));
+			Assert.That(StatusCode.Ok, Is.EqualTo(result.Status.Code));
 		}
 
 		[Test]
@@ -211,8 +213,8 @@ namespace CMon.Tests.Services
 			var result = await gateway.GetSystemInitial(AdmAuth);
 
 			// assert
-			Assert.AreEqual(HttpStatusCode.OK, result.HttpStatusCode);
-			Assert.AreEqual(StatusCode.Ok, result.Status.Code);
+			Assert.That(HttpStatusCode.OK, Is.EqualTo(result.HttpStatusCode));
+			Assert.That(StatusCode.Ok, Is.EqualTo(result.Status.Code));
 		}
 
 		[Test]
@@ -225,8 +227,8 @@ namespace CMon.Tests.Services
 			var result = await gateway.GetSystemPoll(AdmAuth);
 
 			// assert
-			Assert.AreEqual(HttpStatusCode.OK, result.HttpStatusCode);
-			Assert.AreEqual(StatusCode.Ok, result.Status.Code);
+			Assert.That(HttpStatusCode.OK, Is.EqualTo(result.HttpStatusCode));
+			Assert.That(StatusCode.Ok, Is.EqualTo(result.Status.Code));
 		}
 
 		[Test]
@@ -239,8 +241,8 @@ namespace CMon.Tests.Services
 			var result = await gateway.GetDeviceInfo(UsrAuth);
 
 			// assert
-			Assert.AreEqual(HttpStatusCode.OK, result.HttpStatusCode);
-			Assert.AreEqual(StatusCode.Ok, result.Status.Code);
+			Assert.That(HttpStatusCode.OK, Is.EqualTo(result.HttpStatusCode));
+			Assert.That(StatusCode.Ok, Is.EqualTo(result.Status.Code));
 		}
 
 		[Test]
@@ -253,8 +255,8 @@ namespace CMon.Tests.Services
 			var result = await gateway.GetStateAndEvents(UsrAuth);
 
 			// assert
-			Assert.AreEqual(HttpStatusCode.OK, result.HttpStatusCode);
-			Assert.AreEqual(StatusCode.Ok, result.Status.Code);
+			Assert.That(HttpStatusCode.OK, Is.EqualTo(result.HttpStatusCode));
+			Assert.That(StatusCode.Ok, Is.EqualTo(result.Status.Code));
 		}
 		
 		private static IHttpClientFactory CreateHttpClientFactoryMock()
