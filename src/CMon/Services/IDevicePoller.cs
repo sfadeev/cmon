@@ -56,7 +56,7 @@ namespace CMon.Services
             
             var controlPoll = await _gateway.GetControlPoll(auth, cancellationToken);
             
-            if (controlPoll?.Status.Code == StatusCode.Ok)
+            if (controlPoll?.Status?.Code == StatusCode.Ok)
             {
                 _metricFactory.CreateGauge("ccu_modem_status", string.Empty).Set(controlPoll.ControlPoll.ModemStatus);
                 _metricFactory.CreateGauge("ccu_signal_dbm", string.Empty).Set(controlPoll.ControlPoll.Signal.dBm);
@@ -66,7 +66,7 @@ namespace CMon.Services
             
             var stateAndEvents = await _gateway.GetStateAndEvents(auth, cancellationToken);
             
-            if (stateAndEvents?.Status.Code == StatusCode.Ok)
+            if (stateAndEvents?.Status?.Code == StatusCode.Ok)
             {
                 if (double.TryParse(stateAndEvents.Power, CultureInfo.InvariantCulture, out var power))
                 {
