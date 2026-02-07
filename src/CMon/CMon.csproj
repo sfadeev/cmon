@@ -3,7 +3,7 @@
     <PropertyGroup>
         <AssemblyName>cmon</AssemblyName>
         <AssemblyVersion>0.1</AssemblyVersion>
-        <TargetFramework>net9.0</TargetFramework>
+        <TargetFramework>net10.0</TargetFramework>
         <OutputType>Exe</OutputType>
         <UserSecretsId>cmon</UserSecretsId>
     </PropertyGroup>
