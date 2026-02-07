@@ -150,11 +150,12 @@ namespace CMon.Services
             }
             else if (inputType == InputType.Rtd04)
             {
-                /*temp = -3.03641M * (decimal)Math.Pow((double)voltage, 3) 
+                temp = -3.03641M * (decimal)Math.Pow((double)voltage, 3) 
                     + 25.5916M * (decimal)Math.Pow((double)voltage, 2) 
-                    - 87.9556M * voltage + 120.641M;*/
+                    - 87.9556M * voltage + 120.641M;
 
-                temp = -40.3289M * (decimal)Math.Log(0.28738 * (double)voltage);
+                // wrong convert for output temp
+                // temp = -40.3289M * (decimal)Math.Log(0.28738 * (double)voltage);
             }
         }
     }
